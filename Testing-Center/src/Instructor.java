@@ -1,5 +1,3 @@
-import java.util.List;
-
 /**
  * 
  */
@@ -8,16 +6,15 @@ import java.util.List;
  * @author Daniel
  *
  */
-public class Student {
+public class Instructor {
 
 	private String name;
-	private String netID;
 	private String email;
-	private List<Appointment> appointments;
+	
 	/**
 	 * 
 	 */
-	public Student() {
+	public Instructor() {
 		// TODO Auto-generated constructor stub
 	}
 
