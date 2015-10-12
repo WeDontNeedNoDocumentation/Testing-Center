@@ -1,5 +1,7 @@
 import java.util.Date;
 import java.util.List;
+import org.joda.time.LocalTime;
+import org.joda.time.Period;
 
 /**
  * 
@@ -14,17 +16,17 @@ public class TestingCenter {
 	private List<Day> days;
 	private int numberOfSeats;
 	private int numberOfSetAside;
-	private int open;
-	private int close;
-	private int gap;
-	private int reminderInt;
+	private LocalTime open;
+	private LocalTime close;
+	private Period gap;
+	private Period reminderInt;
 	/**
 	 * 
 	 */
 	
 	public TestingCenter(List<Day> days, int numberOfSeats,
-			int numberOfSetAside, int open, int close, int gap,
-			int reminderInt) {
+			int numberOfSetAside, LocalTime open, LocalTime close, Period gap,
+			Period reminderInt) {
 		this.days = days;
 		this.numberOfSeats = numberOfSeats;
 		this.numberOfSetAside = numberOfSetAside;
