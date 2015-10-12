@@ -1,4 +1,5 @@
 import java.util.Date;
+import org.joda.time.DateTime;
 
 /**
  * 
@@ -11,7 +12,7 @@ import java.util.Date;
 public class TimeSlot {
 
 	private int[] seats;
-	private Date start;
+	private DateTime start;
 	private boolean filled;
 	/**
 	 * 
@@ -20,7 +21,7 @@ public class TimeSlot {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public TimeSlot(int[] seats, Date start, boolean filled) {
+	public TimeSlot(int[] seats, DateTime start, boolean filled) {
 		this.seats = seats;
 		this.start = start;
 		this.filled = filled;
