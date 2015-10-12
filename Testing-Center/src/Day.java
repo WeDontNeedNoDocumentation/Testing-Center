@@ -1,4 +1,5 @@
 import java.util.Date;
+import org.joda.time.DateTime;
 import java.util.List;
 
 /**
@@ -11,7 +12,7 @@ import java.util.List;
  */
 public class Day {
 
-	private Date date;
+	private DateTime date;
 	private boolean open;
 	private List<TimeSlot> timeSlots;
 	/**
@@ -21,7 +22,7 @@ public class Day {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public Day(Date date, boolean open, List<TimeSlot> timeSlots) {
+	public Day(DateTime date, boolean open, List<TimeSlot> timeSlots) {
 		this.date = date;
 		this.open = open;
 		this.timeSlots = timeSlots;
