@@ -1,4 +1,5 @@
 import java.util.Date;
+import java.util.List;
 import java.util.Scanner;
 
 import org.joda.time.LocalTime;
@@ -20,16 +21,28 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+
+		Database.createDatabase();
 		
-TestingCenter tC = new TestingCenter(
-		null,
-		64,
-		0,
-		new LocalTime(8,0),
-		new LocalTime(8,0),
-		new Period(1,0,0,0),
-		new Period(1,0,0,0)
-		);
+		/*
+		 * Test that the database actually works
+		 */
+		Database db = Database.getDatabase();
+		List results = db.query("SHOW DATABASES");
+		for (Object result : results) {
+			System.out.println(result);
+		}
+		
+
+		TestingCenter tC = new TestingCenter(
+				null,
+				64,
+				0,
+				new LocalTime(8,0),
+				new LocalTime(8,0),
+				new Period(1,0,0,0),
+				new Period(1,0,0,0)
+				);
 
 		boolean running = true;
 		while(running) {
