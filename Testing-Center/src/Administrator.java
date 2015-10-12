@@ -22,6 +22,10 @@ public class Administrator {
 		tC.setNumberofSeats(n);
 	}
 	
+	public int viewNumberSeats() {
+		return tC.getNumSeats();
+	}
+	
 	public void editOtherFields() {
 		
 	}

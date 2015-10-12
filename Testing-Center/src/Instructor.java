@@ -10,17 +10,16 @@ public class Instructor {
 
 	private String name;
 	private String email;
+	private TestingCenter tC;
 	
 	/**
 	 * 
 	 */
-	public Instructor() {
-		// TODO Auto-generated constructor stub
-	}
 	
-	public Instructor(String name, String email) {
+	public Instructor(String name, String email, TestingCenter tC) {
 		this.name = name;
 		this.email = email;
+		this.tC = tC;
 	}
 	
 	public void viewExams() {

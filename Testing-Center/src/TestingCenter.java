@@ -91,4 +91,8 @@ public class TestingCenter {
 		// TODO Auto-generated method stub
 		
 	}
+
+	public int getNumSeats() {
+		return numberOfSeats;
+	}
 }
