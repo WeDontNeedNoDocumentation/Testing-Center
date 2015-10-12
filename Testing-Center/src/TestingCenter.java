@@ -14,20 +14,17 @@ public class TestingCenter {
 	private List<Day> days;
 	private int numberOfSeats;
 	private int numberOfSetAside;
-	private Date open;
-	private Date close;
-	private Date gap;
-	private Date reminderInt;
+	private int open;
+	private int close;
+	private int gap;
+	private int reminderInt;
 	/**
 	 * 
 	 */
-	public TestingCenter() {
-		// TODO Auto-generated constructor stub
-	}
-
+	
 	public TestingCenter(List<Day> days, int numberOfSeats,
-			int numberOfSetAside, Date open, Date close, Date gap,
-			Date reminderInt) {
+			int numberOfSetAside, int open, int close, int gap,
+			int reminderInt) {
 		this.days = days;
 		this.numberOfSeats = numberOfSeats;
 		this.numberOfSetAside = numberOfSetAside;
@@ -87,6 +84,11 @@ public class TestingCenter {
 
 	private class Notifier {
 		
+		
+	}
+
+	public void setNumberofSeats(int n) {
+		// TODO Auto-generated method stub
 		
 	}
 }

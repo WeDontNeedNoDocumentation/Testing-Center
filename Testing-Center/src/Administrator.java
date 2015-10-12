@@ -9,19 +9,17 @@
 public class Administrator {
 	private String name;
 	private String email;
+	private TestingCenter tC;
 	
-	public Administrator() {
-		
-	}
-
-	public Administrator(String name, String email) {
+	public Administrator(String name, String email, TestingCenter tC) {
 		super();
 		this.name = name;
 		this.email = email;
+		this.tC = tC;
 	}
 	
-	public void editNumberSeats() {
-		
+	public void editNumberSeats(int n) {
+		tC.setNumberofSeats(n);
 	}
 	
 	public void editOtherFields() {
@@ -33,6 +31,7 @@ public class Administrator {
 	}
 	
 	public void displayUtilization() {
+		
 	}
 	
 	public void viewExams() {
