@@ -26,10 +26,29 @@ public class Administrator {
 		return tC.getNumSeats();
 	}
 	
-	public void editOtherFields() {
-		
+	public void editSetAside(int n) {
+		tC.setSetAside(n);
 	}
 	
+	public int viewSetAside(){
+		return tC.getSetAside();
+	}
+	
+	public void editGapTime(int h, int m){
+		tC.setGapTime(h, m);
+	}
+	
+	public int viewGapTime() {
+		return tC.getGapTime();
+	}
+	
+	public void editReminder(int n) {
+		tC.setReminder(n);
+	}
+	
+	public int viewReminder() {
+		return tC.getReminder();
+	}
 	public void importData() {
 		
 	}
