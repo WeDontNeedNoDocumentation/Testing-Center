@@ -29,7 +29,7 @@ public class AllTests {
 	@Test
 	public void testCreateAppointment() {
 		Student student = new Student("Dan Harel", "dharel", "dan.harel@stonybrook.edu", null);
-		Exam exam = new Exam(1, null, null);
+		Exam exam = new Exam("CSE", null, null);
 		
 		student.makeAppointment(exam, new DateTime(2000,1,1,1,1), 0, 1);
 	}

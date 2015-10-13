@@ -4,15 +4,12 @@ import org.joda.time.DateTime;
 
 public class Exam {
 
-	private int examID;
-	private DateTime start;
-	private DateTime end;
+	protected String examID;
+	protected DateTime start;
+	protected DateTime end;
 	
-	public Exam() {
-		// TODO Auto-generated constructor stub
-	}
 	
-	public Exam(int examID, DateTime start, DateTime end) {
+	public Exam(String examID, DateTime start, DateTime end) {
 		super();
 		this.examID = examID;
 		this.start = start;
@@ -27,8 +24,10 @@ public class Exam {
 		return end;
 	}
 
-	public Object getId() {
-		// TODO Auto-generated method stub
+
+	
+
+	public String getExamID() {
 		return examID;
 	}
 

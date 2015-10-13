@@ -47,8 +47,8 @@ public class Student {
 
 	public void makeAppointment(Exam exam, DateTime time, int seatId, int appointmentId) {
 		String queryString = String.format("INSERT INTO appointment VALUES ("
-				+ "%d, '%s', %d, %d, %d)", 
-				exam.getId(), 
+				+ "'%s', '%s', %d, %d, %d)", 
+				exam.getExamID(), 
 				this.netID, 
 				time.getMillis()/1000,
 				seatId,
@@ -58,12 +58,12 @@ public class Student {
 		db.updateQuery(queryString);
 	}
 	
-	public void cancelAppointment(int examId) {
+	public void cancelAppointment(String examId) {
 		String queryString = String.format("DELETE FROM appointment"
 				+ "WHERE "
 				+ "studentIdA='%s'"
 				+ " AND "
-				+ "examId='%d'",
+				+ "examId='%s'",
 				this.netID,
 				examId
 				);
@@ -79,9 +79,9 @@ public class Student {
 		List<Map<String,Object>> appts = db.query(queryString);
 		for (Map<String,Object> appt : appts) {
 			System.out.println(appt);
-			int examId = (int) appt.get("examId");
+			String examId = (String) appt.get("examId");
 			String netId = (String) appt.get("studentIdA");
-			DateTime time = new DateTime((int) appt.get("dateId")*1000);
+			DateTime time = new DateTime((int) appt.get("dateIdA")*1000);
 			
 			Appointment newAppointment = new Appointment(examId, netId, time);
 			appointments.add(newAppointment);
@@ -102,7 +102,7 @@ public class Student {
 		Student st = new Student();
 		st.netID = "abak";
 		
-		Exam exam = new Exam(1, null, null);
+		Exam exam = new Exam("ex1", null, null);
 		
 		DateTime date = new DateTime(2000,1,1,1,1);
 		
@@ -110,8 +110,9 @@ public class Student {
 		st.makeAppointment(exam, date, 0, 0);
 		
 		List<Appointment> appts = st.viewAppointments();
+		System.out.println(appts);
 		
-		st.cancelAppointment(1);
+		st.cancelAppointment("ex1");
 		
 	}
 
