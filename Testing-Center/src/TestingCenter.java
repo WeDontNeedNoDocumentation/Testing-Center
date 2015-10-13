@@ -1,3 +1,8 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -43,7 +48,12 @@ public class TestingCenter {
 	private LocalTime close;
 	private Period gap;
 	private Period reminderInt;
-	
+	private Database db;
+	/**
+	 * @param db 
+	 * 
+	 */
+
 	public TestingCenter() {
 		this(new ArrayList<Day>(), DEFAULT_SEATS, DEFAULT_SET_ASIDE,
 				DEFAULT_OPEN, DEFAULT_CLOSE, DEFAULT_GAP, 
@@ -60,6 +70,7 @@ public class TestingCenter {
 		this.close = close;
 		this.gap = gap;
 		this.reminderInt = reminderInt;
+		this.db = Database.getDatabase();
 	}
 
 	public static TestingCenter getTestingCenter() {
@@ -103,10 +114,85 @@ public class TestingCenter {
 		
 	}
 	
-	public void updateData() {
+	public boolean updateData() {
+		ArrayList<String> lines = new ArrayList<String>();
 		
+		
+		try {
+			String currentLine;
+			
+			FileReader reader = new FileReader(new File("user.csv"));
+			BufferedReader bReader = new BufferedReader(reader);
+			while ((currentLine = bReader.readLine()) != null){
+				lines.add(currentLine);
+			}
+			bReader.close();
+			for(int i = 1; i < lines.size(); i++) {
+				StringBuilder sb = new StringBuilder("INSERT INTO student VALUES (");
+				sb.append(queryFormat(lines.get(i)));
+				sb.append(");");
+				db.query(sb.toString());
+				//System.out.println(lines.get(i));
+			}
+			
+			lines = new ArrayList<String>();
+			FileReader reader2 = new FileReader(new File("class.csv"));
+			BufferedReader bReader2 = new BufferedReader(reader2);
+			while ((currentLine = bReader2.readLine()) != null){
+				lines.add(currentLine);
+			}
+			bReader2.close();
+			for(int i = 1; i < lines.size(); i++) {
+				StringBuilder sb = new StringBuilder("INSERT INTO course VALUES (");
+				sb.append(queryFormat(lines.get(i)));
+				sb.append(");");
+				db.query(sb.toString());
+				//System.out.println(lines.get(i));
+			}
+			
+			lines = new ArrayList<String>();
+			FileReader reader3 = new FileReader(new File("roster.csv"));
+			BufferedReader bReader3 = new BufferedReader(reader3);
+			while ((currentLine = bReader3.readLine()) != null){
+				lines.add(currentLine);
+			}
+			bReader3.close();
+			for(int i = 1; i < lines.size(); i++) {
+				StringBuilder sb = new StringBuilder("INSERT INTO coursestudent VALUES (");
+				sb.append(queryFormat(lines.get(i)));
+				sb.append(");");
+				db.query(sb.toString());
+				//System.out.println(lines.get(i));
+			}
+			
+			return true;
+			
+		} catch (FileNotFoundException e) {
+			System.out.println("File not found.");
+			return false;
+		} catch (IOException e) {
+			System.out.println("An error occured while reading.");
+			return false;
+		}
 	}
 	
+	private String queryFormat(String line) {
+		String[] words = line.split(",");
+		StringBuilder sb = new StringBuilder("");
+		for(int i = 0; i < words.length;i++) {
+			sb.append("'");
+			words[i] = words[i].replace("'", "''");
+			sb.append(words[i]);
+			sb.append("'");
+			if(i != words.length-1){
+				sb.append(",");
+			}
+		}
+		System.out.println(sb.toString());
+		return sb.toString();
+		
+	}
+		
 	public void sendNotice(String email, Exam exam) {	
 		final String username = "stonybrooktestingcenter@gmail.com";
 		final String password = "testingcenter308";
