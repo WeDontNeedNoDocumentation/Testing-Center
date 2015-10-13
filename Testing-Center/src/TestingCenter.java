@@ -168,7 +168,7 @@ public class TestingCenter {
 		
 		List<OutsideExam> exams = new ArrayList<OutsideExam>();
 		for (Map<String,Object> exam : adHocExams) {
-			String id = (String) exam.get("examId");
+			int id = (int) exam.get("examId");
 			long startMilliseconds = (long) exam.get("start")*1000;
 			long endMilliseconds = (long) exam.get("end")*1000;
 			
@@ -223,6 +223,6 @@ public class TestingCenter {
 	
 	public static void main(String[] args) {
 		TestingCenter tc = new TestingCenter();
-		tc.sendNotice("hareldan95@gmail.com", new Exam("0", new DateTime(1,1,1,1,1), new DateTime(1,1,1,1,1)));
+		tc.sendNotice("hareldan95@gmail.com", new Exam(0, new DateTime(1,1,1,1,1), new DateTime(1,1,1,1,1)));
 	}
 }

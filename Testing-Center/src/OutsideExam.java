@@ -6,7 +6,7 @@ import org.joda.time.DateTime;
  */
 public class OutsideExam extends Exam {
 	
-	public OutsideExam(String id, DateTime dateTime, DateTime dateTime2) {
+	public OutsideExam(int id, DateTime dateTime, DateTime dateTime2) {
 		super(id, dateTime, dateTime2);
 	}
 

@@ -4,7 +4,7 @@ import org.joda.time.DateTime;
 
 public class Exam {
 
-	private String examID;
+	private int examID;
 	private DateTime start;
 	private DateTime end;
 	
@@ -12,7 +12,7 @@ public class Exam {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public Exam(String examID, DateTime start, DateTime end) {
+	public Exam(int examID, DateTime start, DateTime end) {
 		super();
 		this.examID = examID;
 		this.start = start;
@@ -25,6 +25,11 @@ public class Exam {
 	
 	public DateTime getEnd() {
 		return end;
+	}
+
+	public Object getId() {
+		// TODO Auto-generated method stub
+		return examID;
 	}
 
 }
