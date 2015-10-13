@@ -8,6 +8,7 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.Period;
 
@@ -82,7 +83,8 @@ public class Main {
 				//System.out.println(" seats");
 				ad.importData();
 			} else if (option == 2) {
-				Instructor ins = new Instructor("teacher","teacher@help.edu",tC);
+				Instructor ins = new Instructor("teacher","teacher@help.edu",tC,"teacher");
+				//ins.makeExam(null,new DateTime(2000,1,1,8,0),new DateTime(2000,10,1,9,30));
 			} else if (option == 3) {
 				Student stu = new Student("Daniel Myrick","dmyrick","daniel.myrick@stonybrook.edu",null);
 			} else if (option == 4) {

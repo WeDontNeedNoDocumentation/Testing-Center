@@ -16,5 +16,9 @@ public class Appointment
 		StudentNetID = studentNetID;
 		this.time = time;
 	}
+	
+	public String getNetId() {
+		return StudentNetID;
+	}
 
 }

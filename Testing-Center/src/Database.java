@@ -21,8 +21,8 @@ public class Database {
 	
 	private Connection conn;
 
-	private Database() {
-
+	private Database()
+	{
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 		} catch (ClassNotFoundException e) {
