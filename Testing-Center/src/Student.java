@@ -1,6 +1,7 @@
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.mail.Message;
@@ -13,6 +14,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 
 /**
  * 
@@ -43,16 +45,49 @@ public class Student {
 		this.appointments = appointments;
 	}
 
-	public void makeAppointment() {
-		
+	public void makeAppointment(Exam exam, DateTime time, int seatId, int appointmentId) {
+		String queryString = String.format("INSERT INTO appointment VALUES ("
+				+ "%s, '%s', %d, %d, %d)", 
+				exam.getExamID(), 
+				this.netID, 
+				time.getMillis()/1000,
+				seatId,
+				appointmentId
+				);
+		Database db = Database.getDatabase();
+		db.updateQuery(queryString);
 	}
 	
-	public void cancelAppointment() {
-		
+	public void cancelAppointment(int examId) {
+		String queryString = String.format("DELETE FROM appointment"
+				+ "WHERE "
+				+ "studentIdA='%s'"
+				+ " AND "
+				+ "examId='%d'",
+				this.netID,
+				examId
+				);
 	}
 	
-	public void viewAppointments() {
+	public List<Appointment> viewAppointments() {
+		List<Appointment> appointments = new ArrayList<Appointment>();
+		String queryString = String.format("SELECT * FROM appointment "
+				+ "WHERE studentIdA='%s'",
+				this.netID
+				);
+		Database db = Database.getDatabase();
+		List<Map<String,Object>> appts = db.query(queryString);
+		for (Map<String,Object> appt : appts) {
+			System.out.println(appt);
+			int examId = (int) appt.get("examId");
+			String netId = (String) appt.get("studentIdA");
+			DateTime time = new DateTime((int) appt.get("dateId")*1000);
+			
+			Appointment newAppointment = new Appointment(examId, netId, time);
+			appointments.add(newAppointment);
+		}
 		
+		return appointments;
 	}
 	
 	public void checkAvailability() {
@@ -60,6 +95,23 @@ public class Student {
 	}
 	
 	public void viewExams() {
+		
+	}
+	
+	public static void main(String args[]) {
+		Student st = new Student();
+		st.netID = "abak";
+		
+		Exam exam = new Exam("ex1", null, null);
+		
+		DateTime date = new DateTime(2000,1,1,1,1);
+		
+		
+		st.makeAppointment(exam, date, 0, 0);
+		
+		List<Appointment> appts = st.viewAppointments();
+		
+		st.cancelAppointment(1);
 		
 	}
 

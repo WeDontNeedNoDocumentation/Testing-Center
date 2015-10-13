@@ -307,8 +307,4 @@ public class TestingCenter {
 		
 	}
 	
-	public static void main(String[] args) {
-		TestingCenter tc = new TestingCenter();
-		tc.sendNotice("hareldan95@gmail.com", new Exam("0", new DateTime(1,1,1,1,1), new DateTime(1,1,1,1,1)));
-	}
 }
