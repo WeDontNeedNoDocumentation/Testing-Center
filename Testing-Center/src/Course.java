@@ -1,11 +1,12 @@
 import java.util.List;
 
 /**
- * 
+ * This is class contains the information about a course.  An object is created and filled
+ * when course infromation is requested from the database.
  */
 
 /**
- * @author Daniel
+ * @author WdNnD
  *
  */
 public class Course {

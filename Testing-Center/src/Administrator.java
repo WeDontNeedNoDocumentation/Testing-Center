@@ -1,9 +1,10 @@
 /**
- * 
+ * An instance of this class is created when an Administrator logs into the system. The class
+ * provides functions for the Admin to interact with the testing center.
  */
 
 /**
- * @author danharel
+ * @author WdNnD
  *
  */
 public class Administrator {
@@ -18,6 +19,10 @@ public class Administrator {
 		this.tC = tC;
 	}
 	
+	/*
+	 * The following 8 functions allow the admin to edit the testing center information.
+	 * Values are taken from the interface and passed to the testingCenter to make the change.	 * 
+	 */
 	public void editNumberSeats(int n) {
 		tC.setNumberofSeats(n);
 	}
@@ -49,6 +54,10 @@ public class Administrator {
 	public int viewReminder() {
 		return tC.getReminder();
 	}
+	
+	/*
+	 * Gives the testingCenter the command to update the data in the database.
+	 */
 	public void importData() {
 		tC.updateData();
 	}

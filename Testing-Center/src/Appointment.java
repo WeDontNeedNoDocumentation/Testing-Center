@@ -1,6 +1,14 @@
 import java.util.Date;
 import org.joda.time.DateTime;
 
+/**
+ * This class contains all of the information in an appointment for a student to take an exam.
+ */
+
+/**
+ * @autor WdNnD
+ * 
+ */
 public class Appointment {
 
 	private String examID;

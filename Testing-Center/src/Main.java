@@ -12,7 +12,8 @@ import org.joda.time.Period;
 
 
 /**
- * 
+ * This is the master class that creates the testingCenter and the DB class. 
+ * For the time being it is also serving as the base of our text interface in the absence of a GUI.
  */
 
 /**

@@ -22,12 +22,14 @@ import org.joda.time.LocalTime;
 import org.joda.time.Period;
 
 /**
- * 
+ * This class represents all actions of the testing center. Interactions with the database will be made
+ * in this class. Information about the testing center is also stored here. An internal class Notify
+ * will be a separate thread to trigger send Notifications.
  */
 
 /**
- * @author Daniel
- *
+ * @author WdNnD
+ * This class is a Singleton
  */
 public class TestingCenter {
 	
@@ -89,6 +91,12 @@ public class TestingCenter {
 		}
 		return instance;
 	}
+	/*
+	 * (NOTE: Many of these functions have been implemented but their functionality are in a different class 
+	 * for the moment. For the next submission the project will be organized correctly or the design will be
+	 * changed. For Example- makeAppointment is currently being done in Student but at this time it does not
+	 * use checkAvailability().) 
+	 */
 	
 	public void checkAvailability() {
 		
@@ -114,6 +122,11 @@ public class TestingCenter {
 		
 	}
 	
+	/*
+	 * This method reads in the 3 .csv files that were provided to us and then stores that data in the 
+	 * corresponding tables in our data base.
+	 * (NOTE: At the moment the function will try to add an entry even if the Primary Key already exists.)
+	 */
 	public boolean updateData() {
 		ArrayList<String> lines = new ArrayList<String>();
 		
@@ -176,6 +189,10 @@ public class TestingCenter {
 		}
 	}
 	
+	/*
+	 * This internal function was written to take each line from the .csv file and put it into the format
+	 * need for a query.
+	 */
 	private String queryFormat(String line) {
 		String[] words = line.split(",");
 		StringBuilder sb = new StringBuilder("");
@@ -193,6 +210,10 @@ public class TestingCenter {
 		
 	}
 		
+	/*
+	 * This function creates and sends an email reminder to a student for an exam.
+	 * (NOTE: At this time this is not automated.)
+	 */
 	public void sendNotice(String email, Exam exam) {	
 		final String username = "stonybrooktestingcenter@gmail.com";
 		final String password = "testingcenter308";
@@ -248,6 +269,9 @@ public class TestingCenter {
 		
 	}
 	
+	/*
+	 * Returns a list of adHoc exams from the database.
+	 */
 	public List<OutsideExam> getAdHocExams() {
 		Database db = Database.getDatabase();
 		List<Map<String,Object>> adHocExams = db.query("SELECT (examId, localStart, localEnd) FROM exam WHERE boolCourseExam = 0");
@@ -270,6 +294,10 @@ public class TestingCenter {
 		
 	}
 
+	/*
+	 * The following are getters and setters for the testing center information.
+	 */
+	
 	public void setNumberofSeats(int n) {
 		numberOfSeats = n;
 		
