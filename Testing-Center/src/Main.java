@@ -41,8 +41,7 @@ public class Main {
 				new LocalTime(8,0),
 				new LocalTime(8,0),
 				new Period(1,0,0,0),
-				new Period(1,0,0,0),
-				db
+				new Period(1,0,0,0)
 				);
 
 		boolean running = true;

@@ -97,6 +97,7 @@ public class Database {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			System.out.println("Please check your SQL statement");
+			e.printStackTrace();
 		}
 		
 		return results;
