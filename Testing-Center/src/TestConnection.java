@@ -5,6 +5,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 /**
  * Use this class to interface with the database on the command line.
@@ -14,9 +15,12 @@ import java.util.Scanner;
  *
  */
 
+
+
 public class TestConnection {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) 
+	{
 		boolean connectionEstablished = false;
 		
 		System.out.println("-------- MySQL JDBC Connection Testing ------------");

@@ -1,9 +1,12 @@
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.joda.time.LocalTime;
 import org.joda.time.Period;
@@ -19,11 +22,26 @@ import org.joda.time.Period;
  *
  */
 public class Main {
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
+	
+	private static final Logger log = Logger.getLogger(Main.class.getName());
+	
+	public static void main(String[] args) throws SecurityException, IOException
+	{
+//		log.info("Logger Name: "+log.getName());
+//		log.warning("Can cause ArrayIndexOutOfBoundsException");
+//		//An array of size 3
+//		int []a = {1,2,3};
+//		int index = 4;
+//		
+//		log.config("index is set to "+index);
+//		
+//		try
+//		{
+//			System.out.println(a[index]);
+//		}catch(ArrayIndexOutOfBoundsException ex)
+//		{
+//			log.log(Level.SEVERE, "Exception occur", ex);
+//		}
 
 		Database.createDatabase();
 		

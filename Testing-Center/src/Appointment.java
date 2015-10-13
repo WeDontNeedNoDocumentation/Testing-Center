@@ -1,8 +1,8 @@
 import java.util.Date;
 import org.joda.time.DateTime;
 
-public class Appointment {
-
+public class Appointment 
+{
 	private String examID;
 	private String StudentNetID;
 	private DateTime time;
