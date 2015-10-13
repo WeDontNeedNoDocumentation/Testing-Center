@@ -1,7 +1,11 @@
 import org.joda.time.DateTime;
 
 /**
- * @author Daniel
+ * Sub class used for any exam that is not associated with a class. 
+ */
+
+/**
+ * @author WdNnD
  *
  */
 public class OutsideExam extends Exam {

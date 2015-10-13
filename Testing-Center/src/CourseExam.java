@@ -1,11 +1,11 @@
 import org.joda.time.DateTime;
 
 /**
- * 
+ * This is a sub class specific to exams that have a course associated with them.
  */
 
 /**
- * @author Daniel
+ * @author WdNdN
  *
  */
 public class CourseExam extends Exam {

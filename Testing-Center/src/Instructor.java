@@ -5,11 +5,13 @@ import java.util.Map;
 import org.joda.time.DateTime;
 
 /**
- * 
+ * This class represents and Instructor user and provides functionality for the instructor to interact
+ * with the TestingCenter.  In instance of this class will be created on log in with information from
+ * the database.
  */
 
 /**
- * @author Daniel
+ * @author WdNnD
  *
  */
 public class Instructor {
@@ -30,6 +32,10 @@ public class Instructor {
 		this.instructorId = instructorId;
 	}
 	
+	/*
+	 * The instructor receives a list of all exams associated with his ID.
+	 * (NOTE: The internal functionality may be moved later and called by this function.)
+	 */
 	public List<Exam> viewExams() {
 		List<Exam> exams = new ArrayList<Exam>();
 		String queryString = String.format("SELECT * FROM exam "
@@ -50,6 +56,12 @@ public class Instructor {
 		return exams;
 	}
 	
+	/*
+	 * The instructor can make an exam reservation in the database. A query with the relevent information
+	 * is created and sent.
+	 * (NOTE: The internal functionality may be moved later and called by this function.)
+	 * (NOTE: This does not yet check for conflicts.)
+	 */
 	public void makeExam(Exam exam, DateTime start, DateTime end, boolean courseExam, String status) {
 		String queryString = String.format("INSERT INTO exam VALUES ("
 				+ "'%s', %d, %d, %d, '%s', '%s')", 
@@ -68,6 +80,11 @@ public class Instructor {
 		
 	}
 	
+	/*
+	 * The instructor can cancle any exam reservation he has made.
+	 * (NOTE: The internal functionality may be moved later and called by this function.)
+	 * (NOTE: This does not handle an non-existent ID at this time.)
+	 */
 	public void cancelExam(String examId) {
 		String queryString = String.format("DELETE FROM exam"
 				+ " WHERE "

@@ -7,7 +7,7 @@ import java.util.List;
  */
 
 /**
- * @author Daniel
+ * @author WdNnD
  *
  */
 public class Day {

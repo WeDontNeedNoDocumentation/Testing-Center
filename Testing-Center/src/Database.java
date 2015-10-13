@@ -11,6 +11,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+/**
+ * Provides connection to the database and contains functions to send queries to the database.
+ */
+
+/**
+ * 
+ * @author WdNnD
+ * Singleton class
+ */
 public class Database {
 
 	private static Database instance = null;
@@ -72,6 +81,9 @@ public class Database {
 		}
 	}
 
+	/*
+	 * Returns an instance of the DB anywhere in the project
+	 */
 	public static Database getDatabase() {
 		if (instance == null) {
 			instance = new Database();
@@ -83,6 +95,9 @@ public class Database {
 		getDatabase();
 	}
 	
+	/*
+	 * function to send queries and receive the list returned from the DB
+	 */
 	public List<Map<String,Object>> query(String queryString) {
 		List<Map<String,Object>> results = new ArrayList<Map<String,Object>>();
 		ResultSet rs = null;
@@ -109,6 +124,9 @@ public class Database {
 		return results;
 	}
 	
+	/*
+	 * Sends a query to update
+	 */
 	public int updateQuery(String queryString) {
 		int returnVal = 0;
 		PreparedStatement statement;

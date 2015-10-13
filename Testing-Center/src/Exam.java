@@ -1,7 +1,15 @@
 import java.util.Date;
 import org.joda.time.DateTime;
 
+/**
+ * Super class for all exams. Contians basic exam information.
+ */
 
+/**
+ * 
+ * @author WdNnD
+ *
+ */
 public class Exam {
 
 	protected String examID;

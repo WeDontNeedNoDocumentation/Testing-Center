@@ -6,7 +6,7 @@ import org.joda.time.DateTime;
  */
 
 /**
- * @author Daniel
+ * @author WdNnD
  *
  */
 public class TimeSlot {
