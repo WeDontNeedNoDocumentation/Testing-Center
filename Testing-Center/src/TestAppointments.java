@@ -27,8 +27,6 @@ public class TestAppointments {
 		
 		db.updateQuery("INSERT INTO student VALUES ('Dan', 'Harel', 'dharel', 'dan.harel@stonybrook.edu')");
 		db.updateQuery("INSERT INTO instructor VALUES ('sstoller', 'Scott Stoller', 'stoller@cs.stonybrook.edu')");
-		//db.updateQuery("INSERT INTO exam VALUES (1, '', '', '', '', 1, '', '')");
-		//db.updateQuery("INSERT INTO appointment (1, 'dharel', 0, 0, 1)");
 	}
 	
 	@Test
