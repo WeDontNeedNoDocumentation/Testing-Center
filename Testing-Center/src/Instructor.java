@@ -1,3 +1,5 @@
+import org.joda.time.DateTime;
+
 /**
  * 
  */
@@ -26,8 +28,9 @@ public class Instructor {
 		
 	}
 	
-	public void makeExam() {
-		
+	public void makeExam(String ID, DateTime start, DateTime end) {
+		Exam exam = new CourseExam(ID,start,end);
+		tC.makeReservation(exam);
 	}
 	
 	public void viewAvailability() {

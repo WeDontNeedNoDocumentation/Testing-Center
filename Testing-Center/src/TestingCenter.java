@@ -236,7 +236,7 @@ public class TestingCenter {
 		}
 	}
 	
-	public void makeReservation() {
+	public void makeReservation(Exam exam) {
 		
 	}
 	

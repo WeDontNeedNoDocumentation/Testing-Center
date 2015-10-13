@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.Period;
 
@@ -65,6 +66,7 @@ public class Main {
 				ad.importData();
 			} else if (option == 2) {
 				Instructor ins = new Instructor("teacher","teacher@help.edu",tC);
+				ins.makeExam("CSE30801_1158_ex2",new DateTime(2000,1,1,8,0),new DateTime(2000,10,1,9,30));
 			} else if (option == 3) {
 				Student stu = new Student("Daniel Myrick","dmyrick","daniel.myrick@stonybrook.edu",null);
 			} else if (option == 4) {

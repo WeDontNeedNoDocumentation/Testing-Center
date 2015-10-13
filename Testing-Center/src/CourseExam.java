@@ -1,3 +1,5 @@
+import org.joda.time.DateTime;
+
 /**
  * 
  */
@@ -12,8 +14,8 @@ public class CourseExam extends Exam {
 	/**
 	 * 
 	 */
-	public CourseExam() {
-		// TODO Auto-generated constructor stub
+	public CourseExam(String ExamID, DateTime start, DateTime end) {
+		super(ExamID, start, end);
 	}
 
 }
