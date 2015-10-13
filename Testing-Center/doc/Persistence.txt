@@ -1,0 +1,63 @@
+PERSISTENCE:
+
+Each table within the database is listed with the following structure:
+
+Administrator:
+name--int, email--varchar(45), administratorId--varchar(45)
+Primary Key: administratorId
+
+Appointment:
+examIdA--int, studentIdA--varchar(45), dateIdA--int, seatIdA--int, appointmentId--int
+Foreign keys: examIdA references examId from Exam 
+			studentIdA references studentId from Student
+Primary Key: appointmentId
+
+Course (also known as the class table): 
+courseId--varchar(45), subject--varchar(45), catalogNumber--varchar(45), section--varchar(45), instructor--varchar(45)
+Primary Key: courseId 
+
+CourseExam:
+courseIdCE--varchar(45), examIdCE--varchar(45)
+Foreign Keys: courseIdCE references courseId from Course
+		examIdCE references examId from Exam
+Primary Keys: courseIdCE and examIdCE 
+
+CourseInstructor:
+courseIdCI--varchar(45), instructorIdCI--varchar(45)
+Foreign Keys: courseIdCI references courseId from Course
+		instructorIdCI references instructorId from Instructor
+Primary Keys: courseIdCI and instructorIdCI 
+
+CourseStudent (also known as the roster table):
+studentIdCS--varChar(45), courseIdCS--varChar(45)
+ Foreign Keys: courseIdCS references courseId from Course
+		studentIdCS references studentId from Student
+Primary Keys: courseIdCS and studentIdCS
+ 
+Exam:
+examId--varchar(45), start--int, end--int, boolCourseExam--varchar(45), examStatus--varchar(45)
+Primary Key: examId 
+boolCourseExam--> provides a Y/N as to whether this exam is a courseExam
+examStatus--> may be approved, denied or pending
+start-->time this exam begins
+end-->time this exam ends
+
+Instructor: 
+name--varchar(45), email--varchar(45), instructorId--varchar(45)
+Primary Key: instructorId
+ 
+Student (also known as the user table): 
+firstName--varchar(45), lastName--varchar(45), studentId--varchar(45), email--varchar(45)
+Primary Key: studentId
+
+StudentAppointment:
+studentId--varchar(45), appointmentId--int
+Foreign Keys: studentId references studentId from Student
+		appointmentId references appointmentId from Appointment
+Primary Keys: studentId and appointmentId
+ 
+TimeSlots:
+totalTimeOccupied--varchar(45), seatId--int, dateId--int
+Primary Keys: seatId and dateId
+seatId-->refers to the number of a particular seat within the classroom(i.e. for seats 1-50 available, the seatId may be 45)
+dateId-->serves as a UNIX time stamp to specify when a seat will be occupied

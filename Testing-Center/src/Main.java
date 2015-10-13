@@ -59,15 +59,14 @@ public class Main {
 			int option = s.nextInt();
 			if(option == 1) {
 				Administrator ad = new Administrator("admin","admin@help.edu",tC);
-				//System.out.println("New number of Seats:");
-				//ad.editNumberSeats( s.nextInt());
-				//System.out.print("There are now ");
-				//System.out.print(ad.viewNumberSeats());
-				//System.out.println(" seats");
+				System.out.println("New number of Seats:");
+				ad.editNumberSeats( s.nextInt());
+				System.out.print("There are now ");
+				System.out.print(ad.viewNumberSeats());
+				System.out.println(" seats");
 				ad.importData();
 			} else if (option == 2) {
 				Instructor ins = new Instructor("teacher","teacher@help.edu",tC,"teacher");
-				//ins.makeExam(null,new DateTime(2000,1,1,8,0),new DateTime(2000,10,1,9,30));
 			} else if (option == 3) {
 				Student stu = new Student("Daniel Myrick","dmyrick","daniel.myrick@stonybrook.edu",null);
 			} else if (option == 4) {

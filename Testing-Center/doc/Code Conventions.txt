@@ -1,1 +1,3 @@
+CODE CONVENTIONS:
+
 We will follow the Code Conventions for Java referenced in the assignment description.

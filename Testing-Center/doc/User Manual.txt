@@ -1,0 +1,11 @@
+USER MANUAL:
+
+The Eclipse project is located in the src folder.  Normally once imported the server would be started
+by running the main class. However for most of this submission we only have parts of each action functional so
+the only way to run and test these parts is by running the "TestAppointments.java" test class. If Main is 
+run, a text based interface will appear in the console. The user can adjust the number of seats in the testing
+center and then the database will be updated from the 3 files provided(this will run for a few minutes and 
+throw several error since the database has already been filled with these entries). We are sorry that there
+is more that can be easily tested.
+
+There is no client side at this time. 
