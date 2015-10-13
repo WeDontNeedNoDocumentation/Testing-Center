@@ -1,0 +1,42 @@
+testStudentCreateAppointment
+
+Description: Test the student's ability to create an appointment and add it to the database.
+
+Pre-condition: There exists a table named appointment.
+
+Flow of events:
+1) A student object is created.
+2) The student requests a time, seat, and exam for an appointment. 
+3) The appointment is inserted into the database.
+
+Outcome: 
+-A new row is added to the appointment table.
+-There is currently no definition for "failure". The appointment will always be added, potentially seating two users in the same seat if requested.
+
+
+
+testStudentDeleteAppointment
+
+Description: Test the student's ability to delete an appointment that they've made.
+
+Pre-condition: There exists a table named appointment.
+
+Flow of events:
+1) A student object is created.
+2) The student requests to cancel an appointment by appointment ID.
+3) The appointment is removed from the database.
+
+Outcome:
+-The corresponding appointment is removed from the database, if it exists.
+
+
+
+testInstructorCreateExam
+
+Same as testing a student's ability to create an appointment, but for instructors to create an exam.
+
+
+
+testInstructorCancelExam
+
+Same as testing a student's ability to create an appointment, but for instructors to delte an exam.
