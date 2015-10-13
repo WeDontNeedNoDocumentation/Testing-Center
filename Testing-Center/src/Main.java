@@ -1,5 +1,8 @@
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import org.joda.time.LocalTime;
@@ -28,9 +31,11 @@ public class Main {
 		 * Test that the database actually works
 		 */
 		Database db = Database.getDatabase();
-		List results = db.query("SHOW DATABASES");
-		for (Object result : results) {
-			System.out.println(result);
+		List<Map<String,Object>> results = db.query("SHOW DATABASES");
+		for (Map<String, Object> map : results) {
+			for (Object name : map.values()) {
+				System.out.println(name);
+			}
 		}
 		
 

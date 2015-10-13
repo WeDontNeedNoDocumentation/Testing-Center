@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.mail.Message;
@@ -247,8 +248,21 @@ public class TestingCenter {
 		
 	}
 	
-	public void getAdHocExams() {
+	public List<OutsideExam> getAdHocExams() {
+		Database db = Database.getDatabase();
+		List<Map<String,Object>> adHocExams = db.query("SELECT (examId, localStart, localEnd) FROM exam WHERE boolCourseExam = 0");
 		
+		List<OutsideExam> exams = new ArrayList<OutsideExam>();
+		for (Map<String,Object> exam : adHocExams) {
+			String id = (String) exam.get("examId");
+			long startMilliseconds = (long) exam.get("start")*1000;
+			long endMilliseconds = (long) exam.get("end")*1000;
+			
+			OutsideExam newExam = new OutsideExam(id, new DateTime(startMilliseconds), new DateTime(endMilliseconds));
+			exams.add(newExam);
+		}
+		
+		return exams;
 	}
 
 	private class Notifier {
