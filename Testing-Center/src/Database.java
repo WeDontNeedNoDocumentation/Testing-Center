@@ -1,11 +1,14 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Database {
@@ -59,6 +62,7 @@ public class Database {
 			System.out.println("Unable to create SQL statement.");
 			e1.printStackTrace();
 		}
+		
 		try {
 			boolean hasResultSet = statement.execute("USE ssattar");
 		} catch (SQLException e) {
@@ -79,27 +83,42 @@ public class Database {
 		getDatabase();
 	}
 	
-	public List query(String queryString) {
-		List results = new ArrayList();
+	public List<Map<String,Object>> query(String queryString) {
+		List<Map<String,Object>> results = new ArrayList<Map<String,Object>>();
+		ResultSet rs = null;
 		try {
 			Statement statement = conn.createStatement();
-			boolean hasResultSet = statement.execute(queryString);
-			if (hasResultSet) {
-				ResultSet rs = statement.getResultSet();
-				ResultSetMetaData rsmd = rs.getMetaData();
-				int numColumns = rsmd.getColumnCount();
-				while (rs.next()) {
-					for (int i = 0; i < numColumns; i++) {
-						results.add(rs);
-					}
+			rs = statement.executeQuery(queryString);
+			ResultSetMetaData rsmd = rs.getMetaData();
+			int numColumns = rsmd.getColumnCount();
+			while (rs.next()) {
+				Map<String,Object> map = new HashMap<String,Object>();
+				for (int i = 1; i <= numColumns; i++) {
+					map.put(rsmd.getColumnName(i), rs.getObject(i));
 				}
+				results.add(map);
 			}
+
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			System.out.println("Please check your SQL statement");
+			System.out.println("Query string: " + queryString);
+			e.printStackTrace();
 		}
-		
 		return results;
+	}
+	
+	public int updateQuery(String queryString) {
+		int returnVal = 0;
+		PreparedStatement statement;
+		try {
+			statement = conn.prepareStatement(queryString);
+			returnVal = statement.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return returnVal;
 	}
 
 }

@@ -1,6 +1,4 @@
-/**
- * 
- */
+import org.joda.time.DateTime;
 
 /**
  * @author Daniel
@@ -8,13 +6,10 @@
  */
 public class OutsideExam extends Exam {
 	
-	private String organization;
-	
-	/**
-	 * 
-	 */
-	public OutsideExam() {
-		// TODO Auto-generated constructor stub
+	public OutsideExam(String id, DateTime dateTime, DateTime dateTime2) {
+		super(id, dateTime, dateTime2);
 	}
+
+	private String organization;
 
 }
