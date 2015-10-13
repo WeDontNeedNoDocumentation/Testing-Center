@@ -24,6 +24,16 @@ import org.joda.time.Period;
  *
  */
 public class TestingCenter {
+	
+	private static TestingCenter instance = null;
+	
+	private static final int DEFAULT_SEATS = 64;
+	private static final int DEFAULT_SET_ASIDE = 0;
+	private static final LocalTime DEFAULT_OPEN = new LocalTime(8,0);
+	private static final LocalTime DEFAULT_CLOSE = new LocalTime(8,0);
+	private static final Period DEFAULT_GAP = new Period(1,0,0,0);
+	private static final Period DEFAULT_REMINDER_INTERVAL = new Period(1,0,0,0);
+	
 
 	private List<Day> days;
 	private int numberOfSeats;
@@ -34,15 +44,14 @@ public class TestingCenter {
 	private Period reminderInt;
 	
 	public TestingCenter() {
-		
+		this(new ArrayList<Day>(), DEFAULT_SEATS, DEFAULT_SET_ASIDE,
+				DEFAULT_OPEN, DEFAULT_CLOSE, DEFAULT_GAP, 
+				DEFAULT_REMINDER_INTERVAL);
 	}
 	
-	/**
-	 * 
-	 */
-	public TestingCenter(List<Day> days, int numberOfSeats,
-			int numberOfSetAside, LocalTime open, LocalTime close, Period gap,
-			Period reminderInt) {
+	public TestingCenter(List<Day> days, int numberOfSeats, int numberOfSetAside, LocalTime open, LocalTime close,
+			Period gap, Period reminderInt) {
+		super();
 		this.days = days;
 		this.numberOfSeats = numberOfSeats;
 		this.numberOfSetAside = numberOfSetAside;
@@ -50,6 +59,23 @@ public class TestingCenter {
 		this.close = close;
 		this.gap = gap;
 		this.reminderInt = reminderInt;
+	}
+
+	public static TestingCenter getTestingCenter() {
+		if (instance == null) {
+			instance = new TestingCenter();
+		}
+		return instance;
+	}
+	
+	public static TestingCenter getTestingCenter(List<Day> days, int numberOfSeats, int numberOfSetAside, LocalTime open, LocalTime close,
+			Period gap, Period reminderInt) {
+		if (instance == null) {
+			instance = new TestingCenter(days, numberOfSeats, numberOfSetAside,
+					open, close, gap, reminderInt
+					);
+		}
+		return instance;
 	}
 	
 	public void checkAvailability() {
