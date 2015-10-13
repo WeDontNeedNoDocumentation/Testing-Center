@@ -50,7 +50,7 @@ public class Administrator {
 		return tC.getReminder();
 	}
 	public void importData() {
-		
+		tC.updateData();
 	}
 	
 	public void displayUtilization() {
