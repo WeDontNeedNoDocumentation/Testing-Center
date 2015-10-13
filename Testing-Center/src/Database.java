@@ -12,6 +12,10 @@ public class Database {
 
 	private static Database instance = null;
 	
+	private final String HOST = "jdbc:mysql://mysql2.cs.stonybrook.edu:3306/ssattar";
+	private final String USERNAME = "ssattar";
+	private final String PASSWORD = "108862829";
+	
 	private Connection conn;
 
 	private Database() {
@@ -28,7 +32,7 @@ public class Database {
 		Connection conn = null;
 
 		try {
-			conn = DriverManager.getConnection("jdbc:mysql://mysql2.cs.stonybrook.edu:3306/ssattar","ssattar", "108862829");
+			conn = DriverManager.getConnection(HOST, USERNAME, PASSWORD);
 
 		} catch (SQLException e) {
 			System.out.println("Connection Failed! Check output console");
@@ -86,7 +90,7 @@ public class Database {
 				int numColumns = rsmd.getColumnCount();
 				while (rs.next()) {
 					for (int i = 0; i < numColumns; i++) {
-						results.add(rs.getString(i+1));
+						results.add(rs);
 					}
 				}
 			}
