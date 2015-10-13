@@ -97,4 +97,32 @@ public class TestingCenter {
 	public int getNumSeats() {
 		return numberOfSeats;
 	}
+
+	public void setSetAside(int n) {
+		numberOfSetAside = n;
+		
+	}
+	
+	public int getSetAside() {
+		return numberOfSetAside;
+	}
+
+	public void setGapTime(int h, int m) {
+		gap = new Period(h,0,0,0);
+		
+	}
+
+	public int getGapTime() {
+		return gap.getHours();
+	}
+
+	public void setReminder(int h) {
+		reminderInt = new Period(h,0,0,0);
+		
+	}
+
+	public int getReminder() {
+		return reminderInt.getHours();
+		
+	}
 }
