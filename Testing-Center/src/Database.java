@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import com.mysql.jdbc.CommunicationsException;
+
 /**
  * Provides connection to the database and contains functions to send queries to the database.
  */
@@ -46,10 +48,14 @@ public class Database {
 		try {
 			conn = DriverManager.getConnection(HOST, USERNAME, PASSWORD);
 
-		} catch (SQLException e) {
-			System.out.println("Connection Failed! Check output console");
+		}
+		catch (CommunicationsException e) {
+			System.out.println("Connectoin Failed! Could not establish connection with server. Please make sure your internet connection is valid and that the server is active, as well as the output console for any further unformation.");
 			e.printStackTrace();
 			return;
+		}
+		catch (SQLException e) {
+			System.out.println("Connection Failed! Check output console");
 		}
 		try {
 			if (conn != null) {
