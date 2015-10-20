@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -42,7 +43,8 @@ public class TestingCenter {
 	private static final Period DEFAULT_GAP = new Period(1,0,0,0);
 	private static final Period DEFAULT_REMINDER_INTERVAL = new Period(1,0,0,0);
 	
-
+	private static final Logger LOGGER = Logger.getLogger(TestingCenter.class.getName());
+	
 	private List<Day> days;
 	private int numberOfSeats;
 	private int numberOfSetAside;

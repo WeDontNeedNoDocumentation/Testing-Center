@@ -16,6 +16,11 @@ import java.util.Scanner;
  */
 
 /**
+ * HOW TO USE:
+ * Database db = Database.getDatabase()
+ * This will retrieve the instance of the Database that is currently running.
+ * Use db.query() for queries that return results (ex: SELECT * FROM...)
+ * Use db.updateQuery() for queries that do not return results (ex: INSERT INTO...)
  * 
  * @author WdNnD
  * Singleton class
@@ -30,8 +35,8 @@ public class Database {
 	
 	private Connection conn;
 
-	private Database() {
-
+	private Database()
+	{
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 		} catch (ClassNotFoundException e) {

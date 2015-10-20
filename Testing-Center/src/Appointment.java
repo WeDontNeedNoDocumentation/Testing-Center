@@ -1,6 +1,9 @@
 import java.util.Date;
 import org.joda.time.DateTime;
 
+
+public class Appointment 
+{
 /**
  * This class contains all of the information in an appointment for a student to take an exam.
  */
@@ -9,7 +12,6 @@ import org.joda.time.DateTime;
  * @autor WdNnD
  * 
  */
-public class Appointment {
 
 	private String examID;
 	private String StudentNetID;

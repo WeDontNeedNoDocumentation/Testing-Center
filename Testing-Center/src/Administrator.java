@@ -1,3 +1,5 @@
+import java.util.logging.Logger;
+
 /**
  * An instance of this class is created when an Administrator logs into the system. The class
  * provides functions for the Admin to interact with the testing center.
