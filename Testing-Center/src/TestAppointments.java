@@ -5,8 +5,11 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TestAppointments {
 	
 	private static Database db;
@@ -30,7 +33,7 @@ public class TestAppointments {
 	}
 	
 	@Test
-	public void testStudentCreateAppointment() {
+	public void AtestStudentCreateAppointment() {
 		Student student = new Student("Dan Harel", "dharel", "dan.harel@stonybrook.edu", null);
 		Exam exam = new Exam("CSE", null, null);
 		
@@ -41,7 +44,7 @@ public class TestAppointments {
 	}
 	
 	@Test
-	public void testStudentDeleteAppointment() {
+	public void BtestStudentDeleteAppointment() {
 		Student student = new Student("Dan Harel", "dharel", "dan.harel@stonybrook.edu", null);
 		
 		student.cancelAppointment("CSE");
@@ -51,7 +54,7 @@ public class TestAppointments {
 	}
 	
 	@Test
-	public void testInstructorCreateAppointment() {
+	public void CtestInstructorCreateAppointment() {
 		Instructor inst = new Instructor("Scott Stoller", "stoller@cs.stonybrook.edu", tc, "sstoller");
 		Exam exam = new Exam("CSE", null, null);
 		
@@ -62,7 +65,7 @@ public class TestAppointments {
 	}
 	
 	@Test
-	public void testInstructorCancelExam() {
+	public void DtestInstructorCancelExam() {
 		Instructor inst = new Instructor("Stoller", "stoller@cs.stonybrook.edu", tc, "sstoller");
 		
 		inst.cancelExam("CSE");
