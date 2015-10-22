@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -42,7 +43,8 @@ public class TestingCenter {
 	private static final Period DEFAULT_GAP = new Period(1,0,0,0);
 	private static final Period DEFAULT_REMINDER_INTERVAL = new Period(1,0,0,0);
 	
-
+	private static final Logger LOGGER = Logger.getLogger(TestingCenter.class.getName());
+	
 	private List<Day> days;
 	private int numberOfSeats;
 	private int numberOfSetAside;
@@ -98,26 +100,63 @@ public class TestingCenter {
 	 * use checkAvailability().) 
 	 */
 	
-	public void checkAvailability() {
+	public synchronized void checkAvailability() {
 		
 	}
 	
-	public void makeAppointment() {
-		
+	public synchronized void makeAppointment(Exam exam, DateTime time, int seatId, int appointmentId, String netID) {
+		String queryString = String.format("INSERT INTO appointment VALUES ("
+				+ "'%s', '%s', %d, %d, %d)", 
+				exam.getExamID(), 
+				netID, 
+				time.getMillis()/1000,
+				seatId,
+				appointmentId
+				);
+		db.updateQuery(queryString);
 	}
 	
 	public void checkAppointment() {
 		
 	}
 	
+	public synchronized void cancelAppointment(String examId, String netID) {
+		String queryString = String.format("DELETE FROM appointment "
+				+ "WHERE "
+				+ "studentIdA='%s'"
+				+ " AND "
+				+ "examId='%s'",
+				netID,
+				examId
+				);
+		db.updateQuery(queryString);
+	}
+	
+	public List<Appointment> showAppointments(String netID) {
+		List<Appointment> appointments = new ArrayList<Appointment>();
+		String queryString = String.format("SELECT * FROM appointment "
+				+ "WHERE studentIdA='%s'",
+				netID
+				);
+		List<Map<String,Object>> appts = db.query(queryString);
+		for (Map<String,Object> appt : appts) {
+			System.out.println(appt);
+			String examId = (String) appt.get("examId");
+			String netId = (String) appt.get("studentIdA");
+			DateTime time = new DateTime((int) appt.get("dateIdA")*1000);
+			
+			Appointment newAppointment = new Appointment(examId, netId, time);
+			appointments.add(newAppointment);
+		}
+		
+		return appointments;
+	}
+	
 	public void produceStats() {
 		
 	}
 	
-	public void showAppointments() {
 		
-	}
-	
 	public void blockDay() {
 		
 	}
@@ -257,16 +296,52 @@ public class TestingCenter {
 		}
 	}
 	
-	public void makeReservation(Exam exam) {
-		
+	public synchronized void makeReservation(Exam exam, DateTime start, DateTime end, boolean courseExam, String status,String instructorId) {
+		String queryString = String.format("INSERT INTO exam VALUES ("
+				+ "'%s', %d, %d, %d, '%s', '%s')", 
+				exam.getExamID(), 
+				start.getMillis()/1000,
+				end.getMillis()/1000,
+				courseExam ? 0 : 1,
+				status,
+				instructorId
+				);
+		db.updateQuery(queryString);
 	}
 	
 	public void getUpcoming() {
 		
 	}
 	
-	public void getInstructorExams() {
+	public synchronized void cancelExam(String examId, String instructorId){
+		String queryString = String.format("DELETE FROM exam"
+				+ " WHERE "
+				+ "instructorId='%s'"
+				+ " AND "
+				+ "examId='%s'",
+				instructorId,
+				examId
+				);
+		db.updateQuery(queryString);
 		
+	}
+	public List<Exam> getInstructorExams() {
+		List<Exam> exams = new ArrayList<Exam>();
+		String queryString = String.format("SELECT * FROM exam "
+				+ "INNER JOIN instructor ON exam.instructorId=instructor.instructorId"
+				);
+		List<Map<String,Object>> examList = db.query(queryString);
+		for (Map<String,Object> exam : examList) {
+			System.out.println(exam);
+			String examId = (String) exam.get("examId");
+			DateTime start = new DateTime((int) exam.get("start")*1000);
+			DateTime end = new DateTime((int) exam.get("end")*1000);
+			
+			Exam newExam = new Exam(examId, start, end);
+			exams.add(newExam);
+		}
+		
+		return exams;
 	}
 	
 	/*

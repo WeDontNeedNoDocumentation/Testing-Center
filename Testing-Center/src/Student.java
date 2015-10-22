@@ -31,6 +31,7 @@ public class Student {
 	private String netID;
 	private String email;
 	private List<Appointment> appointments;
+	private TestingCenter tC;
 	/**
 	 * 
 	 */
@@ -44,67 +45,32 @@ public class Student {
 		this.netID = netID;
 		this.email = email;
 		this.appointments = appointments;
+		tC = TestingCenter.getTestingCenter();
 	}
 
 	/*
 	 * This is used to create an exam appointment for a specific exam.
-	 * (NOTE: The internal functionality may be moved later and called by this function.)
 	 * (NOTE: At this time no checks are made to see if this appointment is in any way valid.)
 	 */
 	public void makeAppointment(Exam exam, DateTime time, int seatId, int appointmentId) {
-		String queryString = String.format("INSERT INTO appointment VALUES ("
-				+ "'%s', '%s', %d, %d, %d)", 
-				exam.getExamID(), 
-				this.netID, 
-				time.getMillis()/1000,
-				seatId,
-				appointmentId
-				);
-		Database db = Database.getDatabase();
-		db.updateQuery(queryString);
+		tC.makeAppointment(exam, time, appointmentId, appointmentId, netID);
 	}
 	
 	/*
 	 * Will cancel this students appointment for the exam specified.
-	 * (NOTE: The internal functionality may be moved later and called by this function.)
 	 * (NOTE: This does not check to see if the appointment exists first. Will require the calling of
 	 * view in the future.)
 	 */
 	public void cancelAppointment(String examId) {
-		String queryString = String.format("DELETE FROM appointment"
-				+ "WHERE "
-				+ "studentIdA='%s'"
-				+ " AND "
-				+ "examId='%s'",
-				this.netID,
-				examId
-				);
+		tC.cancelAppointment(examId, netID);
 	}
 	
 	/*
 	 * When called, returns a list of appointments associated with the student.
-	 * (NOTE: The internal functionality may be moved later and called by this function.)
 	 * (NOTE: Later this will be required to be called before canceling.)
 	 */
 	public List<Appointment> viewAppointments() {
-		List<Appointment> appointments = new ArrayList<Appointment>();
-		String queryString = String.format("SELECT * FROM appointment "
-				+ "WHERE studentIdA='%s'",
-				this.netID
-				);
-		Database db = Database.getDatabase();
-		List<Map<String,Object>> appts = db.query(queryString);
-		for (Map<String,Object> appt : appts) {
-			System.out.println(appt);
-			String examId = (String) appt.get("examId");
-			String netId = (String) appt.get("studentIdA");
-			DateTime time = new DateTime((int) appt.get("dateIdA")*1000);
-			
-			Appointment newAppointment = new Appointment(examId, netId, time);
-			appointments.add(newAppointment);
-		}
-		
-		return appointments;
+		return tC.showAppointments(netID);
 	}
 	
 	public void checkAvailability() {
