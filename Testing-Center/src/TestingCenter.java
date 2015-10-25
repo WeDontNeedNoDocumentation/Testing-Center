@@ -393,7 +393,6 @@ public class TestingCenter {
 	}
 	
 	public List<Exam> getPendingExams() {
-		Database db = Database.getDatabase();
 		List<Map<String,Object>> exams = db.query(
 				String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId "
 				+ "FROM exam "
@@ -476,6 +475,35 @@ public class TestingCenter {
 				);
 		
 		db.updateQuery(queryString);
+	}
+	
+	public int checkIn(String netID) {
+		DateTime now = DateTime.now();
+		DateTime thirty = new DateTime(0,1,1,0,30);
+		long nowM= now.getMillisOfDay()/60000;
+		nowM = nowM %(60);
+		long thirtyM = thirty.getMillisOfDay()/60000;
+		DateTime search = null;
+		if (nowM>thirtyM) {
+			search = now.hourOfDay().roundHalfEvenCopy();
+		} else {
+			search = now.hourOfDay().roundFloorCopy();
+			search = search.withMinuteOfHour(30);
+		}
+		List<Map<String,Object>> appointments = db.query(
+				String.format("SELECT examIdA, studentIdA, dateIdA, seatIdA, appointmentID "
+				+ "FROM appointment "
+				+ "WHERE studentIDA = '%s' AND dateIdA = '%d'",
+				netID,
+				search.getMillis()/1000
+				));
+		int seat = -1;
+		for (Map<String,Object> appointment : appointments) {	
+		
+			seat =  (int)appointment.get("seatIdA");
+		}
+		
+		return seat;
 	}
 	
 }

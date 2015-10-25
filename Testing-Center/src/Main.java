@@ -77,16 +77,26 @@ public class Main {
 			int option = s.nextInt();
 			if(option == 1) {
 				Administrator ad = new Administrator("admin","admin@help.edu",tC);
-				System.out.println("New number of Seats:");
-				ad.editNumberSeats( s.nextInt());
-				System.out.print("There are now ");
-				System.out.print(ad.viewNumberSeats());
-				System.out.println(" seats");
+				System.out.println("Pick a user type:");
+				System.out.println("1) import 2) checkin");
+				s = new Scanner(System.in);
+				option = s.nextInt();
+				if(option == 1) {
 				ad.importData();
+				} else if (option == 2) {
+					System.out.println(ad.checkInStudent("a"));
+				}
+				
 			} else if (option == 2) {
-				Instructor ins = new Instructor("teacher","teacher@help.edu",tC,"teacher");
+				Instructor inst = new Instructor("Scott Stoller", "stoller@cs.stonybrook.edu", tC, "sstoller");
+				Exam exam = new Exam("CSE", null, null);
+				
+				inst.makeExam(exam, new DateTime(2000,1,1,1,1), new DateTime(2000,1,1,1,2), true);
 			} else if (option == 3) {
-				Student stu = new Student("Daniel Myrick","dmyrick","daniel.myrick@stonybrook.edu",null);
+				Student student = new Student("Anvika .", "a", "a@example.com", null);
+				Exam exam = new Exam("CSE", null, null);
+				
+				student.makeAppointment(exam, new DateTime(2015,10,25,19,0), 7, 1);
 			} else if (option == 4) {
 				running = false;
 			}

@@ -113,7 +113,7 @@ public class Administrator {
 		
 	}
 	
-	public void checkInStudent() {
-		
+	public int checkInStudent(String netID) {
+		return tC.checkIn(netID);
 	}
 }

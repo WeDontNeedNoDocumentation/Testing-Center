@@ -53,7 +53,7 @@ public class Student {
 	 * (NOTE: At this time no checks are made to see if this appointment is in any way valid.)
 	 */
 	public void makeAppointment(Exam exam, DateTime time, int seatId, int appointmentId) {
-		tC.makeAppointment(exam, time, appointmentId, appointmentId, netID);
+		tC.makeAppointment(exam, time, seatId, appointmentId, netID);
 	}
 	
 	/*
