@@ -37,7 +37,7 @@ public class Instructor {
 	 * (NOTE: The internal functionality may be moved later and called by this function.)
 	 */
 	public List<Exam> viewExams() {
-		return tC.getInstructorExams();
+		return tC.getInstructorExams(this.instructorId);
 		
 	}
 	
@@ -46,8 +46,8 @@ public class Instructor {
 	 * is created and sent.
 	 * (NOTE: This does not yet check for conflicts.)
 	 */
-	public void makeExam(Exam exam, DateTime start, DateTime end, boolean courseExam, String status) {
-		tC.makeReservation(exam, start, end, courseExam, status, this.instructorId);
+	public void makeExam(Exam exam, DateTime start, DateTime end, boolean courseExam) {
+		tC.makeReservation(exam, start, end, courseExam, this.instructorId);
 	}
 	
 	public void viewAvailability() {

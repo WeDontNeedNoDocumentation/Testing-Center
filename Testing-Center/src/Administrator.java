@@ -1,3 +1,4 @@
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -68,12 +69,28 @@ public class Administrator {
 		
 	}
 	
-	public void viewExams() {
-		
+	public List<Exam> viewExams() {
+		TestingCenter tc = TestingCenter.getTestingCenter();
+		return tc.getAllExams();
 	}
 	
-	public void approveDenyExam() {
-		
+	public List<Exam> viewPendingExams() {
+		TestingCenter tc = TestingCenter.getTestingCenter();
+		return tc.getPendingExams();
+	}
+	
+	/**
+	 * 
+	 * @param examId	ID of the exam
+	 * @param newStatus	Must be either "A" for ACCEPT or "D" for DENY
+	 */
+	public void approveDenyExam(String examId, String newStatus) {
+		TestingCenter tc = TestingCenter.getTestingCenter();
+		tc.setExamStatus(examId, newStatus);
+	}
+	
+	public void approveDenyExam(Exam exam, String newStatus) {
+		approveDenyExam(exam.getExamID(), newStatus);
 	}
 	
 	public void generateReport() {

@@ -10,8 +10,12 @@ import org.joda.time.DateTime;
  */
 public class OutsideExam extends Exam {
 	
-	public OutsideExam(String id, DateTime dateTime, DateTime dateTime2) {
-		super(id, dateTime, dateTime2);
+	public OutsideExam(String id, DateTime start, DateTime end, String status) {
+		super(id, start, end, status);
+	}
+
+	public OutsideExam(String id, long start, long end, String status) {
+		this(id, new DateTime(start), new DateTime(end), status);
 	}
 
 	private String organization;

@@ -10,12 +10,20 @@ import org.joda.time.DateTime;
  */
 public class CourseExam extends Exam {
 	
-	private Instructor instrucor;
+	private String instructorId;
+	private Instructor instructor;
 	/**
 	 * 
 	 */
-	public CourseExam(String ExamID, DateTime start, DateTime end) {
-		super(ExamID, start, end);
+	public CourseExam(String ExamID, DateTime start, DateTime end, String status, String instructorId) {
+		super(ExamID, start, end, status);
+		this.instructorId = instructorId;
 	}
+	
+	public CourseExam(String ExamID, long start, long end, String status, String instructorId) {
+		this(ExamID, new DateTime(start), new DateTime(end), status, instructorId);
+	}
+	
+	
 
 }

@@ -58,14 +58,31 @@ public class TestAppointments {
 		Instructor inst = new Instructor("Scott Stoller", "stoller@cs.stonybrook.edu", tc, "sstoller");
 		Exam exam = new Exam("CSE", null, null);
 		
-		inst.makeExam(exam, new DateTime(2000,1,1,1,1), new DateTime(2000,1,1,1,2), true, "PENDING");
+		inst.makeExam(exam, new DateTime(2000,1,1,1,1), new DateTime(2000,1,1,1,2), true);
 		
 		List<Exam> exams = inst.viewExams();
 		assertEquals("CSE", exams.get(0).getExamID());
 	}
 	
 	@Test
-	public void DtestInstructorCancelExam() {
+	public void DtestViewPendingExams() {
+		Administrator admin = new Administrator(null, null, null);
+		
+		List<Exam> exams = admin.viewPendingExams();
+		assertEquals(1, exams.size());
+	}
+	
+	@Test
+	public void EtestAcceptExam() {
+		Administrator admin = new Administrator(null, null, null);
+		admin.approveDenyExam("CSE", "A");
+		
+		List<Exam> exams = admin.viewPendingExams();
+		assertEquals(0, exams.size());
+	}
+	
+	@Test
+	public void FtestInstructorCancelExam() {
 		Instructor inst = new Instructor("Stoller", "stoller@cs.stonybrook.edu", tc, "sstoller");
 		
 		inst.cancelExam("CSE");

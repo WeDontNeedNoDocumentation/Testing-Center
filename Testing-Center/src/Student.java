@@ -81,6 +81,7 @@ public class Student {
 		
 	}
 	
+	/*
 	public static void main(String args[]) {
 		Student st = new Student();
 		st.netID = "abak";
@@ -98,5 +99,6 @@ public class Student {
 		st.cancelAppointment("ex1");
 		
 	}
+	*/
 
 }

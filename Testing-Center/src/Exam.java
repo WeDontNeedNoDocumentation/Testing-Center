@@ -15,13 +15,22 @@ public class Exam {
 	protected String examID;
 	protected DateTime start;
 	protected DateTime end;
-	
+	protected String status;
 	
 	public Exam(String examID, DateTime start, DateTime end) {
 		super();
 		this.examID = examID;
 		this.start = start;
 		this.end = end;
+		this.status = "P";
+	}
+	
+	public Exam(String examID, DateTime start, DateTime end, String status) {
+		super();
+		this.examID = examID;
+		this.start = start;
+		this.end = end;
+		this.status = status;
 	}
 
 	public DateTime getStart() {
@@ -31,9 +40,6 @@ public class Exam {
 	public DateTime getEnd() {
 		return end;
 	}
-
-
-	
 
 	public String getExamID() {
 		return examID;
