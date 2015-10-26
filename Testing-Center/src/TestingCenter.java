@@ -116,18 +116,11 @@ public class TestingCenter {
 		db.updateQuery(queryString);
 	}
 	
-	public void checkAppointment() {
-		
-	}
-	
-	public synchronized void cancelAppointment(String examId, String netID) {
+	public synchronized void cancelAppointment(int appID) {
 		String queryString = String.format("DELETE FROM appointment "
 				+ "WHERE "
-				+ "studentIdA='%s'"
-				+ " AND "
-				+ "examId='%s'",
-				netID,
-				examId
+				+ "appointmentId='%d'",
+				appID
 				);
 		db.updateQuery(queryString);
 	}
@@ -152,15 +145,143 @@ public class TestingCenter {
 		return appointments;
 	}
 	
-	public void produceStats() {
+	public List<Appointment> viewAllAppointments() {
+		List<Appointment> appointments = new ArrayList<Appointment>();
+		String queryString = String.format("SELECT * FROM appointment "	);
+		List<Map<String,Object>> appts = db.query(queryString);
+		for (Map<String,Object> appt : appts) {
+			System.out.println(appt);
+			String examId = (String) appt.get("examId");
+			String netId = (String) appt.get("studentIdA");
+			DateTime time = new DateTime((int) appt.get("dateIdA")*1000);
+			
+			Appointment newAppointment = new Appointment(examId, netId, time);
+			appointments.add(newAppointment);
+		}
+		
+		return appointments;
 		
 	}
-	
-		
-	public void blockDay() {
+
+	public synchronized void makeReservation(Exam exam, DateTime start, DateTime end, boolean courseExam, String instructorId) {
+		String queryString = String.format("INSERT INTO exam "
+				+ "(examId, start, end, boolCourseExam, examStatus, instructorId)"
+				+ "VALUES ('%s', %d, %d, %d, '%s', '%s')", 
+				exam.getExamID(), 
+				start.getMillis()/1000,
+				end.getMillis()/1000,
+				courseExam ? 0 : 1,
+				"P",
+				instructorId
+				);
+		db.updateQuery(queryString);
+	}
+
+	public synchronized void cancelExam(String examId, String instructorId){
+		String queryString = String.format("DELETE FROM exam"
+				+ " WHERE "
+				+ "instructorId='%s'"
+				+ " AND "
+				+ "examId='%s'",
+				instructorId,
+				examId
+				);
+		db.updateQuery(queryString);
 		
 	}
-	
+
+	public List<Exam> getAllExams() {
+		Database db = Database.getDatabase();
+		List<Map<String,Object>> exams = db.query("SELECT examId, start, end, boolCourseExam, examStatus, instructorId FROM exam");
+		
+		List<Exam> examsList = new ArrayList<Exam>();
+		for (Map<String,Object> exam : exams) {
+			
+			String id = (String) exam.get("examId");
+			long startMilliseconds = new Long((int) exam.get("start")*1000);
+			long endMilliseconds = new Long((int) exam.get("end")*1000);
+			String examStatus = (String) exam.get("examStatus");
+			String instructorId = (String) exam.get("instructorId");
+			
+			Exam newExam = ((String) exam.get("boolCourseExam")).equals("1") ? 
+					new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId) : 
+						new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus); 
+			
+			examsList.add(newExam);
+		}
+		
+		return examsList;
+	}
+
+	/*
+	 * Returns a list of adHoc exams from the database.
+	 * Not actually used by anything yet...
+	 */
+	public List<OutsideExam> getAdHocExams() {
+		Database db = Database.getDatabase();
+		List<Map<String,Object>> adHocExams = db.query("SELECT (examId, start, end, examStatus) FROM exam WHERE boolCourseExam = 0");
+		
+		List<OutsideExam> exams = new ArrayList<OutsideExam>();
+		for (Map<String,Object> exam : adHocExams) {
+			String id = (String) exam.get("examId");
+			long startMilliseconds = new Long((int) exam.get("start")*1000);
+			long endMilliseconds = new Long((int) exam.get("end")*1000);
+			String status = (String) exam.get("examStatus");
+			
+			OutsideExam newExam = new OutsideExam(id, startMilliseconds, endMilliseconds, status);
+			exams.add(newExam);
+		}
+		
+		return exams;
+	}
+
+	public List<Exam> getInstructorExams(String instructorId) {
+		List<Exam> exams = new ArrayList<Exam>();
+		String queryString = String.format("SELECT * FROM exam "
+				+ "INNER JOIN instructor ON exam.instructorId=instructor.instructorId WHERE exam.instructorId = '%s'",
+				instructorId
+				);
+		List<Map<String,Object>> examList = db.query(queryString);
+		for (Map<String,Object> exam : examList) {
+			System.out.println(exam);
+			String examId = (String) exam.get("examId");
+			DateTime start = new DateTime(new Long((int) exam.get("start")*1000));
+			DateTime end = new DateTime(new Long((int) exam.get("end")*1000));
+			String status = (String) exam.get("status");
+			
+			Exam newExam = new Exam(examId, start, end, status);
+			exams.add(newExam);
+		}
+		
+		return exams;
+	}
+
+	public List<Exam> getPendingExams() {
+		List<Map<String,Object>> exams = db.query(
+				String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId "
+				+ "FROM exam "
+				+ "WHERE examStatus = 'P'"
+				));
+		
+		List<Exam> examsList = new ArrayList<Exam>();
+		for (Map<String,Object> exam : exams) {
+			
+			String id = (String) exam.get("examId");
+			long startMilliseconds = new Long((int) exam.get("start")*1000);
+			long endMilliseconds = new Long((int) exam.get("end")*1000);
+			String examStatus = (String) exam.get("examStatus");
+			String instructorId = (String) exam.get("instructorId");
+			
+			Exam newExam = ((String) exam.get("boolCourseExam")).equals("1") ? 
+					new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId) : 
+						new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus); 
+			
+			examsList.add(newExam);
+		}
+		
+		return examsList;
+	}
+
 	/*
 	 * This method reads in the 3 .csv files that were provided to us and then stores that data in the 
 	 * corresponding tables in our data base.
@@ -227,7 +348,7 @@ public class TestingCenter {
 			return false;
 		}
 	}
-	
+
 	/*
 	 * This internal function was written to take each line from the .csv file and put it into the format
 	 * need for a query.
@@ -248,7 +369,45 @@ public class TestingCenter {
 		return sb.toString();
 		
 	}
+
+	public int checkIn(String netID) {
+		DateTime now = DateTime.now();
+		DateTime thirty = new DateTime(0,1,1,0,30);
+		long nowM= now.getMillisOfDay()/60000;
+		nowM = nowM %(60);
+		long thirtyM = thirty.getMillisOfDay()/60000;
+		DateTime search = null;
+		if (nowM>thirtyM) {
+			search = now.hourOfDay().roundHalfEvenCopy();
+		} else {
+			search = now.hourOfDay().roundFloorCopy();
+			search = search.withMinuteOfHour(30);
+		}
+		List<Map<String,Object>> appointments = db.query(
+				String.format("SELECT examIdA, studentIdA, dateIdA, seatIdA, appointmentID "
+				+ "FROM appointment "
+				+ "WHERE studentIDA = '%s' AND dateIdA = '%d'",
+				netID,
+				search.getMillis()/1000
+				));
+		int seat = -1;
+		for (Map<String,Object> appointment : appointments) {	
 		
+			seat =  (int)appointment.get("seatIdA");
+		}
+		
+		return seat;
+	}
+
+	public void produceStats() {
+		
+	}
+	
+		
+	public void blockDay() {
+		
+	}
+	
 	/*
 	 * This function creates and sends an email reminder to a student for an exam.
 	 * (NOTE: At this time this is not automated.)
@@ -296,128 +455,10 @@ public class TestingCenter {
 		}
 	}
 	
-	public synchronized void makeReservation(Exam exam, DateTime start, DateTime end, boolean courseExam, String instructorId) {
-		String queryString = String.format("INSERT INTO exam "
-				+ "(examId, start, end, boolCourseExam, examStatus, instructorId)"
-				+ "VALUES ('%s', %d, %d, %d, '%s', '%s')", 
-				exam.getExamID(), 
-				start.getMillis()/1000,
-				end.getMillis()/1000,
-				courseExam ? 0 : 1,
-				"P",
-				instructorId
-				);
-		db.updateQuery(queryString);
-	}
-	
 	public void getUpcoming() {
 		
 	}
 	
-	public synchronized void cancelExam(String examId, String instructorId){
-		String queryString = String.format("DELETE FROM exam"
-				+ " WHERE "
-				+ "instructorId='%s'"
-				+ " AND "
-				+ "examId='%s'",
-				instructorId,
-				examId
-				);
-		db.updateQuery(queryString);
-		
-	}
-	public List<Exam> getInstructorExams(String instructorId) {
-		List<Exam> exams = new ArrayList<Exam>();
-		String queryString = String.format("SELECT * FROM exam "
-				+ "INNER JOIN instructor ON exam.instructorId=instructor.instructorId WHERE exam.instructorId = '%s'",
-				instructorId
-				);
-		List<Map<String,Object>> examList = db.query(queryString);
-		for (Map<String,Object> exam : examList) {
-			System.out.println(exam);
-			String examId = (String) exam.get("examId");
-			DateTime start = new DateTime(new Long((int) exam.get("start")*1000));
-			DateTime end = new DateTime(new Long((int) exam.get("end")*1000));
-			String status = (String) exam.get("status");
-			
-			Exam newExam = new Exam(examId, start, end, status);
-			exams.add(newExam);
-		}
-		
-		return exams;
-	}
-	
-	/*
-	 * Returns a list of adHoc exams from the database.
-	 * Not actually used by anything yet...
-	 */
-	public List<OutsideExam> getAdHocExams() {
-		Database db = Database.getDatabase();
-		List<Map<String,Object>> adHocExams = db.query("SELECT (examId, start, end, examStatus) FROM exam WHERE boolCourseExam = 0");
-		
-		List<OutsideExam> exams = new ArrayList<OutsideExam>();
-		for (Map<String,Object> exam : adHocExams) {
-			String id = (String) exam.get("examId");
-			long startMilliseconds = new Long((int) exam.get("start")*1000);
-			long endMilliseconds = new Long((int) exam.get("end")*1000);
-			String status = (String) exam.get("examStatus");
-			
-			OutsideExam newExam = new OutsideExam(id, startMilliseconds, endMilliseconds, status);
-			exams.add(newExam);
-		}
-		
-		return exams;
-	}
-	
-	public List<Exam> getAllExams() {
-		Database db = Database.getDatabase();
-		List<Map<String,Object>> exams = db.query("SELECT examId, start, end, boolCourseExam, examStatus, instructorId FROM exam");
-		
-		List<Exam> examsList = new ArrayList<Exam>();
-		for (Map<String,Object> exam : exams) {
-			
-			String id = (String) exam.get("examId");
-			long startMilliseconds = new Long((int) exam.get("start")*1000);
-			long endMilliseconds = new Long((int) exam.get("end")*1000);
-			String examStatus = (String) exam.get("examStatus");
-			String instructorId = (String) exam.get("instructorId");
-			
-			Exam newExam = ((String) exam.get("boolCourseExam")).equals("1") ? 
-					new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId) : 
-						new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus); 
-			
-			examsList.add(newExam);
-		}
-		
-		return examsList;
-	}
-	
-	public List<Exam> getPendingExams() {
-		List<Map<String,Object>> exams = db.query(
-				String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId "
-				+ "FROM exam "
-				+ "WHERE examStatus = 'P'"
-				));
-		
-		List<Exam> examsList = new ArrayList<Exam>();
-		for (Map<String,Object> exam : exams) {
-			
-			String id = (String) exam.get("examId");
-			long startMilliseconds = new Long((int) exam.get("start")*1000);
-			long endMilliseconds = new Long((int) exam.get("end")*1000);
-			String examStatus = (String) exam.get("examStatus");
-			String instructorId = (String) exam.get("instructorId");
-			
-			Exam newExam = ((String) exam.get("boolCourseExam")).equals("1") ? 
-					new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId) : 
-						new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus); 
-			
-			examsList.add(newExam);
-		}
-		
-		return examsList;
-	}
-
 	private class Notifier {
 		
 		
@@ -475,35 +516,6 @@ public class TestingCenter {
 				);
 		
 		db.updateQuery(queryString);
-	}
-	
-	public int checkIn(String netID) {
-		DateTime now = DateTime.now();
-		DateTime thirty = new DateTime(0,1,1,0,30);
-		long nowM= now.getMillisOfDay()/60000;
-		nowM = nowM %(60);
-		long thirtyM = thirty.getMillisOfDay()/60000;
-		DateTime search = null;
-		if (nowM>thirtyM) {
-			search = now.hourOfDay().roundHalfEvenCopy();
-		} else {
-			search = now.hourOfDay().roundFloorCopy();
-			search = search.withMinuteOfHour(30);
-		}
-		List<Map<String,Object>> appointments = db.query(
-				String.format("SELECT examIdA, studentIdA, dateIdA, seatIdA, appointmentID "
-				+ "FROM appointment "
-				+ "WHERE studentIDA = '%s' AND dateIdA = '%d'",
-				netID,
-				search.getMillis()/1000
-				));
-		int seat = -1;
-		for (Map<String,Object> appointment : appointments) {	
-		
-			seat =  (int)appointment.get("seatIdA");
-		}
-		
-		return seat;
 	}
 	
 }

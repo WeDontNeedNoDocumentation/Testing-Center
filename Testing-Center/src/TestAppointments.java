@@ -47,7 +47,7 @@ public class TestAppointments {
 	public void BtestStudentDeleteAppointment() {
 		Student student = new Student("Dan Harel", "dharel", "dan.harel@stonybrook.edu", null);
 		
-		student.cancelAppointment("CSE");
+		student.cancelAppointment(1);
 		
 		List<Appointment> appts = student.viewAppointments();
 		assertEquals(0, appts.size());

@@ -1,6 +1,8 @@
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.joda.time.DateTime;
+
 /**
  * An instance of this class is created when an Administrator logs into the system. The class
  * provides functions for the Admin to interact with the testing center.
@@ -97,20 +99,20 @@ public class Administrator {
 		
 	}
 	
-	public void makeAppointment() {
-		
+	public void makeAppointment(Exam exam, DateTime time, int seatId, int appointmentId, String netID) {
+		tC.makeAppointment(exam, time, seatId, appointmentId, netID);
 	}
 	
 	public void checkAvailability() {
 		
 	}
 	
-	public void viewAppointments() {
-		
+	public List<Appointment> viewAppointments() {
+		return tC.viewAllAppointments();
 	}
 	
-	public void cancelAppointment() {
-		
+	public void cancelAppointment(int appID) {
+		tC.cancelAppointment(appID);
 	}
 	
 	public int checkInStudent(String netID) {
