@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -19,6 +20,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.Period;
 
@@ -163,18 +165,25 @@ public class TestingCenter {
 		
 	}
 
-	public synchronized void makeReservation(Exam exam, DateTime start, DateTime end, boolean courseExam, String instructorId) {
+	public synchronized boolean makeReservation(Exam exam, DateTime start, DateTime end, boolean courseExam, String instructorId) {
+		
+		if (!isExamSchedulable(exam))
+			return false;
+		
 		String queryString = String.format("INSERT INTO exam "
-				+ "(examId, start, end, boolCourseExam, examStatus, instructorId)"
-				+ "VALUES ('%s', %d, %d, %d, '%s', '%s')", 
+				+ "(examId, start, end, boolCourseExam, examStatus, instructorId, numSeats)"
+				+ "VALUES ('%s', %d, %d, %d, '%s', '%s', %d)", 
 				exam.getExamID(), 
 				start.getMillis()/1000,
 				end.getMillis()/1000,
 				courseExam ? 0 : 1,
 				"P",
-				instructorId
+				instructorId,
+				exam.getNumSeats()
 				);
 		db.updateQuery(queryString);
+		
+		return true;
 	}
 
 	public synchronized void cancelExam(String examId, String instructorId){
@@ -202,10 +211,11 @@ public class TestingCenter {
 			long endMilliseconds = new Long((int) exam.get("end")*1000);
 			String examStatus = (String) exam.get("examStatus");
 			String instructorId = (String) exam.get("instructorId");
+			int numSeats = (int) exam.get("numSeats");
 			
 			Exam newExam = ((String) exam.get("boolCourseExam")).equals("1") ? 
-					new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId) : 
-						new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus); 
+					new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, numSeats) : 
+						new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus, numSeats); 
 			
 			examsList.add(newExam);
 		}
@@ -227,8 +237,9 @@ public class TestingCenter {
 			long startMilliseconds = new Long((int) exam.get("start")*1000);
 			long endMilliseconds = new Long((int) exam.get("end")*1000);
 			String status = (String) exam.get("examStatus");
+			int numSeats = (int) exam.get("numSeats");
 			
-			OutsideExam newExam = new OutsideExam(id, startMilliseconds, endMilliseconds, status);
+			OutsideExam newExam = new OutsideExam(id, startMilliseconds, endMilliseconds, status, numSeats);
 			exams.add(newExam);
 		}
 		
@@ -248,8 +259,9 @@ public class TestingCenter {
 			DateTime start = new DateTime(new Long((int) exam.get("start")*1000));
 			DateTime end = new DateTime(new Long((int) exam.get("end")*1000));
 			String status = (String) exam.get("status");
+			int numSeats = (int) exam.get("numSeats");
 			
-			Exam newExam = new Exam(examId, start, end, status);
+			Exam newExam = new Exam(examId, start, end, status, numSeats);
 			exams.add(newExam);
 		}
 		
@@ -271,10 +283,11 @@ public class TestingCenter {
 			long endMilliseconds = new Long((int) exam.get("end")*1000);
 			String examStatus = (String) exam.get("examStatus");
 			String instructorId = (String) exam.get("instructorId");
+			int numSeats = (int) exam.get("numSeats");
 			
 			Exam newExam = ((String) exam.get("boolCourseExam")).equals("1") ? 
-					new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId) : 
-						new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus); 
+					new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, numSeats) : 
+						new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus, numSeats); 
 			
 			examsList.add(newExam);
 		}
@@ -516,6 +529,86 @@ public class TestingCenter {
 				);
 		
 		db.updateQuery(queryString);
+	}
+	
+	/*
+Okay so I think I figured out the algo
+I'm assuming that scheduling periods have to be contiguous. The algorithm I have depends on that. So for example, you can schedule 100 seats for today and tomorrow, but you can't say that you need 100 seats between today and the day after tomorrow.
+So under that assumption:
+Sort the current requests (plus the request that you're testing for) in reverse order of END time.
+Fill in seats assuming that every seat is filled as late as possible
+So if you have an exam that needs 100 seats, and you have 75 seats for today and 75 seats for tomorrow, then assume all 75 seats will be filled tomorrow, and 25 will be filled today.
+Do this for every exam in reverse order of end time.
+If you can fill all seats before you hit the current time, then the course is schedulable.
+	 */
+	public boolean isExamSchedulable(Exam newExam) {
+		this.makeReservation(newExam, newExam.getStart(), newExam.getEnd(), newExam instanceof CourseExam, newExam.getInstructorId());
+		Database db = Database.getDatabase();
+		DateTime now = DateTime.now();
+		long nowUnix = now.getMillis()/1000;
+		List<Map<String, Object>> exams = db.query(String.format(
+				"SELECT exam.examId, COUNT(appointment.examIdA) AS numAppointments, exam.start, exam.end, exam.numSeats "
+				+ "FROM exam "
+				+ "LEFT JOIN appointment "
+				+ "ON exam.examId=appointment.examIdA "
+				+ "WHERE end > %d "
+				+ "AND exam.examStatus <> 'R' "
+				+ "GROUP BY exam.examId "
+				+ "ORDER BY end DESC, start DESC;",
+				nowUnix
+				));
+		
+		Map<LocalDate, Integer> seatsAvailable = new HashMap<LocalDate, Integer>();
+
+		for ( Map<String, Object> exam : exams ) {
+			System.out.println(exam);
+			
+			long seatsNeeded = (int) exam.get("numSeats") - (long) exam.get("numAppointments");
+			
+			long endTime = new Long((int) exam.get("end")*1000);
+			LocalDate endDate = new LocalDate(endTime);
+			
+			long startTime = new Long((int) exam.get("end")*1000);
+			LocalDate startDate = new LocalDate(startTime);
+			
+			LocalDate currDate = endDate;
+			
+			if (!seatsAvailable.containsKey(currDate))
+				seatsAvailable.put(currDate, numberOfSeats);
+			while (seatsNeeded > 0) {
+				if (currDate.compareTo(startDate) < 0) {
+					this.cancelExam(newExam.getExamID(), newExam.getInstructorId());
+					return false;
+				}
+				int seatsAvailableToday = seatsAvailable.get(currDate);
+				if (seatsAvailableToday < seatsNeeded) {
+					seatsAvailableToday = 0;
+					seatsNeeded -= seatsAvailableToday;
+				}
+				else {
+					seatsAvailableToday -= seatsNeeded;
+					seatsNeeded = 0;
+				}
+				seatsAvailable.put(currDate, seatsAvailableToday);
+				
+				if (seatsNeeded > 0)
+					currDate = currDate.minusDays(1);
+			}
+		}
+		
+		this.cancelExam(newExam.getExamID(), newExam.getInstructorId());
+		return true;
+	}
+	
+	public static void main(String[] args) {
+		DateTime start = new DateTime(2015, 10, 29, 8, 0);
+		DateTime end = new DateTime(2015, 10, 29, 14, 0);
+		
+		Exam ex = new Exam("test4", start, end, "sstoller", 64);
+		
+		TestingCenter tc = TestingCenter.getTestingCenter();
+		
+		System.out.println(tc.isExamSchedulable(ex));
 	}
 	
 }

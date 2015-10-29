@@ -35,7 +35,7 @@ public class TestAppointments {
 	@Test
 	public void AtestStudentCreateAppointment() {
 		Student student = new Student("Dan Harel", "dharel", "dan.harel@stonybrook.edu", null);
-		Exam exam = new Exam("CSE", null, null);
+		Exam exam = new Exam("CSE", null, null, "sstoller", 64);
 		
 		student.makeAppointment(exam, new DateTime(2000,1,1,1,1), 0, 1);
 		
@@ -56,7 +56,7 @@ public class TestAppointments {
 	@Test
 	public void CtestInstructorCreateAppointment() {
 		Instructor inst = new Instructor("Scott Stoller", "stoller@cs.stonybrook.edu", tc, "sstoller");
-		Exam exam = new Exam("CSE", null, null);
+		Exam exam = new Exam("CSE", null, null, "sstoller", 64);
 		
 		inst.makeExam(exam, new DateTime(2000,1,1,1,1), new DateTime(2000,1,1,1,2), true);
 		

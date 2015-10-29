@@ -16,21 +16,21 @@ public class Exam {
 	protected DateTime start;
 	protected DateTime end;
 	protected String status;
+	protected String instructorId;
+	protected int numSeats;
 	
-	public Exam(String examID, DateTime start, DateTime end) {
-		super();
-		this.examID = examID;
-		this.start = start;
-		this.end = end;
-		this.status = "P";
+	public Exam(String examID, DateTime start, DateTime end, String instructorId, int seats) {
+		this(examID, start, end, "P", instructorId, seats);
 	}
 	
-	public Exam(String examID, DateTime start, DateTime end, String status) {
+	public Exam(String examID, DateTime start, DateTime end, String status, String instructorId, int seats) {
 		super();
 		this.examID = examID;
 		this.start = start;
 		this.end = end;
 		this.status = status;
+		this.instructorId = instructorId;
+		this.numSeats = seats;
 	}
 
 	public DateTime getStart() {
@@ -43,6 +43,20 @@ public class Exam {
 
 	public String getExamID() {
 		return examID;
+	}
+	
+	public String getInstructorId() {
+		return instructorId;
+	}
+	
+	public boolean isSchedulable() {
+		TestingCenter tc = TestingCenter.getTestingCenter();
+		return tc.isExamSchedulable(this);
+	}
+
+	public Object getNumSeats() {
+		// TODO Auto-generated method stub
+		return numSeats;
 	}
 
 }

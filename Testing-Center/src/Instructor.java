@@ -28,10 +28,42 @@ public class Instructor {
 	public Instructor(String name, String email, TestingCenter tC, String instructorId) {
 		this.name = name;
 		this.email = email;
-		this.tC = tC;
+		this.tC = TestingCenter.getTestingCenter();
 		this.instructorId = instructorId;
 	}
 	
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public TestingCenter gettC() {
+		return tC;
+	}
+
+	public void settC(TestingCenter tC) {
+		this.tC = tC;
+	}
+
+	public String getInstructorId() {
+		return instructorId;
+	}
+
+	public void setInstructorId(String instructorId) {
+		this.instructorId = instructorId;
+	}
+
 	/*
 	 * The instructor receives a list of all exams associated with his ID.
 	 * (NOTE: The internal functionality may be moved later and called by this function.)

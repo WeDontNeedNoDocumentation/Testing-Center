@@ -75,6 +75,7 @@ public class Main {
 			System.out.println("1) Admin 2) Instructor 3) Student 4) close server");
 			Scanner s = new Scanner(System.in);
 			int option = s.nextInt();
+			Instructor inst = new Instructor("Scott Stoller", "stoller@cs.stonybrook.edu", tC, "sstoller");
 			if(option == 1) {
 				Administrator ad = new Administrator("admin","admin@help.edu",tC);
 				System.out.println("Pick a user type:");
@@ -88,13 +89,12 @@ public class Main {
 				}
 				
 			} else if (option == 2) {
-				Instructor inst = new Instructor("Scott Stoller", "stoller@cs.stonybrook.edu", tC, "sstoller");
-				Exam exam = new Exam("CSE", null, null);
+				Exam exam = new Exam("CSE", null, null, inst.getInstructorId(), 0);
 				
 				inst.makeExam(exam, new DateTime(2000,1,1,1,1), new DateTime(2000,1,1,1,2), true);
 			} else if (option == 3) {
 				Student student = new Student("Anvika .", "a", "a@example.com", null);
-				Exam exam = new Exam("CSE", null, null);
+				Exam exam = new Exam("CSE", null, null, inst.getInstructorId(), 0);
 				
 				student.makeAppointment(exam, new DateTime(2015,10,25,19,0), 7, 1);
 			} else if (option == 4) {
