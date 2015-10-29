@@ -167,9 +167,6 @@ public class TestingCenter {
 
 	public synchronized boolean makeReservation(Exam exam, DateTime start, DateTime end, boolean courseExam, String instructorId) {
 		
-		if (!isExamSchedulable(exam))
-			return false;
-		
 		String queryString = String.format("INSERT INTO exam "
 				+ "(examId, start, end, boolCourseExam, examStatus, instructorId, numSeats)"
 				+ "VALUES ('%s', %d, %d, %d, '%s', '%s', %d)", 
