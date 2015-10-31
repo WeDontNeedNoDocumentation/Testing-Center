@@ -16,7 +16,7 @@ public class CourseExam extends Exam {
 	 * 
 	 */
 	public CourseExam(String ExamID, DateTime start, DateTime end, String status, String instructorId, String courseId, int numSeats) {
-		super(ExamID, start, end, status, numSeats);
+		super(ExamID, start, end, status, instructorId, numSeats);
 		this.instructorId = instructorId;
 		this.courseId = courseId;
 	}

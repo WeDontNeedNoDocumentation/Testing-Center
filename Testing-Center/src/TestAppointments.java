@@ -60,7 +60,7 @@ public class TestAppointments {
 	@Test
 	public void CtestInstructorCreateAppointment() {
 		Instructor inst = new Instructor("Scott Stoller", "stoller@cs.stonybrook.edu", tc, "SStoller");
-		Exam exam = new OutsideExam("CSE", null, null, "sstoller", 64);
+		Exam exam = new OutsideExam("CSE", null, null, null, "sstoller", 64);
 		
 		inst.makeExam(exam, new DateTime(2000,1,1,1,1), new DateTime(2000,1,1,1,2), true);
 		

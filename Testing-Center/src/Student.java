@@ -48,6 +48,46 @@ public class Student {
 		tC = TestingCenter.getTestingCenter();
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getNetID() {
+		return netID;
+	}
+
+	public void setNetID(String netID) {
+		this.netID = netID;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public List<Appointment> getAppointments() {
+		return appointments;
+	}
+
+	public void setAppointments(List<Appointment> appointments) {
+		this.appointments = appointments;
+	}
+
+	public TestingCenter gettC() {
+		return tC;
+	}
+
+	public void settC(TestingCenter tC) {
+		this.tC = tC;
+	}
+
 	/*
 	 * This is used to create an exam appointment for a specific exam.
 	 * (NOTE: At this time no checks are made to see if this appointment is in any way valid.)
@@ -77,8 +117,11 @@ public class Student {
 		
 	}
 	
-	public void viewExams() {
-		
+	/*
+	 * Displays reservations for all approved exams for courses this student is enrolled in.
+	 */
+	public List<Exam> viewExams() {
+		return tC.viewAvailableExams(this);
 	}
 	
 	/*

@@ -58,5 +58,28 @@ public class Exam {
 		// TODO Auto-generated method stub
 		return numSeats;
 	}
+	
+	public String toString() {
+		String s = String.format("{"
+				+ "examId:%s, "
+				+ "startTime:%s, "
+				+ "endTime:%s, "
+				+ "status:%s, "
+				+ "instructorId:%s, "
+				+ "numSeats:%d",
+				examID,
+				start.toString(),
+				end.toString(),
+				status,
+				instructorId,
+				numSeats);
+		if (this instanceof CourseExam) {
+			s += ", courseId:" + ((CourseExam) this).getCourseId();
+		}
+		s += "}";
+		
+		return s;
+		
+	}
 
 }

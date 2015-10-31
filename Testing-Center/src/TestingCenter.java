@@ -229,7 +229,7 @@ public class TestingCenter {
 			
 			Exam newExam = ((String) exam.get("boolCourseExam")).equals("1") ? 
 					new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, courseId, numSeats) : 
-						new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus, numSeats); 
+						new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, numSeats); 
 			
 			examsList.add(newExam);
 		}
@@ -243,7 +243,7 @@ public class TestingCenter {
 	 */
 	public List<OutsideExam> getAdHocExams() {
 		Database db = Database.getDatabase();
-		List<Map<String,Object>> adHocExams = db.query("SELECT (examId, start, end, examStatus) FROM exam WHERE boolCourseExam = 0");
+		List<Map<String,Object>> adHocExams = db.query("SELECT (examId, start, end, examStatus, instructorId) FROM exam WHERE boolCourseExam = 0");
 		
 		List<OutsideExam> exams = new ArrayList<OutsideExam>();
 		for (Map<String,Object> exam : adHocExams) {
@@ -251,9 +251,10 @@ public class TestingCenter {
 			long startMilliseconds = new Long((int) exam.get("start")*1000);
 			long endMilliseconds = new Long((int) exam.get("end")*1000);
 			String status = (String) exam.get("examStatus");
-			int numSeats = (int) exam.get("numSeats");
+			String instructorId = (String) exam.get("instructorId");
+			int numSeats = (int) exam.get("numSeats");;
 			
-			OutsideExam newExam = new OutsideExam(id, startMilliseconds, endMilliseconds, status, numSeats);
+			OutsideExam newExam = new OutsideExam(id, startMilliseconds, endMilliseconds, status, instructorId, numSeats);
 			exams.add(newExam);
 		}
 		
@@ -301,14 +302,14 @@ public class TestingCenter {
 			long endMilliseconds = new Long((int) exam.get("end")*1000);
 			String examStatus = (String) exam.get("examStatus");
 			int numSeats = (int) exam.get("numSeats");
+			String instructorId = (String) exam.get("instructorId");
 			
 			if ( ((String) exam.get("boolCourseExam")).equals("1") ) {
-				String instructorId = (String) exam.get("instructorId");
 				String courseId = (String) exam.get("courseIdCE");
 				newExam = new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, courseId, numSeats);
 			}
 			else {
-				newExam = new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus, numSeats);
+				newExam = new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, numSeats);
 			}
 			
 			examsList.add(newExam);
@@ -622,6 +623,47 @@ If you can fill all seats before you hit the current time, then the course is sc
 		return true;
 	}
 	
+	public List<Exam> viewAvailableExams(Student st) {
+		String queryString = String.format("SELECT exam.examId, start, end, examStatus, numSeats, boolCourseExam, instructorId, courseexam.courseIdCE "
+				+ "FROM exam "
+				+ "INNER JOIN courseexam "
+				+ "ON exam.examId=courseexam.examIdCE "
+				+ "INNER JOIN coursestudent "
+				+ "ON courseexam.courseIdCE=coursestudent.courseIdCS "
+				+ "WHERE coursestudent.studentIdCS='%s';", 
+				st.getNetID());
+		System.out.println(queryString);
+		Database db = Database.getDatabase();
+		List<Map<String, Object>> exams = db.query(queryString);
+		
+		List<Exam> availableExams = new ArrayList<Exam>();
+		
+		for (Map<String, Object> exam : exams) {
+			Exam newExam;
+			
+			String examId = (String) exam.get("examId");
+			long startMilliseconds = new Long((int) exam.get("start")*1000);
+			long endMilliseconds = new Long((int) exam.get("end")*1000);
+			String examStatus = (String) exam.get("examStatus");
+			int numSeats = (int) exam.get("numSeats");
+			boolean courseExam = ((String) exam.get("boolCourseExam")).equals("1") ? true : false;
+			String instructorId = (String) exam.get("instructorId");
+			
+			if (courseExam) {
+				String courseId = (String) exam.get("courseIdCE");
+				newExam = new CourseExam(examId, startMilliseconds, endMilliseconds, examStatus, instructorId, courseId, numSeats);
+				System.out.println(newExam);
+			}
+			else {
+				newExam = new OutsideExam(examId, endMilliseconds, endMilliseconds, examStatus, instructorId, numSeats);
+			}
+			
+			availableExams.add(newExam);
+		}
+		
+		return availableExams;
+	}
+	
 	public static void main(String[] args) {
 		DateTime start = new DateTime(2015, 10, 29, 8, 0);
 		DateTime end = new DateTime(2015, 10, 29, 14, 0);
@@ -631,6 +673,13 @@ If you can fill all seats before you hit the current time, then the course is sc
 		TestingCenter tc = TestingCenter.getTestingCenter();
 		
 		System.out.println(tc.isExamSchedulable(ex));
+		
+		Student student = new Student(null, "a", null, null);
+		List<Exam> exams = tc.viewAvailableExams(student);
+		System.out.println("Lol");
+		for (Exam exam : exams) {
+			System.out.println(exam);
+		}
 	}
 	
 }
