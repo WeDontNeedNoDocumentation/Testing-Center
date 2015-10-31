@@ -119,9 +119,11 @@ public class TestingCenter {
 	}
 	
 	public synchronized void cancelAppointment(int appID) {
-		String queryString = String.format("DELETE FROM appointment "
+		String queryString = String.format(
+				"DELETE "
+				+ "FROM appointment "
 				+ "WHERE "
-				+ "appointmentId='%d'",
+				+ "appointmentId=%d",
 				appID
 				);
 		db.updateQuery(queryString);
@@ -168,7 +170,7 @@ public class TestingCenter {
 	public synchronized boolean makeReservation(Exam exam, DateTime start, DateTime end, boolean courseExam, String instructorId) {
 		
 		String queryString = String.format("INSERT INTO exam "
-				+ "(examId, start, end, boolCourseExam, examStatus, instructorId, numSeats)"
+				+ "(examId, start, end, boolCourseExam, examStatus, instructorId, numSeats) "
 				+ "VALUES ('%s', %d, %d, %d, '%s', '%s', %d)", 
 				exam.getExamID(), 
 				start.getMillis()/1000,
@@ -179,6 +181,17 @@ public class TestingCenter {
 				exam.getNumSeats()
 				);
 		db.updateQuery(queryString);
+		
+		if (exam instanceof CourseExam) {
+			CourseExam ce = (CourseExam) exam;
+			queryString = String.format("INSERT INTO courseexam "
+					+ "(courseIdCE, examIdCE) "
+					+ "VALUES ('%s', '%s')", 
+					ce.getCourseId(),
+					exam.getExamID()
+					);
+			db.updateQuery(queryString);
+		}
 		
 		return true;
 	}
@@ -198,7 +211,10 @@ public class TestingCenter {
 
 	public List<Exam> getAllExams() {
 		Database db = Database.getDatabase();
-		List<Map<String,Object>> exams = db.query("SELECT examId, start, end, boolCourseExam, examStatus, instructorId FROM exam");
+		List<Map<String,Object>> exams = db.query("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, courseexam.courseIdCE "
+				+ "FROM exam "
+				+ "LEFT JOIN courseexam "
+				+ "ON exam.examId=courseexam.examIdCE");
 		
 		List<Exam> examsList = new ArrayList<Exam>();
 		for (Map<String,Object> exam : exams) {
@@ -209,9 +225,10 @@ public class TestingCenter {
 			String examStatus = (String) exam.get("examStatus");
 			String instructorId = (String) exam.get("instructorId");
 			int numSeats = (int) exam.get("numSeats");
+			String courseId = (String) exam.get("courseIdCE");
 			
 			Exam newExam = ((String) exam.get("boolCourseExam")).equals("1") ? 
-					new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, numSeats) : 
+					new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, courseId, numSeats) : 
 						new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus, numSeats); 
 			
 			examsList.add(newExam);
@@ -267,24 +284,32 @@ public class TestingCenter {
 
 	public List<Exam> getPendingExams() {
 		List<Map<String,Object>> exams = db.query(
-				String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId "
+				String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, numSeats, courseexam.courseIdCE "
 				+ "FROM exam "
+				+ "LEFT JOIN courseexam "
+				+ "ON exam.examId=courseexam.examIdCE "
 				+ "WHERE examStatus = 'P'"
 				));
 		
 		List<Exam> examsList = new ArrayList<Exam>();
 		for (Map<String,Object> exam : exams) {
 			
+			Exam newExam = null;
+			
 			String id = (String) exam.get("examId");
 			long startMilliseconds = new Long((int) exam.get("start")*1000);
 			long endMilliseconds = new Long((int) exam.get("end")*1000);
 			String examStatus = (String) exam.get("examStatus");
-			String instructorId = (String) exam.get("instructorId");
 			int numSeats = (int) exam.get("numSeats");
 			
-			Exam newExam = ((String) exam.get("boolCourseExam")).equals("1") ? 
-					new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, numSeats) : 
-						new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus, numSeats); 
+			if ( ((String) exam.get("boolCourseExam")).equals("1") ) {
+				String instructorId = (String) exam.get("instructorId");
+				String courseId = (String) exam.get("courseIdCE");
+				newExam = new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, courseId, numSeats);
+			}
+			else {
+				newExam = new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus, numSeats);
+			}
 			
 			examsList.add(newExam);
 		}

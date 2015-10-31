@@ -61,8 +61,8 @@ public class Student {
 	 * (NOTE: This does not check to see if the appointment exists first. Will require the calling of
 	 * view in the future.)
 	 */
-	public void cancelAppointment(int appID) {
-		tC.cancelAppointment(appID);
+	public void cancelAppointment(int string) {
+		tC.cancelAppointment(string);
 	}
 	
 	/*
