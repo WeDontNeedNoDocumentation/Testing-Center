@@ -10,9 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
 
 import com.mysql.jdbc.CommunicationsException;
 
@@ -32,7 +30,7 @@ import com.mysql.jdbc.CommunicationsException;
  */
 public class Database {
 	
-	private static final Logger logger = LoggerFactory.getLogger(Database.class);   
+	private static final Logger logger = Logger.getLogger(Database.class.getName());   
 
 	private static Database instance = null;
 	
@@ -47,7 +45,7 @@ public class Database {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 		} catch (ClassNotFoundException e) {
-			logger.error("Could not find MySQL JDBC Driver?");
+			logger.warning("Could not find MySQL JDBC Driver?");
 			e.printStackTrace();
 			return;
 		}
@@ -60,12 +58,12 @@ public class Database {
 
 		}
 		catch (CommunicationsException e) {
-			logger.error("Connectoin Failed! Could not establish connection with server. Please make sure your internet connection is valid and that the server is active, as well as the output console for any further unformation.");
+			logger.warning("Connectoin Failed! Could not establish connection with server. Please make sure your internet connection is valid and that the server is active, as well as the output console for any further unformation.");
 			e.printStackTrace();
 			return;
 		}
 		catch (SQLException e) {
-			logger.error("Connection Failed! Check output console");
+			logger.warning("Connection Failed! Check output console");
 			e.printStackTrace();
 			return;
 		}
@@ -86,7 +84,7 @@ public class Database {
 			statement = conn.createStatement();
 		} catch (SQLException e1) {
 			// TODO Auto-generated catch block
-			logger.error("Unable to create SQL statement.");
+			logger.warning("Unable to create SQL statement.");
 			e1.printStackTrace();
 		}
 		
@@ -94,7 +92,7 @@ public class Database {
 			boolean hasResultSet = statement.execute("USE ssattar");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			logger.error("Unable to execute statement: \"USE ssattar\"");
+			logger.warning("Unable to execute statement: \"USE ssattar\"");
 			e.printStackTrace();
 		}
 	}
@@ -117,7 +115,7 @@ public class Database {
 	 * function to send queries and receive the list returned from the DB
 	 */
 	public List<Map<String,Object>> query(String queryString) {
-		logger.debug("Preparing to execute SQL query to retrieve data.");
+		logger.fine("Preparing to execute SQL query to retrieve data.");
 		logger.info("QUERY STRING: " + queryString);
 		List<Map<String,Object>> results = new ArrayList<Map<String,Object>>();
 		ResultSet rs = null;
@@ -136,7 +134,7 @@ public class Database {
 			logger.info("Query successfully executed.");
 
 		} catch (SQLException e) {
-			logger.error("Error executing query. Please check query and try again.");
+			logger.warning("Error executing query. Please check query and try again.");
 			e.printStackTrace();
 		}
 		return results;
@@ -146,7 +144,7 @@ public class Database {
 	 * Sends a query to update
 	 */
 	public int updateQuery(String queryString) {
-		logger.debug("Preparing to execute SQL query to update database.");
+		logger.fine("Preparing to execute SQL query to update database.");
 		logger.info("QUERY STRING: " + queryString);
 		int returnVal = 0;
 		PreparedStatement statement;
@@ -155,7 +153,7 @@ public class Database {
 			returnVal = statement.executeUpdate();
 			logger.info("Query successfully executed.");
 		} catch (SQLException e) {
-			logger.error("Error executing query. Please check query and try again.");
+			logger.warning("fine executing query. Please check query and try again.");
 			e.printStackTrace();
 		}
 		return returnVal;

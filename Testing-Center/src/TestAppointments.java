@@ -1,6 +1,7 @@
 import static org.junit.Assert.*;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.joda.time.DateTime;
 import org.junit.AfterClass;
@@ -8,20 +9,19 @@ import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TestAppointments {
 	
-	private static final Logger logger = LoggerFactory.getLogger(Database.class);
+	private static final Logger logger = Logger.getLogger(TestAppointments.class.getName());
 	
 	private static Database db;
 	private static TestingCenter tc;
 
 	@BeforeClass
 	public static void beforeClass() {
-		logger.info("Preparing dummy database for testing.");
+		logger.info("Preparing dummy database for testing.");		
+		logger.info("Testing consecutive statements.");
 		
 		db = Database.getDatabase();
 		tc = TestingCenter.getTestingCenter();
