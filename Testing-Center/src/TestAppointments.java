@@ -8,15 +8,21 @@ import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TestAppointments {
+	
+	private static final Logger logger = LoggerFactory.getLogger(Database.class);
 	
 	private static Database db;
 	private static TestingCenter tc;
 
 	@BeforeClass
 	public static void beforeClass() {
+		logger.info("Preparing dummy database for testing.");
+		
 		db = Database.getDatabase();
 		tc = TestingCenter.getTestingCenter();
 		
@@ -35,6 +41,8 @@ public class TestAppointments {
 	
 	@Test
 	public void AtestStudentCreateAppointment() {
+		logger.info("Testing Student's ability to create an appointment.");
+		
 		Student student = new Student("Dan Harel", "dharel", "dan.harel@stonybrook.edu", null);
 		Exam exam = new Exam("CSE", null, null, "sstoller", 64);
 		
@@ -46,19 +54,20 @@ public class TestAppointments {
 	
 	@Test
 	public void BtestStudentDeleteAppointment() {
+		logger.info("Testing Student's ability to delete an appointment.");
+		
 		Student student = new Student("Dan Harel", "dharel", "dan.harel@stonybrook.edu", null);
 		
 		student.cancelAppointment(1);
 		
 		List<Appointment> appts = student.viewAppointments();
-		for (Appointment appt : appts) {
-			System.out.println(appt.getNetId());
-		}
 		assertEquals(0, appts.size());
 	}
 	
 	@Test
 	public void CtestInstructorCreateAppointment() {
+		logger.info("Testing Instructor's ability to create an exam scheduling request.");
+		
 		Instructor inst = new Instructor("Scott Stoller", "stoller@cs.stonybrook.edu", tc, "SStoller");
 		Exam exam = new OutsideExam("CSE", null, null, null, "sstoller", 64);
 		
@@ -70,6 +79,8 @@ public class TestAppointments {
 	
 	@Test
 	public void DtestViewPendingExams() {
+		logger.info("Testing Instructor's ability to view exam scheduling request.");
+		
 		Administrator admin = new Administrator(null, null, null);
 		
 		List<Exam> exams = admin.viewPendingExams();
@@ -78,6 +89,8 @@ public class TestAppointments {
 	
 	@Test
 	public void EtestAcceptExam() {
+		logger.info("Testing Admin's ability to accept an exam scheduling request.");
+		
 		Administrator admin = new Administrator(null, null, null);
 		admin.approveDenyExam("CSE", "A");
 		
@@ -87,6 +100,8 @@ public class TestAppointments {
 	
 	@Test
 	public void FtestInstructorCancelExam() {
+		logger.info("Testing Admin's ability to reject an exam scheduling request.");
+		
 		Instructor inst = new Instructor("Stoller", "stoller@cs.stonybrook.edu", tc, "sstoller");
 		
 		inst.cancelExam("CSE");
@@ -97,6 +112,9 @@ public class TestAppointments {
 	
 	@AfterClass
 	public static void afterClass() {
+		logger.info("Testing complete.");
+		logger.info("Tearing down dummy database.");
+		
 		db.updateQuery("DROP DATABASE Test");
 	}
 

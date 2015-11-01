@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Logger;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -23,6 +22,8 @@ import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.Period;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class represents all actions of the testing center. Interactions with the database will be made
@@ -36,6 +37,8 @@ import org.joda.time.Period;
  */
 public class TestingCenter {
 	
+	private static final Logger logger = LoggerFactory.getLogger(TestingCenter.class);
+	
 	private static TestingCenter instance = null;
 	
 	private static final int DEFAULT_SEATS = 64;
@@ -44,8 +47,6 @@ public class TestingCenter {
 	private static final LocalTime DEFAULT_CLOSE = new LocalTime(8,0);
 	private static final Period DEFAULT_GAP = new Period(1,0,0,0);
 	private static final Period DEFAULT_REMINDER_INTERVAL = new Period(1,0,0,0);
-	
-	private static final Logger LOGGER = Logger.getLogger(TestingCenter.class.getName());
 	
 	private List<Day> days;
 	private int numberOfSeats;
@@ -81,6 +82,14 @@ public class TestingCenter {
 
 	public static TestingCenter getTestingCenter() {
 		if (instance == null) {
+			logger.info("Instantiating testing center.");
+			logger.debug("Days open: " + instance.days);
+			logger.debug("Number of seats: " + instance.numberOfSeats);
+			logger.debug("Opening time: " + instance.open.toString());
+			logger.debug("Close time: " + instance.close.toString());
+			logger.debug("Gap time: " + instance.gap.toString());
+			logger.debug("Reminder interval: " + instance.reminderInt.toString());
+			
 			instance = new TestingCenter();
 		}
 		return instance;
@@ -107,6 +116,13 @@ public class TestingCenter {
 	}
 	
 	public synchronized void makeAppointment(Exam exam, DateTime time, int seatId, int appointmentId, String netID) {
+		logger.info("Creating new Appointment");
+		logger.debug("Exam id: " + exam.getExamID());
+		logger.debug("Student ID: " + netID);
+		logger.debug("Appointment start time: " + time.toString());
+		logger.debug("Seat ID: " + seatId);
+		logger.debug("Appointment ID: " + appointmentId);
+		
 		String queryString = String.format("INSERT INTO appointment VALUES ("
 				+ "'%s', '%s', %d, %d, %d)", 
 				exam.getExamID(), 
@@ -121,6 +137,8 @@ public class TestingCenter {
 	
 	
 	public synchronized void cancelAppointment(int appID) {
+		logger.info("Cancelling appointment with ID " + appID);
+		
 		String queryString = String.format(
 				"DELETE "
 				+ "FROM appointment "
@@ -132,6 +150,8 @@ public class TestingCenter {
 	}
 	
 	public List<Appointment> showAppointments(String netID) {
+		logger.info("Retrieving all appointments for student ID " + netID);
+		
 		List<Appointment> appointments = new ArrayList<Appointment>();
 		String queryString = String.format("SELECT * FROM appointment "
 				+ "WHERE studentIdA='%s'",
@@ -139,7 +159,6 @@ public class TestingCenter {
 				);
 		List<Map<String,Object>> appts = db.query(queryString);
 		for (Map<String,Object> appt : appts) {
-			System.out.println(appt);
 			String examId = (String) appt.get("examId");
 			String netId = (String) appt.get("studentIdA");
 			DateTime time = new DateTime((int) appt.get("dateIdA")*1000);
@@ -152,11 +171,12 @@ public class TestingCenter {
 	}
 	
 	public List<Appointment> viewAllAppointments() {
+		logger.info("Retrieving all appointments");
+		
 		List<Appointment> appointments = new ArrayList<Appointment>();
 		String queryString = String.format("SELECT * FROM appointment "	);
 		List<Map<String,Object>> appts = db.query(queryString);
 		for (Map<String,Object> appt : appts) {
-			System.out.println(appt);
 			String examId = (String) appt.get("examId");
 			String netId = (String) appt.get("studentIdA");
 			DateTime time = new DateTime((int) appt.get("dateIdA")*1000);
@@ -170,6 +190,13 @@ public class TestingCenter {
 	}
 
 	public synchronized boolean makeReservation(Exam exam, DateTime start, DateTime end, boolean courseExam, String instructorId) {
+		logger.info("Creating new reservation request.");
+		logger.debug("Exam ID: " + exam.getExamID());
+		logger.debug("Exam start time: " + start.toString());
+		logger.debug("Exam end time: " + end.toString());
+		logger.debug("Course exam: " + courseExam);
+		logger.debug("Reservation status: " + "P");
+		logger.debug("Instructor ID: " + instructorId);
 		
 		String queryString = String.format("INSERT INTO exam "
 				+ "(examId, start, end, boolCourseExam, examStatus, instructorId, numSeats) "
@@ -186,6 +213,8 @@ public class TestingCenter {
 		
 		if (exam instanceof CourseExam) {
 			CourseExam ce = (CourseExam) exam;
+			logger.debug("Adding entry into courseexam database with course ID: " + ce.getCourseId());
+			
 			queryString = String.format("INSERT INTO courseexam "
 					+ "(courseIdCE, examIdCE) "
 					+ "VALUES ('%s', '%s')", 
@@ -199,6 +228,7 @@ public class TestingCenter {
 	}
 
 	public synchronized void cancelExam(String examId, String instructorId){
+		logger.info("Cancelling exam with exam ID: " + examId);
 		String queryString = String.format("DELETE FROM exam"
 				+ " WHERE "
 				+ "instructorId='%s'"
@@ -209,9 +239,21 @@ public class TestingCenter {
 				);
 		db.updateQuery(queryString);
 		
+		queryString = String.format("DELETE FROM courseexam"
+				+ " WHERE "
+				+ "instructorId='%s'"
+				+ " AND "
+				+ "examIdCE='%s'",
+				instructorId,
+				examId
+				);
+		db.updateQuery(queryString);
+		
 	}
 
 	public List<Exam> getAllExams() {
+		logger.info("Retrieving all exams.");
+		
 		Database db = Database.getDatabase();
 		List<Map<String,Object>> exams = db.query("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, courseexam.courseIdCE "
 				+ "FROM exam "
@@ -241,7 +283,7 @@ public class TestingCenter {
 
 	/*
 	 * Returns a list of adHoc exams from the database.
-	 * Not actually used by anything yet...
+	 * Not actually used by anything...
 	 */
 	public List<OutsideExam> getAdHocExams() {
 		Database db = Database.getDatabase();
@@ -264,6 +306,8 @@ public class TestingCenter {
 	}
 
 	public List<Exam> getInstructorExams(String instructorId) {
+		logger.info("Retrieving all exams for instructor with innstructor ID: " + instructorId);
+		
 		List<Exam> exams = new ArrayList<Exam>();
 		String queryString = String.format("SELECT * FROM exam "
 				+ "INNER JOIN instructor ON exam.instructorId=instructor.instructorId WHERE exam.instructorId = '%s'",
@@ -271,7 +315,6 @@ public class TestingCenter {
 				);
 		List<Map<String,Object>> examList = db.query(queryString);
 		for (Map<String,Object> exam : examList) {
-			System.out.println(exam);
 			String examId = (String) exam.get("examId");
 			DateTime start = new DateTime(new Long((int) exam.get("start")*1000));
 			DateTime end = new DateTime(new Long((int) exam.get("end")*1000));
@@ -286,6 +329,8 @@ public class TestingCenter {
 	}
 
 	public List<Exam> getPendingExams() {
+		logger.info("Retrieving all pending exam reservation requests.");
+		
 		List<Map<String,Object>> exams = db.query(
 				String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, numSeats, courseexam.courseIdCE "
 				+ "FROM exam "
@@ -379,10 +424,10 @@ public class TestingCenter {
 			return true;
 			
 		} catch (FileNotFoundException e) {
-			System.out.println("File not found.");
+			logger.error("File not found.");
 			return false;
 		} catch (IOException e) {
-			System.out.println("An error occured while reading.");
+			logger.error("An error occured while reading.");
 			return false;
 		}
 	}
@@ -403,7 +448,7 @@ public class TestingCenter {
 				sb.append(",");
 			}
 		}
-		System.out.println(sb.toString());
+		//logger.debug("sb.toString());
 		return sb.toString();
 		
 	}
@@ -450,9 +495,13 @@ public class TestingCenter {
 	 * This function creates and sends an email reminder to a student for an exam.
 	 * (NOTE: At this time this is not automated.)
 	 */
-	public void sendNotice(String email, Exam exam) {	
+	public void sendNotice(String email, Exam exam) {
 		final String username = "stonybrooktestingcenter@gmail.com";
 		final String password = "testingcenter308";
+		
+		logger.info("Sending email");
+		logger.debug("Recipient email address: " + email);
+		logger.debug("Sender email address: " + username);
 
 		Properties props = new Properties();
 		props.put("mail.smtp.auth", "true");
@@ -485,10 +534,11 @@ public class TestingCenter {
 			message.setContent(content, "text/html");
 
 			Transport.send(message);
-
-			System.out.println("Done");
+			
+			logger.info("Email sent successfully.");
 
 		} catch (MessagingException e) {
+			logger.error("Email could not be sent.");
 			throw new RuntimeException(e);
 		}
 	}
@@ -551,7 +601,12 @@ public class TestingCenter {
 	 */
 	
 	public void setNumberofSeats(int n) {
+		logger.info("Changing number of seats.");
+		logger.debug("Previous number of seats: " + numberOfSeats);
+		
 		numberOfSeats = n;
+		
+		logger.debug("New number of seats: " + numberOfSeats);
 		
 	}
 
@@ -569,7 +624,12 @@ public class TestingCenter {
 	}
 
 	public void setGapTime(int h, int m) {
+		logger.info("Changing gap time.");
+		logger.debug("Previous gap time: " + gap.toString());
+		
 		gap = new Period(h,0,0,0);
+		
+		logger.debug("New gap time: " + gap.toString());
 		
 	}
 
@@ -578,7 +638,12 @@ public class TestingCenter {
 	}
 
 	public void setReminder(int h) {
+		logger.info("Changing reminder interval.");
+		logger.debug("Previous reminder interval: " + reminderInt.toString());
+		
 		reminderInt = new Period(h,0,0,0);
+		
+		logger.debug("New reminder interval: " + reminderInt.toString());
 		
 	}
 
@@ -588,6 +653,9 @@ public class TestingCenter {
 	}
 
 	public void setExamStatus(String examId, String newStatus) {
+		logger.info("Changing status of exam with exam ID: " + examId);
+		logger.debug("New exam status: " + newStatus);
+		
 		Database db = Database.getDatabase();
 		String queryString = String.format(
 				"UPDATE exam "
@@ -630,7 +698,6 @@ If you can fill all seats before you hit the current time, then the course is sc
 		Map<LocalDate, Integer> seatsAvailable = new HashMap<LocalDate, Integer>();
 
 		for ( Map<String, Object> exam : exams ) {
-			System.out.println(exam);
 			
 			long seatsNeeded = (int) exam.get("numSeats") - (long) exam.get("numAppointments");
 			
@@ -670,6 +737,8 @@ If you can fill all seats before you hit the current time, then the course is sc
 	}
 	
 	public List<Exam> viewAvailableExams(Student st) {
+		logger.debug("Retrieving all exams currently available to student with ID" + st.getNetID());
+		
 		String queryString = String.format("SELECT exam.examId, start, end, examStatus, numSeats, boolCourseExam, instructorId, courseexam.courseIdCE "
 				+ "FROM exam "
 				+ "INNER JOIN courseexam "
@@ -678,7 +747,6 @@ If you can fill all seats before you hit the current time, then the course is sc
 				+ "ON courseexam.courseIdCE=coursestudent.courseIdCS "
 				+ "WHERE coursestudent.studentIdCS='%s';", 
 				st.getNetID());
-		System.out.println(queryString);
 		Database db = Database.getDatabase();
 		List<Map<String, Object>> exams = db.query(queryString);
 		
@@ -698,7 +766,6 @@ If you can fill all seats before you hit the current time, then the course is sc
 			if (courseExam) {
 				String courseId = (String) exam.get("courseIdCE");
 				newExam = new CourseExam(examId, startMilliseconds, endMilliseconds, examStatus, instructorId, courseId, numSeats);
-				System.out.println(newExam);
 			}
 			else {
 				newExam = new OutsideExam(examId, endMilliseconds, endMilliseconds, examStatus, instructorId, numSeats);

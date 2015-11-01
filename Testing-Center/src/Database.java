@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.mysql.jdbc.CommunicationsException;
 
 /**
@@ -28,6 +31,8 @@ import com.mysql.jdbc.CommunicationsException;
  * Singleton class
  */
 public class Database {
+	
+	private static final Logger logger = LoggerFactory.getLogger(Database.class);   
 
 	private static Database instance = null;
 	
@@ -42,12 +47,12 @@ public class Database {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 		} catch (ClassNotFoundException e) {
-			System.out.println("Could not find MySQL JDBC Driver?");
+			logger.error("Could not find MySQL JDBC Driver?");
 			e.printStackTrace();
 			return;
 		}
 
-		System.out.println("MySQL JDBC Driver Found");
+		logger.info("MySQL JDBC Driver Found");
 		Connection conn = null;
 
 		try {
@@ -55,19 +60,21 @@ public class Database {
 
 		}
 		catch (CommunicationsException e) {
-			System.out.println("Connectoin Failed! Could not establish connection with server. Please make sure your internet connection is valid and that the server is active, as well as the output console for any further unformation.");
+			logger.error("Connectoin Failed! Could not establish connection with server. Please make sure your internet connection is valid and that the server is active, as well as the output console for any further unformation.");
 			e.printStackTrace();
 			return;
 		}
 		catch (SQLException e) {
-			System.out.println("Connection Failed! Check output console");
+			logger.error("Connection Failed! Check output console");
+			e.printStackTrace();
+			return;
 		}
 		try {
 			if (conn != null) {
-				System.out.println("Database connection established");
+				logger.info("Database connection established");
 				this.conn = conn;
 			} else {
-				System.out.println("Failed to make connection");
+				logger.info("Failed to make connection");
 			}
 
 		} catch(Exception e){
@@ -79,7 +86,7 @@ public class Database {
 			statement = conn.createStatement();
 		} catch (SQLException e1) {
 			// TODO Auto-generated catch block
-			System.out.println("Unable to create SQL statement.");
+			logger.error("Unable to create SQL statement.");
 			e1.printStackTrace();
 		}
 		
@@ -87,7 +94,7 @@ public class Database {
 			boolean hasResultSet = statement.execute("USE ssattar");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			System.out.println("Unable to execute statement: \"USE ssattar\"");
+			logger.error("Unable to execute statement: \"USE ssattar\"");
 			e.printStackTrace();
 		}
 	}
@@ -110,6 +117,8 @@ public class Database {
 	 * function to send queries and receive the list returned from the DB
 	 */
 	public List<Map<String,Object>> query(String queryString) {
+		logger.debug("Preparing to execute SQL query to retrieve data.");
+		logger.info("QUERY STRING: " + queryString);
 		List<Map<String,Object>> results = new ArrayList<Map<String,Object>>();
 		ResultSet rs = null;
 		try {
@@ -124,12 +133,10 @@ public class Database {
 				}
 				results.add(map);
 			}
+			logger.info("Query successfully executed.");
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			System.out.println("Please check your SQL statement");
-
-			System.out.println("Query string: " + queryString);
+			logger.error("Error executing query. Please check query and try again.");
 			e.printStackTrace();
 		}
 		return results;
@@ -139,13 +146,16 @@ public class Database {
 	 * Sends a query to update
 	 */
 	public int updateQuery(String queryString) {
+		logger.debug("Preparing to execute SQL query to update database.");
+		logger.info("QUERY STRING: " + queryString);
 		int returnVal = 0;
 		PreparedStatement statement;
 		try {
 			statement = conn.prepareStatement(queryString);
 			returnVal = statement.executeUpdate();
+			logger.info("Query successfully executed.");
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			logger.error("Error executing query. Please check query and try again.");
 			e.printStackTrace();
 		}
 		return returnVal;
