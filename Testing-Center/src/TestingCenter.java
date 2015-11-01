@@ -118,41 +118,14 @@ public class TestingCenter {
 		db.updateQuery(queryString);
 	}
 	
-	/*
-	 * Fix this function.
-	 */
-	public List<Exam> showStudentExams(String netId){
-		String queryString = String.format("SELECT courseIdCS from CourseStudent where StudentIdCS = '%s'", netId);
-		List<Map<String,Object>> courses = db.query(queryString);
-		List<Exam> examsList = new ArrayList<Exam>();
-		
-		List<Map<String,Object>> exams = db.query("SELECT examId, start, end, boolCourseExam, examStatus, instructorId FROM exam");
-		
-		
-		for (Map<String,Object> exam : exams) {
-			
-			String id = (String) exam.get("examId");
-			long startMilliseconds = new Long((int) exam.get("start")*1000);
-			long endMilliseconds = new Long((int) exam.get("end")*1000);
-			String examStatus = (String) exam.get("examStatus");
-			String instructorId = (String) exam.get("instructorId");
-			int numSeats = (int) exam.get("numSeats");
-			
-			Exam newExam = ((String) exam.get("boolCourseExam")).equals("1") ? 
-					new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, numSeats) : 
-						new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus, numSeats); 
-			
-			examsList.add(newExam);
-		}
-		
-		return examsList;
-		
-	}
+	
 	
 	public synchronized void cancelAppointment(int appID) {
-		String queryString = String.format("DELETE FROM appointment "
+		String queryString = String.format(
+				"DELETE "
+				+ "FROM appointment "
 				+ "WHERE "
-				+ "appointmentId='%d'",
+				+ "appointmentId=%d",
 				appID
 				);
 		db.updateQuery(queryString);
@@ -199,7 +172,7 @@ public class TestingCenter {
 	public synchronized boolean makeReservation(Exam exam, DateTime start, DateTime end, boolean courseExam, String instructorId) {
 		
 		String queryString = String.format("INSERT INTO exam "
-				+ "(examId, start, end, boolCourseExam, examStatus, instructorId, numSeats)"
+				+ "(examId, start, end, boolCourseExam, examStatus, instructorId, numSeats) "
 				+ "VALUES ('%s', %d, %d, %d, '%s', '%s', %d)", 
 				exam.getExamID(), 
 				start.getMillis()/1000,
@@ -210,6 +183,17 @@ public class TestingCenter {
 				exam.getNumSeats()
 				);
 		db.updateQuery(queryString);
+		
+		if (exam instanceof CourseExam) {
+			CourseExam ce = (CourseExam) exam;
+			queryString = String.format("INSERT INTO courseexam "
+					+ "(courseIdCE, examIdCE) "
+					+ "VALUES ('%s', '%s')", 
+					ce.getCourseId(),
+					exam.getExamID()
+					);
+			db.updateQuery(queryString);
+		}
 		
 		return true;
 	}
@@ -229,7 +213,10 @@ public class TestingCenter {
 
 	public List<Exam> getAllExams() {
 		Database db = Database.getDatabase();
-		List<Map<String,Object>> exams = db.query("SELECT examId, start, end, boolCourseExam, examStatus, instructorId FROM exam");
+		List<Map<String,Object>> exams = db.query("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, courseexam.courseIdCE "
+				+ "FROM exam "
+				+ "LEFT JOIN courseexam "
+				+ "ON exam.examId=courseexam.examIdCE");
 		
 		List<Exam> examsList = new ArrayList<Exam>();
 		for (Map<String,Object> exam : exams) {
@@ -240,10 +227,11 @@ public class TestingCenter {
 			String examStatus = (String) exam.get("examStatus");
 			String instructorId = (String) exam.get("instructorId");
 			int numSeats = (int) exam.get("numSeats");
+			String courseId = (String) exam.get("courseIdCE");
 			
 			Exam newExam = ((String) exam.get("boolCourseExam")).equals("1") ? 
-					new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, numSeats) : 
-						new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus, numSeats); 
+					new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, courseId, numSeats) : 
+						new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, numSeats); 
 			
 			examsList.add(newExam);
 		}
@@ -257,7 +245,7 @@ public class TestingCenter {
 	 */
 	public List<OutsideExam> getAdHocExams() {
 		Database db = Database.getDatabase();
-		List<Map<String,Object>> adHocExams = db.query("SELECT (examId, start, end, examStatus) FROM exam WHERE boolCourseExam = 0");
+		List<Map<String,Object>> adHocExams = db.query("SELECT (examId, start, end, examStatus, instructorId) FROM exam WHERE boolCourseExam = 0");
 		
 		List<OutsideExam> exams = new ArrayList<OutsideExam>();
 		for (Map<String,Object> exam : adHocExams) {
@@ -265,9 +253,10 @@ public class TestingCenter {
 			long startMilliseconds = new Long((int) exam.get("start")*1000);
 			long endMilliseconds = new Long((int) exam.get("end")*1000);
 			String status = (String) exam.get("examStatus");
-			int numSeats = (int) exam.get("numSeats");
+			String instructorId = (String) exam.get("instructorId");
+			int numSeats = (int) exam.get("numSeats");;
 			
-			OutsideExam newExam = new OutsideExam(id, startMilliseconds, endMilliseconds, status, numSeats);
+			OutsideExam newExam = new OutsideExam(id, startMilliseconds, endMilliseconds, status, instructorId, numSeats);
 			exams.add(newExam);
 		}
 		
@@ -298,24 +287,32 @@ public class TestingCenter {
 
 	public List<Exam> getPendingExams() {
 		List<Map<String,Object>> exams = db.query(
-				String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId "
+				String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, numSeats, courseexam.courseIdCE "
 				+ "FROM exam "
+				+ "LEFT JOIN courseexam "
+				+ "ON exam.examId=courseexam.examIdCE "
 				+ "WHERE examStatus = 'P'"
 				));
 		
 		List<Exam> examsList = new ArrayList<Exam>();
 		for (Map<String,Object> exam : exams) {
 			
+			Exam newExam = null;
+			
 			String id = (String) exam.get("examId");
 			long startMilliseconds = new Long((int) exam.get("start")*1000);
 			long endMilliseconds = new Long((int) exam.get("end")*1000);
 			String examStatus = (String) exam.get("examStatus");
-			String instructorId = (String) exam.get("instructorId");
 			int numSeats = (int) exam.get("numSeats");
+			String instructorId = (String) exam.get("instructorId");
 			
-			Exam newExam = ((String) exam.get("boolCourseExam")).equals("1") ? 
-					new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, numSeats) : 
-						new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus, numSeats); 
+			if ( ((String) exam.get("boolCourseExam")).equals("1") ) {
+				String courseId = (String) exam.get("courseIdCE");
+				newExam = new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, courseId, numSeats);
+			}
+			else {
+				newExam = new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, numSeats);
+			}
 			
 			examsList.add(newExam);
 		}
@@ -672,6 +669,47 @@ If you can fill all seats before you hit the current time, then the course is sc
 		return true;
 	}
 	
+	public List<Exam> viewAvailableExams(Student st) {
+		String queryString = String.format("SELECT exam.examId, start, end, examStatus, numSeats, boolCourseExam, instructorId, courseexam.courseIdCE "
+				+ "FROM exam "
+				+ "INNER JOIN courseexam "
+				+ "ON exam.examId=courseexam.examIdCE "
+				+ "INNER JOIN coursestudent "
+				+ "ON courseexam.courseIdCE=coursestudent.courseIdCS "
+				+ "WHERE coursestudent.studentIdCS='%s';", 
+				st.getNetID());
+		System.out.println(queryString);
+		Database db = Database.getDatabase();
+		List<Map<String, Object>> exams = db.query(queryString);
+		
+		List<Exam> availableExams = new ArrayList<Exam>();
+		
+		for (Map<String, Object> exam : exams) {
+			Exam newExam;
+			
+			String examId = (String) exam.get("examId");
+			long startMilliseconds = new Long((int) exam.get("start")*1000);
+			long endMilliseconds = new Long((int) exam.get("end")*1000);
+			String examStatus = (String) exam.get("examStatus");
+			int numSeats = (int) exam.get("numSeats");
+			boolean courseExam = ((String) exam.get("boolCourseExam")).equals("1") ? true : false;
+			String instructorId = (String) exam.get("instructorId");
+			
+			if (courseExam) {
+				String courseId = (String) exam.get("courseIdCE");
+				newExam = new CourseExam(examId, startMilliseconds, endMilliseconds, examStatus, instructorId, courseId, numSeats);
+				System.out.println(newExam);
+			}
+			else {
+				newExam = new OutsideExam(examId, endMilliseconds, endMilliseconds, examStatus, instructorId, numSeats);
+			}
+			
+			availableExams.add(newExam);
+		}
+		
+		return availableExams;
+	}
+	
 	public static void main(String[] args) {
 		DateTime start = new DateTime(2015, 10, 29, 8, 0);
 		DateTime end = new DateTime(2015, 10, 29, 14, 0);
@@ -681,6 +719,13 @@ If you can fill all seats before you hit the current time, then the course is sc
 		TestingCenter tc = TestingCenter.getTestingCenter();
 		
 		System.out.println(tc.isExamSchedulable(ex));
+		
+		Student student = new Student(null, "a", null, null);
+		List<Exam> exams = tc.viewAvailableExams(student);
+		System.out.println("Lol");
+		for (Exam exam : exams) {
+			System.out.println(exam);
+		}
 	}
 	
 }

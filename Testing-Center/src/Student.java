@@ -35,10 +35,6 @@ public class Student {
 	/**
 	 * 
 	 */
-	public Student() {
-		// TODO Auto-generated constructor stub
-	}
-	
 	public Student(String name, String netID, String email,
 			List<Appointment> appointments) {
 		this.name = name;
@@ -46,6 +42,46 @@ public class Student {
 		this.email = email;
 		this.appointments = appointments;
 		tC = TestingCenter.getTestingCenter();
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getNetID() {
+		return netID;
+	}
+
+	public void setNetID(String netID) {
+		this.netID = netID;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public List<Appointment> getAppointments() {
+		return appointments;
+	}
+
+	public void setAppointments(List<Appointment> appointments) {
+		this.appointments = appointments;
+	}
+
+	public TestingCenter gettC() {
+		return tC;
+	}
+
+	public void settC(TestingCenter tC) {
+		this.tC = tC;
 	}
 
 	/*
@@ -61,8 +97,8 @@ public class Student {
 	 * (NOTE: This does not check to see if the appointment exists first. Will require the calling of
 	 * view in the future.)
 	 */
-	public void cancelAppointment(int appID) {
-		tC.cancelAppointment(appID);
+	public void cancelAppointment(int string) {
+		tC.cancelAppointment(string);
 	}
 	
 	/*
@@ -77,8 +113,12 @@ public class Student {
 		
 	}
 	
-	public void viewExams() {
-		// DO THIS AFTER BAND
+	/*
+	 * Displays reservations for all approved exams for courses this student is enrolled in.
+	 */
+	public List<Exam> viewExams() {
+		return tC.viewAvailableExams(this);
+
 	}
 	
 	/*
