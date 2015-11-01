@@ -118,6 +118,37 @@ public class TestingCenter {
 		db.updateQuery(queryString);
 	}
 	
+	/*
+	 * Fix this function.
+	 */
+	public List<Exam> showStudentExams(String netId){
+		String queryString = String.format("SELECT courseIdCS from CourseStudent where StudentIdCS = '%s'", netId);
+		List<Map<String,Object>> courses = db.query(queryString);
+		List<Exam> examsList = new ArrayList<Exam>();
+		
+		List<Map<String,Object>> exams = db.query("SELECT examId, start, end, boolCourseExam, examStatus, instructorId FROM exam");
+		
+		
+		for (Map<String,Object> exam : exams) {
+			
+			String id = (String) exam.get("examId");
+			long startMilliseconds = new Long((int) exam.get("start")*1000);
+			long endMilliseconds = new Long((int) exam.get("end")*1000);
+			String examStatus = (String) exam.get("examStatus");
+			String instructorId = (String) exam.get("instructorId");
+			int numSeats = (int) exam.get("numSeats");
+			
+			Exam newExam = ((String) exam.get("boolCourseExam")).equals("1") ? 
+					new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, numSeats) : 
+						new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus, numSeats); 
+			
+			examsList.add(newExam);
+		}
+		
+		return examsList;
+		
+	}
+	
 	public synchronized void cancelAppointment(int appID) {
 		String queryString = String.format("DELETE FROM appointment "
 				+ "WHERE "
@@ -465,8 +496,52 @@ public class TestingCenter {
 		}
 	}
 	
+	/*
+	 * This still needs to be tested
+	 */
 	public void getUpcoming() {
+		DateTime now = DateTime.now();
+		DateTime thirty = new DateTime(0,1,1,0,30);
+		long nowM= now.getMillisOfDay()/60000;
+		nowM = nowM %(60);
+		long thirtyM = thirty.getMillisOfDay()/60000;
+		DateTime search = null;
+		if (nowM<thirtyM) {
+			search = now.hourOfDay().roundFloorCopy();
+			search = search.plusHours(reminderInt.getHours());
+		} else {
+			search = now.hourOfDay().roundFloorCopy();
+			search = search.withMinuteOfHour(30);
+			search = search.plusHours(reminderInt.getHours());
+		}
+		List<Map<String,Object>> appointments = db.query(
+				String.format("SELECT examIdA, studentIdA, dateIdA, seatIdA, appointmentID "
+				+ "FROM appointment "
+				+ "WHERE dateIdA = '%d'",
+				search.getMillis()/1000
+				));
 		
+		
+		for (Map<String,Object> appointment : appointments) {
+			String queryString = String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId FROM exam"
+					+ "WHERE examID = '%s'",
+					appointment.get("examIdA"));
+			List<Map<String,Object>> exams = db.query(queryString);
+			
+			queryString = String.format("SELECT studentId, email FROM student WHERE studentId = '%s'",
+					appointment.get("studentIdA"));
+			List<Map<String,Object>> emails = db.query(queryString);
+			
+			Map<String,Object>exam = exams.get(0);
+			String examId = (String) exam.get("examId");
+			DateTime start = new DateTime(new Long((int) exam.get("start")*1000));
+			DateTime end = new DateTime(new Long((int) exam.get("end")*1000));
+			String status = (String) exam.get("status");
+			int numSeats = (int) exam.get("numSeats");
+			
+			Exam examObj = new Exam(examId, start, end, status, numSeats);
+			sendNotice((String)emails.get(0).get("email"),examObj);
+		}
 	}
 	
 	private class Notifier {

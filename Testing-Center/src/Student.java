@@ -78,7 +78,7 @@ public class Student {
 	}
 	
 	public void viewExams() {
-		
+		// DO THIS AFTER BAND
 	}
 	
 	/*
