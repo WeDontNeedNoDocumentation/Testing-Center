@@ -55,6 +55,8 @@ public class TestingCenter {
 	private Period gap;
 	private Period reminderInt;
 	private Database db;
+	private Notifier notifier;
+	
 	/**
 	 * @param db 
 	 * 
@@ -77,6 +79,7 @@ public class TestingCenter {
 		this.gap = gap;
 		this.reminderInt = reminderInt;
 		this.db = Database.getDatabase();
+		notifier = new Notifier("thread");
 	}
 
 	public static TestingCenter getTestingCenter() {
@@ -489,110 +492,7 @@ public class TestingCenter {
 		
 	}
 	
-	/*
-	 * This function creates and sends an email reminder to a student for an exam.
-	 * (NOTE: At this time this is not automated.)
-	 */
-	public void sendNotice(String email, Exam exam) {
-		final String username = "stonybrooktestingcenter@gmail.com";
-		final String password = "testingcenter308";
-		
-		logger.info("Sending email");
-		logger.fine("Recipient email address: " + email);
-		logger.fine("Sender email address: " + username);
-
-		Properties props = new Properties();
-		props.put("mail.smtp.auth", "true");
-		props.put("mail.smtp.starttls.enable", "true");
-		props.put("mail.smtp.host", "smtp.gmail.com");
-		props.put("mail.smtp.port", "587");
-
-		Session session = Session.getInstance(props,
-		  new javax.mail.Authenticator() {
-			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication(username, password);
-			}
-		  });
-
-		try {
-			String content = String.format("<h1>You have an exam coming up.</h1><br><br>"
-	         		+ "The exam is scheduled to run from %s to %s.<br>"
-	         		+ "Please arrive 30 minutes early to ensure that you can sign in "
-	         		+ "and begin on-time.<br><br>"
-	         		+ "Good luck!", 
-	         		exam.getStart().toString(), 
-	         		exam.getEnd().toString()
-	         		);
-
-			MimeMessage message = new MimeMessage(session);
-			message.setFrom(new InternetAddress("from-email@gmail.com"));
-			message.setRecipients(Message.RecipientType.TO,
-				InternetAddress.parse(email));
-			message.setSubject("UPCOMING EXAM");
-			message.setContent(content, "text/html");
-
-			Transport.send(message);
-			
-			logger.info("Email sent successfully.");
-
-		} catch (MessagingException e) {
-			logger.warning("Email could not be sent.");
-			throw new RuntimeException(e);
-		}
-	}
 	
-	/*
-	 * This still needs to be tested
-	 */
-	public void getUpcoming() {
-		DateTime now = DateTime.now();
-		DateTime thirty = new DateTime(0,1,1,0,30);
-		long nowM= now.getMillisOfDay()/60000;
-		nowM = nowM %(60);
-		long thirtyM = thirty.getMillisOfDay()/60000;
-		DateTime search = null;
-		if (nowM<thirtyM) {
-			search = now.hourOfDay().roundFloorCopy();
-			search = search.plusHours(reminderInt.getHours());
-		} else {
-			search = now.hourOfDay().roundFloorCopy();
-			search = search.withMinuteOfHour(30);
-			search = search.plusHours(reminderInt.getHours());
-		}
-		List<Map<String,Object>> appointments = db.query(
-				String.format("SELECT examIdA, studentIdA, dateIdA, seatIdA, appointmentID "
-				+ "FROM appointment "
-				+ "WHERE dateIdA = '%d'",
-				search.getMillis()/1000
-				));
-		
-		
-		for (Map<String,Object> appointment : appointments) {
-			String queryString = String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId FROM exam"
-					+ "WHERE examID = '%s'",
-					appointment.get("examIdA"));
-			List<Map<String,Object>> exams = db.query(queryString);
-			
-			queryString = String.format("SELECT studentId, email FROM student WHERE studentId = '%s'",
-					appointment.get("studentIdA"));
-			List<Map<String,Object>> emails = db.query(queryString);
-			
-			Map<String,Object>exam = exams.get(0);
-			String examId = (String) exam.get("examId");
-			DateTime start = new DateTime(new Long((int) exam.get("start")*1000));
-			DateTime end = new DateTime(new Long((int) exam.get("end")*1000));
-			String status = (String) exam.get("status");
-			int numSeats = (int) exam.get("numSeats");
-			
-			Exam examObj = new Exam(examId, start, end, status, numSeats);
-			sendNotice((String)emails.get(0).get("email"),examObj);
-		}
-	}
-	
-	private class Notifier {
-		
-		
-	}
 
 	/*
 	 * The following are getters and setters for the testing center information.
@@ -775,6 +675,132 @@ If you can fill all seats before you hit the current time, then the course is sc
 		return availableExams;
 	}
 	
+	private class Notifier extends Thread{
+		private String threadName;
+		private int count=0;
+		
+		Notifier(String name) {
+		      super(name);
+		      threadName=name;
+		      System.out.println("Creating " +  threadName );
+		      count++;
+		      start();
+		    }
+		
+		@Override
+		public void run() {
+			  String msg = "Running"+threadName+" "+count;
+		      System.out.println(msg);
+		      logger.fine(msg);
+		}
+		
+		public String toString() {
+		      return getName();
+		    }
+		/*
+		 * This still needs to be tested
+		 */
+		public void getUpcoming() {
+			DateTime now = DateTime.now();
+			DateTime thirty = new DateTime(0,1,1,0,30);
+			long nowM= now.getMillisOfDay()/60000;
+			nowM = nowM %(60);
+			long thirtyM = thirty.getMillisOfDay()/60000;
+			DateTime search = null;
+			if (nowM<thirtyM) {
+				search = now.hourOfDay().roundFloorCopy();
+				search = search.plusHours(reminderInt.getHours());
+			} else {
+				search = now.hourOfDay().roundFloorCopy();
+				search = search.withMinuteOfHour(30);
+				search = search.plusHours(reminderInt.getHours());
+			}
+			List<Map<String,Object>> appointments = db.query(
+					String.format("SELECT examIdA, studentIdA, dateIdA, seatIdA, appointmentID "
+					+ "FROM appointment "
+					+ "WHERE dateIdA = '%d'",
+					search.getMillis()/1000
+					));
+			
+			
+			for (Map<String,Object> appointment : appointments) {
+				String queryString = String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId FROM exam"
+						+ "WHERE examID = '%s'",
+						appointment.get("examIdA"));
+				List<Map<String,Object>> exams = db.query(queryString);
+				
+				queryString = String.format("SELECT studentId, email FROM student WHERE studentId = '%s'",
+						appointment.get("studentIdA"));
+				List<Map<String,Object>> emails = db.query(queryString);
+				
+				Map<String,Object>exam = exams.get(0);
+				String examId = (String) exam.get("examId");
+				DateTime start = new DateTime(new Long((int) exam.get("start")*1000));
+				DateTime end = new DateTime(new Long((int) exam.get("end")*1000));
+				String status = (String) exam.get("status");
+				int numSeats = (int) exam.get("numSeats");
+				
+				Exam examObj = new Exam(examId, start, end, status, numSeats);
+				sendNotice((String)emails.get(0).get("email"),examObj);
+			}
+		}
+
+		/*
+		 * This function creates and sends an email reminder to a student for an exam.
+		 * (NOTE: At this time this is not automated.)
+		 */
+		public void sendNotice(String email, Exam exam) {
+			final String username = "stonybrooktestingcenter@gmail.com";
+			final String password = "testingcenter308";
+			
+			logger.info("Sending email");
+			logger.fine("Recipient email address: " + email);
+			logger.fine("Sender email address: " + username);
+		
+			Properties props = new Properties();
+			props.put("mail.smtp.auth", "true");
+			props.put("mail.smtp.starttls.enable", "true");
+			props.put("mail.smtp.host", "smtp.gmail.com");
+			props.put("mail.smtp.port", "587");
+		
+			Session session = Session.getInstance(props,
+			  new javax.mail.Authenticator() {
+				protected PasswordAuthentication getPasswordAuthentication() {
+					return new PasswordAuthentication(username, password);
+				}
+			  });
+		
+			try {
+				String content = String.format("<h1>You have an exam coming up.</h1><br><br>"
+		         		+ "The exam is scheduled to run from %s to %s.<br>"
+		         		+ "Please arrive 30 minutes early to ensure that you can sign in "
+		         		+ "and begin on-time.<br><br>"
+		         		+ "Good luck!", 
+		         		exam.getStart().toString(), 
+		         		exam.getEnd().toString()
+		         		);
+		
+				MimeMessage message = new MimeMessage(session);
+				message.setFrom(new InternetAddress("from-email@gmail.com"));
+				message.setRecipients(Message.RecipientType.TO,
+					InternetAddress.parse(email));
+				message.setSubject("UPCOMING EXAM");
+				message.setContent(content, "text/html");
+		
+				Transport.send(message);
+				
+				logger.info("Email sent successfully.");
+		
+			} catch (MessagingException e) {
+				logger.warning("Email could not be sent.");
+				throw new RuntimeException(e);
+			}
+		}
+		
+	}
+
+	
+
 	public static void main(String[] args) {
 		DateTime start = new DateTime(2015, 10, 29, 8, 0);
 		DateTime end = new DateTime(2015, 10, 29, 14, 0);
