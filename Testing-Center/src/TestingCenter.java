@@ -689,7 +689,9 @@ If you can fill all seats before you hit the current time, then the course is sc
 		
 		@Override
 		public void run() {
-		      System.out.println("Running "+ threadName + count);
+			  String msg = "Running"+threadName+" "+count;
+		      System.out.println(msg);
+		      logger.fine(msg);
 		}
 		
 		public String toString() {
