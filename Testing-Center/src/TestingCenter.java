@@ -79,7 +79,7 @@ public class TestingCenter {
 		this.gap = gap;
 		this.reminderInt = reminderInt;
 		this.db = Database.getDatabase();
-		notifier = new Notifier("");
+		notifier = new Notifier("thread");
 	}
 
 	public static TestingCenter getTestingCenter() {
@@ -676,36 +676,21 @@ If you can fill all seats before you hit the current time, then the course is sc
 	}
 	
 	private class Notifier extends Thread{
-		//private Thread t;
 		private String threadName;
+		private int count=0;
 		
 		Notifier(String name) {
 		      super(name);
 		      threadName=name;
 		      System.out.println("Creating " +  threadName );
+		      count++;
 		      start();
 		    }
 		
-//		   Notifier(String name){
-//		       threadName = name;
-//		       System.out.println("Creating " +  threadName );
-//		   }
-		
 		@Override
 		public void run() {
-		      System.out.println("Running ");
+		      System.out.println("Running "+ threadName + count);
 		}
-		
-//		public void start ()
-//		   {
-//		      System.out.println("Starting thread");
-//		      if (t == null)
-//		      {
-//		         t = new Thread (this, threadName);
-//		    	 //t = new Thread (this);
-//		         t.start ();
-//		      }
-//		   }
 		
 		public String toString() {
 		      return getName();

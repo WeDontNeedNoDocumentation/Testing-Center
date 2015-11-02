@@ -110,6 +110,11 @@ public class TestAppointments {
 		assertEquals(0, exams.size());
 	}
 	
+	@Test
+	public void testNotifierThread(){
+		logger.info("Testing the existance of one thread for the notifier");
+	}
+	
 	@AfterClass
 	public static void afterClass() {
 		logger.info("Testing complete.");
