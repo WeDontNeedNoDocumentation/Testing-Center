@@ -55,6 +55,8 @@ public class TestingCenter {
 	private Period gap;
 	private Period reminderInt;
 	private Database db;
+	private Notifier notifier;
+	
 	/**
 	 * @param db 
 	 * 
@@ -77,6 +79,7 @@ public class TestingCenter {
 		this.gap = gap;
 		this.reminderInt = reminderInt;
 		this.db = Database.getDatabase();
+		notifier = new Notifier("thread");
 	}
 
 	public static TestingCenter getTestingCenter() {
@@ -655,13 +658,28 @@ If you can fill all seats before you hit the current time, then the course is sc
 		return availableExams;
 	}
 	
-	private class Notifier implements Runnable{
-
+	private class Notifier extends Thread{
+		private String threadName;
+		private int count=0;
+		
+		Notifier(String name) {
+		      super(name);
+		      threadName=name;
+		      System.out.println("Creating " +  threadName );
+		      count++;
+		      start();
+		    }
+		
 		@Override
 		public void run() {
-			// TODO Auto-generated method stub
-			
+			  String msg = "Running"+threadName+" "+count;
+		      System.out.println(msg);
+		      logger.fine(msg);
 		}
+		
+		public String toString() {
+		      return getName();
+		    }
 		/*
 		 * This still needs to be tested
 		 */
