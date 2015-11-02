@@ -573,7 +573,7 @@ So if you have an exam that needs 100 seats, and you have 75 seats for today and
 Do this for every exam in reverse order of end time.
 If you can fill all seats before you hit the current time, then the course is schedulable.
 	 */
-	public boolean isExamSchedulable(Exam newExam) {
+	public synchronized boolean isExamSchedulable(Exam newExam) {
 		this.makeReservation(newExam, newExam.getStart(), newExam.getEnd(), newExam instanceof CourseExam, newExam.getInstructorId());
 		Database db = Database.getDatabase();
 		DateTime now = DateTime.now();
@@ -593,38 +593,21 @@ If you can fill all seats before you hit the current time, then the course is sc
 		Map<LocalDate, Integer> seatsAvailable = new HashMap<LocalDate, Integer>();
 
 		for ( Map<String, Object> exam : exams ) {
+			long start = (long) exam.get("start");
+			long end = (long) exam.get("end");
+			long len = (long)exam.get("examLength");
+			long apStart = end;
+			long apEnd = end;
 			
-			long seatsNeeded = (int) exam.get("numSeats") - (long) exam.get("numAppointments");
-			
-			long endTime = new Long((int) exam.get("end")*1000);
-			LocalDate endDate = new LocalDate(endTime);
-			
-			long startTime = new Long((int) exam.get("end")*1000);
-			LocalDate startDate = new LocalDate(startTime);
-			
-			LocalDate currDate = endDate;
-			
-			if (!seatsAvailable.containsKey(currDate))
-				seatsAvailable.put(currDate, numberOfSeats);
-			while (seatsNeeded > 0) {
-				if (currDate.compareTo(startDate) < 0) {
-					this.cancelExam(newExam.getExamID(), newExam.getInstructorId());
-					return false;
-				}
-				int seatsAvailableToday = seatsAvailable.get(currDate);
-				if (seatsAvailableToday < seatsNeeded) {
-					seatsAvailableToday = 0;
-					seatsNeeded -= seatsAvailableToday;
-				}
-				else {
-					seatsAvailableToday -= seatsNeeded;
-					seatsNeeded = 0;
-				}
-				seatsAvailable.put(currDate, seatsAvailableToday);
-				
-				if (seatsNeeded > 0)
-					currDate = currDate.minusDays(1);
+			apEnd = apStart;
+			apStart = apEnd-(len*3600);
+			if(apStart<start){
+				this.cancelExam(newExam.getExamID(), newExam.getInstructorId());
+				return false;
 			}
+			//ADD INSERT EXISTING
+			
+			
 		}
 		
 		this.cancelExam(newExam.getExamID(), newExam.getInstructorId());
