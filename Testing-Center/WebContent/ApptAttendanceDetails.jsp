@@ -156,7 +156,7 @@
                         <a href="SeeExamRequests.jsp"><i class="fa fa-fw fa-table"></i> See Exam Requests</a>
                     </li>
                     <li class="active">
-                        <a href=ApptAttendanceDetails.jsp"><span class="glyphicon glyphicon-ok"></span></span></i> Appt/Attendance Details</a>
+                        <a href="ApptAttendanceDetails.jsp"><span class="glyphicon glyphicon-ok"></span></span></i> Appt/Attendance Details</a>
                     </li>
                     <li>
                         <a href="#"><i class="fa fa-fw fa-dashboard"></i> Display Utilization Center</a>

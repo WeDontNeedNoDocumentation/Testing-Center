@@ -44,7 +44,7 @@ public class TestAppointments {
 		logger.info("Testing Student's ability to create an appointment.");
 		
 		Student student = new Student("Dan Harel", "dharel", "dan.harel@stonybrook.edu", null);
-		Exam exam = new Exam("CSE", null, null, "sstoller", 64);
+		Exam exam = new Exam("CSE", null, null, "sstoller", 64,2);
 		
 		student.makeAppointment(exam, new DateTime(2000,1,1,1,1), 0, 1);
 		
@@ -69,7 +69,7 @@ public class TestAppointments {
 		logger.info("Testing Instructor's ability to create an exam scheduling request.");
 		
 		Instructor inst = new Instructor("Scott Stoller", "stoller@cs.stonybrook.edu", tc, "SStoller");
-		Exam exam = new OutsideExam("CSE", null, null, null, "sstoller", 64);
+		Exam exam = new OutsideExam("CSE", null, null, null, "sstoller", 64,2);
 		
 		inst.makeExam(exam, new DateTime(2000,1,1,1,1), new DateTime(2000,1,1,1,2), true);
 		
