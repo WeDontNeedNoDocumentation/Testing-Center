@@ -138,7 +138,7 @@ public class TestingCenter {
 	}
 	
 	
-	
+	//Allows the user to cancel a student appointment, given the appointment id
 	public synchronized void cancelAppointment(int appID) {
 		logger.info("Cancelling appointment with ID " + appID);
 		
@@ -152,6 +152,7 @@ public class TestingCenter {
 		db.updateQuery(queryString);
 	}
 	
+	//Return a list of all appointments, given a student's netID
 	public List<Appointment> showAppointments(String netID) {
 		logger.info("Retrieving all appointments for student ID " + netID);
 		
@@ -173,6 +174,7 @@ public class TestingCenter {
 		return appointments;
 	}
 	
+	//Return a list of all appointments
 	public List<Appointment> viewAllAppointments() {
 		logger.info("Retrieving all appointments");
 		
@@ -192,6 +194,8 @@ public class TestingCenter {
 		
 	}
 
+	//Make a reservation for an exam, given the examID, start time, end time,
+	//whether it is a course exam or an adhoc exam, and the instructor id
 	public synchronized boolean makeReservation(Exam exam, DateTime start, DateTime end, boolean courseExam, String instructorId) {
 		logger.info("Creating new reservation request.");
 		logger.fine("Exam ID: " + exam.getExamID());
@@ -230,6 +234,7 @@ public class TestingCenter {
 		return true;
 	}
 
+	//cancel an exam given the particular combination of examId and instructorId
 	public synchronized void cancelExam(String examId, String instructorId){
 		logger.info("Cancelling exam with exam ID: " + examId);
 		String queryString = String.format("DELETE FROM exam"
@@ -252,6 +257,7 @@ public class TestingCenter {
 		
 	}
 
+	//retrieve a list of all exams
 	public List<Exam> getAllExams() {
 		logger.info("Retrieving all exams.");
 		
@@ -307,6 +313,7 @@ public class TestingCenter {
 		return exams;
 	}
 
+	//retrieve a list of all exams, given a certain instructor id
 	public List<Exam> getInstructorExams(String instructorId) {
 		logger.info("Retrieving all exams for instructor with innstructor ID: " + instructorId);
 		
@@ -330,6 +337,7 @@ public class TestingCenter {
 		return exams;
 	}
 
+	//retrieve a list of all exams that are still pending
 	public List<Exam> getPendingExams() {
 		logger.info("Retrieving all pending exam reservation requests.");
 		
@@ -456,6 +464,7 @@ public class TestingCenter {
 		
 	}
 
+	//check in a student for a particular exam, given the student's netID
 	public int checkIn(String netID) {
 		DateTime now = DateTime.now();
 		DateTime thirty = new DateTime(0,1,1,0,30);
@@ -552,6 +561,7 @@ public class TestingCenter {
 		
 	}
 
+	//sets exam status of a certain exam of accepted, denied, or pending
 	public void setExamStatus(String examId, String newStatus) {
 		logger.info("Changing status of exam with exam ID: " + examId);
 		logger.fine("New exam status: " + newStatus);
@@ -636,6 +646,7 @@ If you can fill all seats before you hit the current time, then the course is sc
 		return true;
 	}
 	
+	//retrieve a list of all exams that may be selected by a certain student
 	public List<Exam> viewAvailableExams(Student st) {
 		logger.info("Retrieving all exams currently available to student with ID" + st.getNetID());
 		
@@ -677,6 +688,7 @@ If you can fill all seats before you hit the current time, then the course is sc
 		return availableExams;
 	}
 	
+	//notifier thread, specific to the testing center class
 	private class Notifier extends Thread{
 		private String threadName;
 		private int count=0;
@@ -690,6 +702,8 @@ If you can fill all seats before you hit the current time, then the course is sc
 		      start();
 		    }
 		
+		//calls getUpcoming at every half hour mark, and puts the thread to sleep
+		//until then
 		@Override
 		public void run() {
 			
@@ -728,7 +742,7 @@ If you can fill all seats before you hit the current time, then the course is sc
 		      return getName();
 		    }
 		/*
-		 * This still needs to be tested
+		 * Retrieves all appointments that will be coming up within the next half hour
 		 */
 		public void getUpcoming() {
 			logger.info("Getting all upcoming appointments");

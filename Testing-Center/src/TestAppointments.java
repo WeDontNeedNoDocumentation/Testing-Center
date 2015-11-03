@@ -121,6 +121,17 @@ public class TestAppointments {
 		assertTrue(tc.checkIn("dharel")>0);
 	}
 	
+//	@Test
+//	public void testGetUpcoming(){
+//		Student student = new Student("Safa Sattar", "ssattar", "safa.sattar@stonybrook.edu", null);
+//		Exam exam = new Exam("CSE", null, null, "sstoller", 64);
+//		
+//		student.makeAppointment(exam, new DateTime(2000,1,1,1,1), 1, 1);
+//		
+//		tc.getUpcoming();
+//		assertEquals();
+//	}
+	
 	@AfterClass
 	public static void afterClass() {
 		logger.info("Testing complete.");
