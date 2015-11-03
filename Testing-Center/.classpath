@@ -9,5 +9,6 @@
 	<classpathentry kind="lib" path="lib/junit-4.12.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
+	<classpathentry kind="lib" path="/Users/Jaden/apache-tomcat-7.0.34/lib/servlet-api.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
