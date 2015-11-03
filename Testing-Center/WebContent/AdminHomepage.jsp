@@ -65,11 +65,11 @@
         <!-- Projects Row -->
         <div class="row">
             <div class="col-md-3 portfolio-item">
-                <a href="scheduler.html">
+                <a href="#">
                     <img class="img-responsive" src="img/scheduleappt.png" alt="">
                 </a>
                 <h3>
-                    <a href="scheduler.html">Make Changes to Scheduler</a>
+                    <a href="#">Make Changes to Scheduler</a>
                 </h3>
             </div>
             <div class="col-md-3 portfolio-item">
