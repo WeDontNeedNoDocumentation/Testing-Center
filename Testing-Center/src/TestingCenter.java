@@ -772,6 +772,7 @@ If you can fill all seats before you hit the current time, then the course is sc
 				int numSeats = (int) exam.get("numSeats");
 				
 				Exam examObj = new Exam(examId, start, end, status, numSeats);
+				logger.info("Send email to: "+(String)emails.get(0).get("email"));
 				sendNotice((String)emails.get(0).get("email"),examObj);
 			}
 		}
