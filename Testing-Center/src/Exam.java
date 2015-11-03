@@ -18,12 +18,13 @@ public class Exam {
 	protected String status;
 	protected String instructorId;
 	protected int numSeats;
+	protected int duration;
 	
-	public Exam(String examID, DateTime start, DateTime end, String instructorId, int seats) {
-		this(examID, start, end, "P", instructorId, seats);
+	public Exam(String examID, DateTime start, DateTime end, String instructorId, int seats, int duration) {
+		this(examID, start, end, "P", instructorId, seats,duration);
 	}
 	
-	public Exam(String examID, DateTime start, DateTime end, String status, String instructorId, int seats) {
+	public Exam(String examID, DateTime start, DateTime end, String status, String instructorId, int seats, int duration) {
 		super();
 		this.examID = examID;
 		this.start = start;
@@ -31,6 +32,7 @@ public class Exam {
 		this.status = status;
 		this.instructorId = instructorId;
 		this.numSeats = seats;
+		this.duration = duration;
 	}
 
 	public DateTime getStart() {

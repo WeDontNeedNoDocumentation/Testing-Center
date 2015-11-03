@@ -15,14 +15,14 @@ public class CourseExam extends Exam {
 	/**
 	 * 
 	 */
-	public CourseExam(String ExamID, DateTime start, DateTime end, String status, String instructorId, String courseId, int numSeats) {
-		super(ExamID, start, end, status, instructorId, numSeats);
+	public CourseExam(String ExamID, DateTime start, DateTime end, String status, String instructorId, String courseId, int numSeats, int duration) {
+		super(ExamID, start, end, status, instructorId, numSeats, duration);
 		this.instructorId = instructorId;
 		this.courseId = courseId;
 	}
 	
-	public CourseExam(String ExamID, long start, long end, String status, String instructorId, String courseId, int numSeats) {
-		this(ExamID, new DateTime(start), new DateTime(end), status, instructorId, courseId, numSeats);
+	public CourseExam(String ExamID, long start, long end, String status, String instructorId, String courseId, int numSeats, int duration) {
+		this(ExamID, new DateTime(start), new DateTime(end), status, instructorId, courseId, numSeats, duration);
 	}
 
 	public Object getCourseId() {
