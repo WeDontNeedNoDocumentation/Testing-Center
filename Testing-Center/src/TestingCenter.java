@@ -678,6 +678,7 @@ If you can fill all seats before you hit the current time, then the course is sc
 	private class Notifier extends Thread{
 		private String threadName;
 		private int count=0;
+		private long sleepTime=0;
 		
 		Notifier(String name) {
 		      super(name);
@@ -689,9 +690,33 @@ If you can fill all seats before you hit the current time, then the course is sc
 		
 		@Override
 		public void run() {
-			  String msg = "Running"+threadName+" "+count;
-		      System.out.println(msg);
-		      logger.fine(msg);
+			
+			try {
+		        while (true) {
+		            System.out.println(new Date());
+					  String msg = "Running"+threadName+" "+count;
+					  getUpcoming();
+				      logger.fine(msg);
+		           // Thread.sleep(5 * 1000);
+		            
+					DateTime now = DateTime.now();
+					DateTime thirty = new DateTime(0,1,1,0,30);
+					DateTime sixty = new DateTime(0,1,1,1,0);
+					long nowM= now.getMillisOfDay()/60000;
+					nowM = nowM %(60);
+					long thirtyM = thirty.getMillisOfDay()/60000;
+					long sixtyM = sixty.getMillisOfDay()/60000;
+					if (nowM<thirtyM) {
+						sleepTime=thirtyM-nowM;
+					} else {
+						sleepTime=sixtyM-nowM;
+					}
+					System.out.println(sleepTime);
+					Thread.sleep(sleepTime * 1000 * 60);
+		        }
+		    } catch (InterruptedException e) {
+		        e.printStackTrace();
+		    }
 		}
 		
 		public String toString() {
