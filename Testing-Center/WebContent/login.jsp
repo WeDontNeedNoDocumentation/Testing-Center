@@ -1,5 +1,3 @@
-<%@page import="javax.swing.JOptionPane"%>
-<%@page import="DBWorks.DBConnection"%>
 <%
 	if ((request.getParameter("action") != null) && (request.getParameter("action").trim().equals("logout"))) 
 	{
@@ -22,12 +20,12 @@
         } 
         else 
         {
-            query = "SELECT * FROM administrator WHERE administratorId = '" +
-                            idNumber + "' AND name = '" + password  + "'";
-            java.sql.ResultSet rs = DBConnection.ExecQuery(query);
-	        if (rs.next()) 
+            //query = "SELECT * FROM administrator WHERE administratorId = '" +
+            //                idNumber + "' AND name = '" + password  + "'";
+            // java.sql.ResultSet rs = DBConnection.ExecQuery(query);
+	        //if (rs.next()) 
+	        if(idNumber.equals("admin") && password.equals("admin"))
             {
-                // login success
                 session.setAttribute("login", idNumber);
                 response.sendRedirect("AdminHomepage.jsp");
             }
