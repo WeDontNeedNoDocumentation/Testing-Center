@@ -287,6 +287,7 @@ public class TestingCenter {
 	 * Not actually used by anything...
 	 */
 	public List<OutsideExam> getAdHocExams() {
+		logger.info("Retrieving all ad hoc exams");
 		Database db = Database.getDatabase();
 		List<Map<String,Object>> adHocExams = db.query("SELECT (examId, start, end, examStatus, instructorId) FROM exam WHERE boolCourseExam = 0");
 		
@@ -372,6 +373,7 @@ public class TestingCenter {
 	 * (NOTE: At the moment the function will try to add an entry even if the Primary Key already exists.)
 	 */
 	public boolean updateData() {
+		logger.info("Reading csv files, updating database");
 		ArrayList<String> lines = new ArrayList<String>();
 		
 		
@@ -695,7 +697,7 @@ If you can fill all seats before you hit the current time, then the course is sc
 		        while (true) {
 		            System.out.println(new Date());
 					  String msg = "Running"+threadName+" "+count;
-					  getUpcoming();
+					  //getUpcoming();
 				      logger.fine(msg);
 		           // Thread.sleep(5 * 1000);
 		            
@@ -712,10 +714,13 @@ If you can fill all seats before you hit the current time, then the course is sc
 						sleepTime=sixtyM-nowM;
 					}
 					System.out.println(sleepTime);
+					logger.info("Current time:"+new Date()+"Sleep time:"+sleepTime);
 					Thread.sleep(sleepTime * 1000 * 60);
+					getUpcoming();
 		        }
 		    } catch (InterruptedException e) {
 		        e.printStackTrace();
+		        logger.warning("An error occured while executing thread");
 		    }
 		}
 		
@@ -726,6 +731,7 @@ If you can fill all seats before you hit the current time, then the course is sc
 		 * This still needs to be tested
 		 */
 		public void getUpcoming() {
+			logger.info("Getting all upcoming appointments");
 			DateTime now = DateTime.now();
 			DateTime thirty = new DateTime(0,1,1,0,30);
 			long nowM= now.getMillisOfDay()/60000;

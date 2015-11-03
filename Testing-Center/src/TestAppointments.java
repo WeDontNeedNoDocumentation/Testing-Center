@@ -115,6 +115,12 @@ public class TestAppointments {
 //		logger.info("Testing the existance of one thread for the notifier");
 //	}
 	
+	@Test
+	public void testCheckIn() {
+		logger.info("Testing ability to check student in.");
+		assertTrue(tc.checkIn("dharel")>0);
+	}
+	
 	@AfterClass
 	public static void afterClass() {
 		logger.info("Testing complete.");
