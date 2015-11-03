@@ -58,34 +58,22 @@
         <div class="container">
 
             <div class="row">
-                <div class="col-lg-12">
+                <div class="col-sm-6">
                     <div class="intro-message">
                         <h1>Login Page</h1>
                         <h3>Start by logging in to you account</h3>
-                        <hr class="intro-divider">
-                        <div class="col-sm-4"></div>
-                        <div class="col-lg-4">
-                            <form class="form-signin">
-                                <label for="inputEmail" class="sr-only">Email address</label>
-                                <input id="inputEmail" class="form-control" placeholder="Email address" required="" autofocus="" type="email">
-                                <label for="inputPassword" class="sr-only">Password</label>
-                                <input id="inputPassword" class="form-control" placeholder="Password" required="" type="password">
-                                <div class="checkbox">
-                                  <label>
-                                    <input value="remember-me" type="checkbox"> Remember me
-                                  </label>
-                                </div>
-                                <!-- goes straight to scheduler for now -->
-                                <a href="AdminHomepage.html"><button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button></a>
-                            </form>
-                        </div>
-                    <div class="col-sm-4"></div>
+                        <form class="form-signin" action="login.jsp" method="post">
+                            <label for="idNumber" class="sr-only">ID</label>
+                            <input name="idNumber" class="form-control" placeholder="ID" required="" autofocus="" type="text">
+                            <label for="password" class="sr-only">Password</label>
+                            <input name="password" class="form-control" placeholder="Password" required="" type="password">
+                            <button class="btn btn-sm btn-primary btn-block" type="submit">Sign in</button>
+                        </form>
                     </div>
                 </div>
-
             </div>
+
         </div>
-        <!-- /.container -->
     </div>
     <!-- /.intro-header -->
 

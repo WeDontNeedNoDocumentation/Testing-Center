@@ -25,7 +25,6 @@
     <![endif]-->
 
 </head>
-
 <body>
 
     <!-- Navigation -->
@@ -74,27 +73,27 @@
                 </h3>
             </div>
             <div class="col-md-3 portfolio-item">
-                <a href="tables.html">
+                <a href="MakeAppointment.jsp">
                     <img class="img-responsive" src="img/makeappt.png" alt="">
                 </a>
                 <h3>
-                    <a href="tables.html">Make Appointments for Student</a>
+                    <a href="MakeAppointment.jsp">Make Appointments for Student</a>
                 </h3>
             </div>
             <div class="col-md-3 portfolio-item">
-                <a href="forms.html">
+                <a href="ApproveDenyResv.jsp">
                     <img class="img-responsive" src="img/approvdenyrsv.png" alt="">
                 </a>
                 <h3>
-                    <a href="forms.html">Approve/Reject Reservations</a>
+                    <a href="ApproveDenyResv.jsp">Approve/Reject Reservations</a>
                 </h3>
             </div>
             <div class="col-md-3 portfolio-item">
-                <a href="charts.html">
+                <a href="StudentCheckinPage.jsp">
                     <img class="img-responsive" src="img/checkinstu.png" alt="">
                 </a>
                 <h3>
-                    <a href="charts.html">Check In For Student</a>
+                    <a href="StudentCheckinPage.jsp">Check In For Student</a>
                 </h3>
             </div>
         </div>
@@ -131,19 +130,19 @@
         <!-- Projects Row -->
         <div class="row">
             <div class="col-md-3 portfolio-item">
-                <a href="bootstrap-elements.html">
+                <a href="ViewAppointments.jsp">
                     <img class="img-responsive" src="img/viewappt.png" alt="">
                 </a>
                 <h3>
-                    <a href="bootstrap-elements.html">View Appointments</a>
+                    <a href="ViewAppointments.jsp">View Appointments</a>
                 </h3>
             </div>
             <div class="col-md-3 portfolio-item">
-                <a href="bootstrap-grid.html">
+                <a href="CancelEditAppointment.jsp">
                     <img class="img-responsive" src="img/cancelappt.png" alt="">
                 </a>
                 <h3>
-                    <a href="bootstrap-grid.html">Cancel/Edit Appointments</a>
+                    <a href="CancelEditAppointment.jsp">Cancel/Edit Appointments</a>
                 </h3>
             </div>
             <div class="col-md-3 portfolio-item">
