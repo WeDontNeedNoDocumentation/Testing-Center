@@ -59,7 +59,6 @@ public class TestingCenter {
 	
 	/**
 	 * @param db 
-	 * 
 	 */
 
 	public TestingCenter() {
