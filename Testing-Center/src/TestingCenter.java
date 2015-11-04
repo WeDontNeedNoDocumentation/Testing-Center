@@ -573,14 +573,7 @@ public class TestingCenter {
 	}
 	
 	/*
-Okay so I think I figured out the algo
-I'm assuming that scheduling periods have to be contiguous. The algorithm I have depends on that. So for example, you can schedule 100 seats for today and tomorrow, but you can't say that you need 100 seats between today and the day after tomorrow.
-So under that assumption:
-Sort the current requests (plus the request that you're testing for) in reverse order of END time.
-Fill in seats assuming that every seat is filled as late as possible
-So if you have an exam that needs 100 seats, and you have 75 seats for today and 75 seats for tomorrow, then assume all 75 seats will be filled tomorrow, and 25 will be filled today.
-Do this for every exam in reverse order of end time.
-If you can fill all seats before you hit the current time, then the course is schedulable.
+		This function was not completed due to several errors that appeared in the last few hours.
 	 */
 	public synchronized boolean isExamSchedulable(Exam newExam) {
 		this.makeReservation(newExam, newExam.getStart(), newExam.getEnd(), newExam instanceof CourseExam, newExam.getInstructorId());
@@ -598,25 +591,32 @@ If you can fill all seats before you hit the current time, then the course is sc
 				nowUnix
 				));
 		
-		Map<LocalDate, Integer> seatsAvailable = new HashMap<LocalDate, Integer>();
+		Map<LocalDate, int[]> seatsAvailable = new HashMap<LocalDate, int[]>();
 
 		for ( Map<String, Object> exam : exams ) {
 			long start = (long) exam.get("start");
 			long end = (long) exam.get("end");
 			long len = (long)exam.get("examLength");
-			long apStart = end;
+			long apStart = end-(len*3600);
 			long apEnd = end;
 			int seatsLeft = (int) exam.get("numSeats");
 			
 			while(seatsLeft != 0) {
-				apEnd = apStart;
-				apStart = apEnd-(len*3600);
 				if(apStart<start){
 					this.cancelExam(newExam.getExamID(), newExam.getInstructorId());
 					return false;
 				}
+				if (apEnd == end) {
+					
+					
+				} else {
+					
+				}
+				
 				//ADD INSERT EXISTING
-
+				
+				apEnd = apEnd - 1800;
+				apStart = apStart-1800;
 			}
 		}
 		
