@@ -174,26 +174,21 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <h1 class="page-header">
+                        <!-- each student's appointment time if any, assigned seat, and if each student showed up for appointment -->
                            Appointment Attendance Details
                         </h1>
                     </div>
                 </div>
                 <div class="row">
-	                <h3>Select an exam to view details for</h3>
+	                <h3>Exam Appointment and Attendance Details</h3>
 	                <table class="table table-bordered table-hover">
 	                    <thead>
 	                    <!-- Columns -->
 	                        <tr class="active">
-	                            <th>Course ID</th>
-	                            <th>Section</th>
-	                            <th>Term</th>
-	                            <th>Duration</th>
-	                            <th>Start Date</th>
-	                            <th>Time</th>
-	                            <th>End Date</th>
-	                            <th>Time</th>
-	                            <th>Seats Available</th>
-	                            <th>Action</th>
+	                            <th>Student</th>
+	                            <th>Appointment Time</th>
+	                            <th>Seat</th>
+	                            <th>Attendance</th>
 	                        </tr>
 	                    <!-- /Columns -->
 	                    </thead>
@@ -202,19 +197,38 @@
 	                        <!--enter code here for table -->
 	                        <%  %>
 	                        <!-- row entries -->
-	                            <td>123456789</td>
-	                            <td>2</td>
-	                            <td>Spring 2016</td>
-	                            <td>90</td>
-	                            <td>11/21/15</td>
-	                            <td>11:00AM</td>
-	                            <td>11/22/15</td>
-	                            <td>1:00PM</td>
-	                            <td>32</td>
+	                            <td>Joe Mama</td>
+	                            <td>2:30PM</td>
+	                            <td>6F</td>
 	                            <td>
-		                            <a href="ShowApptAttendanceDetails.jsp" button type="button" class="btn btn-sm btn-success">Select</a>
-	                    		</td>
-	                        <!-- /row entries -->    
+	                            	<button type="button" class="btn btn-xs btn-success">Attended</button>
+	                            </td> 
+	                        </tr>
+	                    </tbody>
+	                    <tbody>
+	                        <tr>
+	                        <!--enter code here for table -->
+	                        <%  %>
+	                        <!-- row entries -->
+	                            <td>Joe Papa</td>
+	                            <td>2:30PM</td>
+	                            <td>6G</td>
+	                            <td>
+	                            	<button type="button" class="btn btn-xs btn-danger">No Attendance</button>
+	                            </td> 
+	                        </tr>
+	                    </tbody>
+	                    <tbody>
+	                        <tr>
+	                        <!--enter code here for table -->
+	                        <%  %>
+	                        <!-- row entries -->
+	                            <td>Joe Kid</td>
+	                            <td>2:30PM</td>
+	                            <td>6E</td>
+	                            <td>
+	                            	<button type="button" class="btn btn-xs btn-success">No Attendance</button>
+	                            </td> 
 	                        </tr>
 	                    </tbody>
 	                </table>
