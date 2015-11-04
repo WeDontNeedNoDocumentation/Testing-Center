@@ -118,6 +118,7 @@ public class TestingCenter {
 		
 	}
 	
+	//make an appointment to take an exam
 	public synchronized void makeAppointment(Exam exam, DateTime time, int seatId, int appointmentId, String netID) {
 		logger.info("Creating new Appointment");
 		logger.fine("Exam id: " + exam.getExamID());
@@ -136,7 +137,6 @@ public class TestingCenter {
 				);
 		db.updateQuery(queryString);
 	}
-	
 	
 	//Allows the user to cancel a student appointment, given the appointment id
 	public synchronized void cancelAppointment(int appID) {
