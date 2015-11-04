@@ -584,6 +584,7 @@ public class TestingCenter {
 	}
 	
 	/*
+	 * 
 		This function was not completed due to several errors that appeared in the last few hours.
 	 */
 	public synchronized boolean isExamSchedulable(Exam newExam) {
