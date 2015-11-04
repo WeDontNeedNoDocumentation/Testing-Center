@@ -35,28 +35,31 @@ public class TestAppointments {
 		db.updateQuery("CREATE TABLE instructor (instructorId varchar(45), name varchar(45), email varchar(45))");
 		db.updateQuery("CREATE TABLE courseexam (examIdCE varchar(45), courseIdCE varchar(45))");
 		
-		db.updateQuery("INSERT INTO student VALUES ('Dan', 'Harel', 'dharel', 'dan.harel@stonybrook.edu')");
-		db.updateQuery("INSERT INTO instructor VALUES ('sstoller', 'Scott Stoller', 'stoller@cs.stonybrook.edu')");
+//		db.updateQuery("INSERT INTO student VALUES ('Dan', 'Harel', 'dharel', 'dan.harel@stonybrook.edu')");
+//		db.updateQuery("INSERT INTO instructor VALUES ('sstoller', 'Scott Stoller', 'stoller@cs.stonybrook.edu')");
+		db.updateQuery("INSERT INTO student VALUES ('Dand', 'Hareld', 'dhareld', 'dand.hareld@stonybrook.edu')");
+		db.updateQuery("INSERT INTO instructor VALUES ('sstollerd', 'Scott Stollerd', 'stollerd@cs.stonybrook.edu')");
+
 	}
 	
 	@Test
 	public void AtestStudentCreateAppointment() {
 		logger.info("Testing Student's ability to create an appointment.");
 		
-		Student student = new Student("Dan Harel", "dharel", "dan.harel@stonybrook.edu", null);
-		Exam exam = new Exam("CSE", null, null, "sstoller", 64,2);
+		Student student = new Student("Dand Hareld", "dhareld", "dand.hareld@stonybrook.edu", null);
+		Exam exam = new Exam("CSE", null, null, "sstollerd", 64,2);
 		
 		student.makeAppointment(exam, new DateTime(2000,1,1,1,1), 0, 1);
 		
 		List<Appointment> appts = student.viewAppointments();
-		assertEquals("dharel", appts.get(0).getNetId());
+		assertEquals("dhareld", appts.get(0).getNetId());
 	}
 	
 	@Test
 	public void BtestStudentDeleteAppointment() {
 		logger.info("Testing Student's ability to delete an appointment.");
 		
-		Student student = new Student("Dan Harel", "dharel", "dan.harel@stonybrook.edu", null);
+		Student student = new Student("Dand Hareld", "dhareld", "dand.hareld@stonybrook.edu", null);
 		
 		student.cancelAppointment(1);
 		
@@ -68,8 +71,8 @@ public class TestAppointments {
 	public void CtestInstructorCreateAppointment() {
 		logger.info("Testing Instructor's ability to create an exam scheduling request.");
 		
-		Instructor inst = new Instructor("Scott Stoller", "stoller@cs.stonybrook.edu", tc, "SStoller");
-		Exam exam = new OutsideExam("CSE", null, null, null, "sstoller", 64,2);
+		Instructor inst = new Instructor("Scott Stollerd", "stollerd@cs.stonybrook.edu", tc, "SStollerd");
+		Exam exam = new OutsideExam("CSE", null, null, null, "sstollerd", 64,2);
 		
 		inst.makeExam(exam, new DateTime(2000,1,1,1,1), new DateTime(2000,1,1,1,2), true);
 		
@@ -102,7 +105,7 @@ public class TestAppointments {
 	public void FtestInstructorCancelExam() {
 		logger.info("Testing Admin's ability to reject an exam scheduling request.");
 		
-		Instructor inst = new Instructor("Stoller", "stoller@cs.stonybrook.edu", tc, "sstoller");
+		Instructor inst = new Instructor("Stollerd", "stollerd@cs.stonybrook.edu", tc, "sstollerd");
 		
 		inst.cancelExam("CSE");
 		
@@ -118,8 +121,19 @@ public class TestAppointments {
 	@Test
 	public void testCheckIn() {
 		logger.info("Testing ability to check student in.");
-		assertTrue(tc.checkIn("dharel")>0);
+		assertTrue(tc.checkIn("dhareld")>0);
 	}
+	
+//	@Test
+//	public void testGetUpcoming(){
+//		Student student = new Student("Safa Sattar", "ssattar", "safa.sattar@stonybrook.edu", null);
+//		Exam exam = new Exam("CSE", null, null, "sstoller", 64);
+//		
+//		student.makeAppointment(exam, new DateTime(2000,1,1,1,1), 1, 1);
+//		
+//		tc.getUpcoming();
+//		assertEquals();
+//	}
 	
 	@AfterClass
 	public static void afterClass() {
