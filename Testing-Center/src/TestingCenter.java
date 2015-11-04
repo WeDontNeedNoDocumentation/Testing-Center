@@ -119,6 +119,7 @@ public class TestingCenter {
 	}
 	
 	//make an appointment to take an exam
+	//
 	public synchronized void makeAppointment(Exam exam, DateTime time, int seatId, int appointmentId, String netID) {
 		logger.info("Creating new Appointment");
 		logger.fine("Exam id: " + exam.getExamID());
