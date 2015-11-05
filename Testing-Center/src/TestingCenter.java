@@ -118,6 +118,8 @@ public class TestingCenter {
 		
 	}
 	
+	//make an appointment to take an exam
+	//
 	public synchronized void makeAppointment(Exam exam, DateTime time, int seatId, int appointmentId, String netID) {
 		logger.info("Creating new Appointment");
 		logger.fine("Exam id: " + exam.getExamID());
@@ -137,8 +139,7 @@ public class TestingCenter {
 		db.updateQuery(queryString);
 	}
 	
-	
-	
+	//Allows the user to cancel a student appointment, given the appointment id
 	public synchronized void cancelAppointment(int appID) {
 		logger.info("Cancelling appointment with ID " + appID);
 		
@@ -152,6 +153,7 @@ public class TestingCenter {
 		db.updateQuery(queryString);
 	}
 	
+	//Return a list of all appointments, given a student's netID
 	public List<Appointment> showAppointments(String netID) {
 		logger.info("Retrieving all appointments for student ID " + netID);
 		
@@ -173,6 +175,7 @@ public class TestingCenter {
 		return appointments;
 	}
 	
+	//Return a list of all appointments
 	public List<Appointment> viewAllAppointments() {
 		logger.info("Retrieving all appointments");
 		
@@ -192,6 +195,8 @@ public class TestingCenter {
 		
 	}
 
+	//Make a reservation for an exam, given the examID, start time, end time,
+	//whether it is a course exam or an adhoc exam, and the instructor id
 	public synchronized boolean makeReservation(Exam exam, DateTime start, DateTime end, boolean courseExam, String instructorId) {
 		logger.info("Creating new reservation request.");
 		logger.fine("Exam ID: " + exam.getExamID());
@@ -230,6 +235,7 @@ public class TestingCenter {
 		return true;
 	}
 
+	//cancel an exam given the particular combination of examId and instructorId
 	public synchronized void cancelExam(String examId, String instructorId){
 		logger.info("Cancelling exam with exam ID: " + examId);
 		String queryString = String.format("DELETE FROM exam"
@@ -252,6 +258,7 @@ public class TestingCenter {
 		
 	}
 
+	//retrieve a list of all exams
 	public List<Exam> getAllExams() {
 		logger.info("Retrieving all exams.");
 		
@@ -309,6 +316,7 @@ public class TestingCenter {
 		return exams;
 	}
 
+	//retrieve a list of all exams, given a certain instructor id
 	public List<Exam> getInstructorExams(String instructorId) {
 		logger.info("Retrieving all exams for instructor with innstructor ID: " + instructorId);
 		
@@ -333,6 +341,7 @@ public class TestingCenter {
 		return exams;
 	}
 
+	//retrieve a list of all exams that are still pending
 	public List<Exam> getPendingExams() {
 		logger.info("Retrieving all pending exam reservation requests.");
 		
@@ -460,6 +469,7 @@ public class TestingCenter {
 		
 	}
 
+	//check in a student for a particular exam, given the student's netID
 	public int checkIn(String netID) {
 		DateTime now = DateTime.now();
 		DateTime thirty = new DateTime(0,1,1,0,30);
@@ -556,6 +566,7 @@ public class TestingCenter {
 		
 	}
 
+	//sets exam status of a certain exam of accepted, denied, or pending
 	public void setExamStatus(String examId, String newStatus) {
 		logger.info("Changing status of exam with exam ID: " + examId);
 		logger.fine("New exam status: " + newStatus);
@@ -573,14 +584,8 @@ public class TestingCenter {
 	}
 	
 	/*
-Okay so I think I figured out the algo
-I'm assuming that scheduling periods have to be contiguous. The algorithm I have depends on that. So for example, you can schedule 100 seats for today and tomorrow, but you can't say that you need 100 seats between today and the day after tomorrow.
-So under that assumption:
-Sort the current requests (plus the request that you're testing for) in reverse order of END time.
-Fill in seats assuming that every seat is filled as late as possible
-So if you have an exam that needs 100 seats, and you have 75 seats for today and 75 seats for tomorrow, then assume all 75 seats will be filled tomorrow, and 25 will be filled today.
-Do this for every exam in reverse order of end time.
-If you can fill all seats before you hit the current time, then the course is schedulable.
+	 * 
+		This function was not completed due to several errors that appeared in the last few hours.
 	 */
 	public synchronized boolean isExamSchedulable(Exam newExam) {
 		this.makeReservation(newExam, newExam.getStart(), newExam.getEnd(), newExam instanceof CourseExam, newExam.getInstructorId());
@@ -598,25 +603,32 @@ If you can fill all seats before you hit the current time, then the course is sc
 				nowUnix
 				));
 		
-		Map<LocalDate, Integer> seatsAvailable = new HashMap<LocalDate, Integer>();
+		Map<LocalDate, int[]> seatsAvailable = new HashMap<LocalDate, int[]>();
 
 		for ( Map<String, Object> exam : exams ) {
 			long start = (long) exam.get("start");
 			long end = (long) exam.get("end");
 			long len = (long)exam.get("examLength");
-			long apStart = end;
+			long apStart = end-(len*3600);
 			long apEnd = end;
 			int seatsLeft = (int) exam.get("numSeats");
 			
 			while(seatsLeft != 0) {
-				apEnd = apStart;
-				apStart = apEnd-(len*3600);
 				if(apStart<start){
 					this.cancelExam(newExam.getExamID(), newExam.getInstructorId());
 					return false;
 				}
+				if (apEnd == end) {
+					
+					
+				} else {
+					
+				}
+				
 				//ADD INSERT EXISTING
-
+				
+				apEnd = apEnd - 1800;
+				apStart = apStart-1800;
 			}
 		}
 		
@@ -624,6 +636,7 @@ If you can fill all seats before you hit the current time, then the course is sc
 		return true;
 	}
 	
+	//retrieve a list of all exams that may be selected by a certain student
 	public List<Exam> viewAvailableExams(Student st) {
 		logger.info("Retrieving all exams currently available to student with ID" + st.getNetID());
 		
@@ -666,6 +679,7 @@ If you can fill all seats before you hit the current time, then the course is sc
 		return availableExams;
 	}
 	
+	//notifier thread, specific to the testing center class
 	private class Notifier extends Thread{
 		private String threadName;
 		private int count=0;
@@ -679,6 +693,8 @@ If you can fill all seats before you hit the current time, then the course is sc
 		      start();
 		    }
 		
+		//calls getUpcoming at every half hour mark, and puts the thread to sleep
+		//until then
 		@Override
 		public void run() {
 			
@@ -716,7 +732,7 @@ If you can fill all seats before you hit the current time, then the course is sc
 		      return getName();
 		    }
 		/*
-		 * This still needs to be tested
+		 * Retrieves all appointments that will be coming up within the next half hour
 		 */
 		public void getUpcoming() {
 			logger.info("Getting all upcoming appointments");
