@@ -118,6 +118,8 @@ public class TestingCenter {
 		
 	}
 	
+	//make an appointment to take an exam
+	//
 	public synchronized void makeAppointment(Exam exam, DateTime time, int seatId, int appointmentId, String netID) {
 		logger.info("Creating new Appointment");
 		logger.fine("Exam id: " + exam.getExamID());
@@ -137,8 +139,7 @@ public class TestingCenter {
 		db.updateQuery(queryString);
 	}
 	
-	
-	
+	//Allows the user to cancel a student appointment, given the appointment id
 	public synchronized void cancelAppointment(int appID) {
 		logger.info("Cancelling appointment with ID " + appID);
 		
@@ -152,6 +153,7 @@ public class TestingCenter {
 		db.updateQuery(queryString);
 	}
 	
+	//Return a list of all appointments, given a student's netID
 	public List<Appointment> showAppointments(String netID) {
 		logger.info("Retrieving all appointments for student ID " + netID);
 		
@@ -173,6 +175,7 @@ public class TestingCenter {
 		return appointments;
 	}
 	
+	//Return a list of all appointments
 	public List<Appointment> viewAllAppointments() {
 		logger.info("Retrieving all appointments");
 		
@@ -192,6 +195,8 @@ public class TestingCenter {
 		
 	}
 
+	//Make a reservation for an exam, given the examID, start time, end time,
+	//whether it is a course exam or an adhoc exam, and the instructor id
 	public synchronized boolean makeReservation(Exam exam, DateTime start, DateTime end, boolean courseExam, String instructorId) {
 		logger.info("Creating new reservation request.");
 		logger.fine("Exam ID: " + exam.getExamID());
@@ -230,6 +235,7 @@ public class TestingCenter {
 		return true;
 	}
 
+	//cancel an exam given the particular combination of examId and instructorId
 	public synchronized void cancelExam(String examId, String instructorId){
 		logger.info("Cancelling exam with exam ID: " + examId);
 		String queryString = String.format("DELETE FROM exam"
@@ -252,11 +258,12 @@ public class TestingCenter {
 		
 	}
 
+	//retrieve a list of all exams
 	public List<Exam> getAllExams() {
 		logger.info("Retrieving all exams.");
 		
 		Database db = Database.getDatabase();
-		List<Map<String,Object>> exams = db.query("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, courseexam.courseIdCE "
+		List<Map<String,Object>> exams = db.query("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, courseexam.courseIdCE,examLength "
 				+ "FROM exam "
 				+ "LEFT JOIN courseexam "
 				+ "ON exam.examId=courseexam.examIdCE");
@@ -271,10 +278,11 @@ public class TestingCenter {
 			String instructorId = (String) exam.get("instructorId");
 			int numSeats = (int) exam.get("numSeats");
 			String courseId = (String) exam.get("courseIdCE");
+			int duration = (int) exam.get("examLength");
 			
 			Exam newExam = ((String) exam.get("boolCourseExam")).equals("1") ? 
-					new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, courseId, numSeats) : 
-						new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, numSeats); 
+					new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, courseId, numSeats,duration) : 
+						new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, numSeats,duration); 
 			
 			examsList.add(newExam);
 		}
@@ -289,7 +297,7 @@ public class TestingCenter {
 	public List<OutsideExam> getAdHocExams() {
 		logger.info("Retrieving all ad hoc exams");
 		Database db = Database.getDatabase();
-		List<Map<String,Object>> adHocExams = db.query("SELECT (examId, start, end, examStatus, instructorId) FROM exam WHERE boolCourseExam = 0");
+		List<Map<String,Object>> adHocExams = db.query("SELECT (examId, start, end, examStatus, instructorId,examLength) FROM exam WHERE boolCourseExam = 0");
 		
 		List<OutsideExam> exams = new ArrayList<OutsideExam>();
 		for (Map<String,Object> exam : adHocExams) {
@@ -298,15 +306,17 @@ public class TestingCenter {
 			long endMilliseconds = new Long((int) exam.get("end")*1000);
 			String status = (String) exam.get("examStatus");
 			String instructorId = (String) exam.get("instructorId");
-			int numSeats = (int) exam.get("numSeats");;
+			int numSeats = (int) exam.get("numSeats");
+			int duration = (int) exam.get("examLength");
 			
-			OutsideExam newExam = new OutsideExam(id, startMilliseconds, endMilliseconds, status, instructorId, numSeats);
+			OutsideExam newExam = new OutsideExam(id, startMilliseconds, endMilliseconds, status, instructorId, numSeats,duration);
 			exams.add(newExam);
 		}
 		
 		return exams;
 	}
 
+	//retrieve a list of all exams, given a certain instructor id
 	public List<Exam> getInstructorExams(String instructorId) {
 		logger.info("Retrieving all exams for instructor with innstructor ID: " + instructorId);
 		
@@ -322,19 +332,21 @@ public class TestingCenter {
 			DateTime end = new DateTime(new Long((int) exam.get("end")*1000));
 			String status = (String) exam.get("status");
 			int numSeats = (int) exam.get("numSeats");
+			int duration = (int) exam.get("examLength");
 			
-			Exam newExam = new Exam(examId, start, end, status, numSeats);
+			Exam newExam = new Exam(examId, start, end, status, numSeats,duration);
 			exams.add(newExam);
 		}
 		
 		return exams;
 	}
 
+	//retrieve a list of all exams that are still pending
 	public List<Exam> getPendingExams() {
 		logger.info("Retrieving all pending exam reservation requests.");
 		
 		List<Map<String,Object>> exams = db.query(
-				String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, numSeats, courseexam.courseIdCE "
+				String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, numSeats, courseexam.courseIdCE,examLength "
 				+ "FROM exam "
 				+ "LEFT JOIN courseexam "
 				+ "ON exam.examId=courseexam.examIdCE "
@@ -352,13 +364,14 @@ public class TestingCenter {
 			String examStatus = (String) exam.get("examStatus");
 			int numSeats = (int) exam.get("numSeats");
 			String instructorId = (String) exam.get("instructorId");
+			int duration = (int) exam.get("examLength");
 			
 			if ( ((String) exam.get("boolCourseExam")).equals("1") ) {
 				String courseId = (String) exam.get("courseIdCE");
-				newExam = new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, courseId, numSeats);
+				newExam = new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, courseId, numSeats, duration);
 			}
 			else {
-				newExam = new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, numSeats);
+				newExam = new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, numSeats, duration);
 			}
 			
 			examsList.add(newExam);
@@ -456,6 +469,7 @@ public class TestingCenter {
 		
 	}
 
+	//check in a student for a particular exam, given the student's netID
 	public int checkIn(String netID) {
 		DateTime now = DateTime.now();
 		DateTime thirty = new DateTime(0,1,1,0,30);
@@ -552,6 +566,7 @@ public class TestingCenter {
 		
 	}
 
+	//sets exam status of a certain exam of accepted, denied, or pending
 	public void setExamStatus(String examId, String newStatus) {
 		logger.info("Changing status of exam with exam ID: " + examId);
 		logger.fine("New exam status: " + newStatus);
@@ -569,18 +584,11 @@ public class TestingCenter {
 	}
 	
 	/*
-Okay so I think I figured out the algo
-I'm assuming that scheduling periods have to be contiguous. The algorithm I have depends on that. So for example, you can schedule 100 seats for today and tomorrow, but you can't say that you need 100 seats between today and the day after tomorrow.
-So under that assumption:
-Sort the current requests (plus the request that you're testing for) in reverse order of END time.
-Fill in seats assuming that every seat is filled as late as possible
-So if you have an exam that needs 100 seats, and you have 75 seats for today and 75 seats for tomorrow, then assume all 75 seats will be filled tomorrow, and 25 will be filled today.
-Do this for every exam in reverse order of end time.
-If you can fill all seats before you hit the current time, then the course is schedulable.
+	 * 
+		This function was not completed due to several errors that appeared in the last few hours.
 	 */
-	public boolean isExamSchedulable(Exam newExam) {
+	public synchronized boolean isExamSchedulable(Exam newExam) {
 		this.makeReservation(newExam, newExam.getStart(), newExam.getEnd(), newExam instanceof CourseExam, newExam.getInstructorId());
-		Database db = Database.getDatabase();
 		DateTime now = DateTime.now();
 		long nowUnix = now.getMillis()/1000;
 		List<Map<String, Object>> exams = db.query(String.format(
@@ -595,40 +603,32 @@ If you can fill all seats before you hit the current time, then the course is sc
 				nowUnix
 				));
 		
-		Map<LocalDate, Integer> seatsAvailable = new HashMap<LocalDate, Integer>();
+		Map<LocalDate, int[]> seatsAvailable = new HashMap<LocalDate, int[]>();
 
 		for ( Map<String, Object> exam : exams ) {
+			long start = (long) exam.get("start");
+			long end = (long) exam.get("end");
+			long len = (long)exam.get("examLength");
+			long apStart = end-(len*3600);
+			long apEnd = end;
+			int seatsLeft = (int) exam.get("numSeats");
 			
-			long seatsNeeded = (int) exam.get("numSeats") - (long) exam.get("numAppointments");
-			
-			long endTime = new Long((int) exam.get("end")*1000);
-			LocalDate endDate = new LocalDate(endTime);
-			
-			long startTime = new Long((int) exam.get("end")*1000);
-			LocalDate startDate = new LocalDate(startTime);
-			
-			LocalDate currDate = endDate;
-			
-			if (!seatsAvailable.containsKey(currDate))
-				seatsAvailable.put(currDate, numberOfSeats);
-			while (seatsNeeded > 0) {
-				if (currDate.compareTo(startDate) < 0) {
+			while(seatsLeft != 0) {
+				if(apStart<start){
 					this.cancelExam(newExam.getExamID(), newExam.getInstructorId());
 					return false;
 				}
-				int seatsAvailableToday = seatsAvailable.get(currDate);
-				if (seatsAvailableToday < seatsNeeded) {
-					seatsAvailableToday = 0;
-					seatsNeeded -= seatsAvailableToday;
+				if (apEnd == end) {
+					
+					
+				} else {
+					
 				}
-				else {
-					seatsAvailableToday -= seatsNeeded;
-					seatsNeeded = 0;
-				}
-				seatsAvailable.put(currDate, seatsAvailableToday);
 				
-				if (seatsNeeded > 0)
-					currDate = currDate.minusDays(1);
+				//ADD INSERT EXISTING
+				
+				apEnd = apEnd - 1800;
+				apStart = apStart-1800;
 			}
 		}
 		
@@ -636,10 +636,11 @@ If you can fill all seats before you hit the current time, then the course is sc
 		return true;
 	}
 	
+	//retrieve a list of all exams that may be selected by a certain student
 	public List<Exam> viewAvailableExams(Student st) {
 		logger.info("Retrieving all exams currently available to student with ID" + st.getNetID());
 		
-		String queryString = String.format("SELECT exam.examId, start, end, examStatus, numSeats, boolCourseExam, instructorId, courseexam.courseIdCE "
+		String queryString = String.format("SELECT exam.examId, start, end, examStatus, numSeats, boolCourseExam, instructorId, courseexam.courseIdCE,examLength "
 				+ "FROM exam "
 				+ "INNER JOIN courseexam "
 				+ "ON exam.examId=courseexam.examIdCE "
@@ -662,13 +663,14 @@ If you can fill all seats before you hit the current time, then the course is sc
 			int numSeats = (int) exam.get("numSeats");
 			boolean courseExam = ((String) exam.get("boolCourseExam")).equals("1") ? true : false;
 			String instructorId = (String) exam.get("instructorId");
+			int duration = (int) exam.get("examLength");
 			
 			if (courseExam) {
 				String courseId = (String) exam.get("courseIdCE");
-				newExam = new CourseExam(examId, startMilliseconds, endMilliseconds, examStatus, instructorId, courseId, numSeats);
+				newExam = new CourseExam(examId, startMilliseconds, endMilliseconds, examStatus, instructorId, courseId, numSeats,duration);
 			}
 			else {
-				newExam = new OutsideExam(examId, endMilliseconds, endMilliseconds, examStatus, instructorId, numSeats);
+				newExam = new OutsideExam(examId, endMilliseconds, endMilliseconds, examStatus, instructorId, numSeats,duration);
 			}
 			
 			availableExams.add(newExam);
@@ -677,6 +679,7 @@ If you can fill all seats before you hit the current time, then the course is sc
 		return availableExams;
 	}
 	
+	//notifier thread, specific to the testing center class
 	private class Notifier extends Thread{
 		private String threadName;
 		private int count=0;
@@ -690,6 +693,8 @@ If you can fill all seats before you hit the current time, then the course is sc
 		      start();
 		    }
 		
+		//calls getUpcoming at every half hour mark, and puts the thread to sleep
+		//until then
 		@Override
 		public void run() {
 			
@@ -697,7 +702,6 @@ If you can fill all seats before you hit the current time, then the course is sc
 		        while (true) {
 		            System.out.println(new Date());
 					  String msg = "Running"+threadName+" "+count;
-					  //getUpcoming();
 				      logger.fine(msg);
 		           // Thread.sleep(5 * 1000);
 		            
@@ -728,7 +732,7 @@ If you can fill all seats before you hit the current time, then the course is sc
 		      return getName();
 		    }
 		/*
-		 * This still needs to be tested
+		 * Retrieves all appointments that will be coming up within the next half hour
 		 */
 		public void getUpcoming() {
 			logger.info("Getting all upcoming appointments");
@@ -755,7 +759,7 @@ If you can fill all seats before you hit the current time, then the course is sc
 			
 			
 			for (Map<String,Object> appointment : appointments) {
-				String queryString = String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId FROM exam"
+				String queryString = String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId,examLength FROM exam"
 						+ "WHERE examID = '%s'",
 						appointment.get("examIdA"));
 				List<Map<String,Object>> exams = db.query(queryString);
@@ -770,8 +774,11 @@ If you can fill all seats before you hit the current time, then the course is sc
 				DateTime end = new DateTime(new Long((int) exam.get("end")*1000));
 				String status = (String) exam.get("status");
 				int numSeats = (int) exam.get("numSeats");
+				int duration = (int) exam.get("examLength");
 				
-				Exam examObj = new Exam(examId, start, end, status, numSeats);
+
+				Exam examObj = new Exam(examId, start, end, status, numSeats,duration);				
+				logger.info("Send email to: "+(String)emails.get(0).get("email"));
 				sendNotice((String)emails.get(0).get("email"),examObj);
 			}
 		}
@@ -831,7 +838,7 @@ If you can fill all seats before you hit the current time, then the course is sc
 	}
 
 	
-
+/*
 	public static void main(String[] args) {
 		DateTime start = new DateTime(2015, 10, 29, 8, 0);
 		DateTime end = new DateTime(2015, 10, 29, 14, 0);
@@ -849,5 +856,5 @@ If you can fill all seats before you hit the current time, then the course is sc
 			System.out.println(exam);
 		}
 	}
-	
+*/	
 }

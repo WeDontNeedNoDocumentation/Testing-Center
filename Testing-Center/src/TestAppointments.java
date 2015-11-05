@@ -53,7 +53,7 @@ public class TestAppointments {
 	public void AtestStudentCreateAppointment() {
 		logger.info("Testing Student's ability to create an appointment.");
 		
-		Exam exam = new Exam("CSE", null, null, "sstoller", 64);
+		Exam exam = new Exam("CSE", null, null, "sstoller", 64, 0);
 		
 		List<Appointment> appts;
 		
@@ -71,8 +71,6 @@ public class TestAppointments {
 	@Test
 	public void BtestStudentDeleteAppointment() {
 		logger.info("Testing Student's ability to delete an appointment.");
-		
-		
 		
 		List<Appointment> appts;
 		
@@ -93,8 +91,8 @@ public class TestAppointments {
 	public void CtestInstructorCreateAppointment() {
 		logger.info("Testing Instructor's ability to create an exam scheduling request.");
 		
-		Instructor inst = new Instructor("Scott Stoller", "stoller@cs.stonybrook.edu", tc, "SStoller");
-		Exam exam = new OutsideExam("CSE", null, null, null, "sstoller", 64);
+		Instructor inst = new Instructor("Scott Stollerd", "stollerd@cs.stonybrook.edu", tc, "SStollerd");
+		Exam exam = new OutsideExam("CSE", null, null, null, "sstollerd", 64,2);
 		
 		inst.makeExam(exam, new DateTime(2000,1,1,1,1), new DateTime(2000,1,1,1,2), true);
 		
@@ -128,8 +126,6 @@ public class TestAppointments {
 	public void FtestInstructorCancelExam() {
 		logger.info("Testing Admin's ability to reject an exam scheduling request.");
 		
-		
-		
 		inst.cancelExam("CSE");
 		
 		List<Exam> exams = inst.viewExams();
@@ -153,8 +149,19 @@ public class TestAppointments {
 	@Test
 	public void testCheckIn() {
 		logger.info("Testing ability to check student in.");
-		assertTrue(tc.checkIn("dharel")>0);
+		assertTrue(tc.checkIn("dhareld")>0);
 	}
+	
+//	@Test
+//	public void testGetUpcoming(){
+//		Student student = new Student("Safa Sattar", "ssattar", "safa.sattar@stonybrook.edu", null);
+//		Exam exam = new Exam("CSE", null, null, "sstoller", 64);
+//		
+//		student.makeAppointment(exam, new DateTime(2000,1,1,1,1), 1, 1);
+//		
+//		tc.getUpcoming();
+//		assertEquals();
+//	}
 	
 	@AfterClass
 	public static void afterClass() {

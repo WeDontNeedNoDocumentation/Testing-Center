@@ -2,14 +2,13 @@
 <html lang="en">
 
 <head>
-
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Schedule Exam Request Page - Instructor</title>
+    <title>Make Appointments Page - Student</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -26,7 +25,6 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
-
 
 </head>
 
@@ -151,16 +149,13 @@
             <div class="collapse navbar-collapse navbar-ex1-collapse">
                 <ul class="nav navbar-nav side-nav">
                     <li class="active">
-                        <a href="ScheduleExamRequest.jsp"><span class="glyphicon glyphicon-calendar"></span></span></i> Schedule Exam Request</a>
+                        <a href="MakeAppointmentStudent.jsp"><span class="glyphicon glyphicon-calendar"></span></span></i> Make An Appointment</a>
                     </li>
                     <li>
-                        <a href="SeeExamRequests.jsp"><i class="fa fa-fw fa-table"></i> See Exam Requests</a>
+                        <a href="SeeAppointmentList.jsp"><span class="glyphicon glyphicon-ok"></span></span></i> See Appointments</a>
                     </li>
                     <li>
-                        <a href="ApptAttendanceDetails.jsp"><span class="glyphicon glyphicon-ok"></span></span></i> Appt/Attendance Details</a>
-                    </li>
-                    <li>
-                        <a href="#"><i class="fa fa-fw fa-dashboard"></i> Display Utilization Center</a>
+                        <a href="SetAppointmentReminder.jsp"><span class="glyphicon glyphicon-saved"></span></i> Set Appointment Reminder</a>
                     </li>
                 </ul>
             </div>
@@ -170,57 +165,43 @@
         <div id="page-wrapper">
 
             <div class="container-fluid">
-
+            	<img src="img/appointmentsetting.png" alt="missing">
                 <!-- Page Heading -->
                 <div class="row">
                     <div class="col-lg-12">
                         <h1 class="page-header">
-                            Schedule Exam Request
+                            Make Appointment
                         </h1>
                     </div>
                 </div>
+                
+                <!-- Exam exam, DateTime time, int seatId, int appointmentId, String netID -->
+
                 <div class="row">
-                	<form role="form">
-                		<div class="col-sm-6re">
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Course ID</span>
-		                        <input type="text" class="form-control" placeholder="IE:CSE308">
-		                    </div>
-		                    
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Section</span>
-		                        <input type="text" class="form-control" placeholder="Enter Number">
-		                    </div>
-		
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Term</span>
-		                        <input type="text" class="form-control" placeholder="IE:FALL2015">
-		                    </div>
-		                    
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Start Date</span>
-		                        <input type="text" class="form-control" placeholder="mm/dd/yyyy">
-		                    </div>
-		
-		                    <div class="form-group input-group">
-		                        <input type="text" class="form-control" placeholder="Start Time">
-		                        <span class="input-group-addon">Minutes</span>
-		                    </div>
-		
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">End Date</span>
-		                        <input type="text" class="form-control" placeholder="mm/dd/yyyy">
-		                    </div>
-							
-							<div class="form-group input-group">
-		                        <input type="text" class="form-control" placeholder="End Time">
-		                        <span class="input-group-addon">Minutes</span>
-		                    </div>
-		                    
-		                    <button type="submit" class="btn btn-success">Submit</button>
-	                        <button type="reset" class="btn btn-default">Reset</button>
-						</div>
-	                </form>
+	                <table class="table table-bordered table-hover">
+	                    <thead>
+	                    <!-- Columns -->
+	                        <tr class="active">
+	                            <th>Exam</th>
+	                            <th>Time</th>
+	                            <th>Seat ID</th>
+	                            <th>Net ID</th>
+	                        </tr>
+	                    <!-- /Columns -->
+	                    </thead>
+	                    <tbody>
+	                        <tr>
+	                        <!--enter code here for table -->
+	                        <%  %>
+	                        <!-- row entries -->
+	                            <td>Sample exam</td>
+	                            <td>S11:30AM</td>
+	                            <td>D8</td>
+	                            <td>123456789</td>
+	                        <!-- /row entries -->    
+	                        </tr>
+	                    </tbody>
+	                </table>
                 </div>
             </div>
             <!-- /.container-fluid -->

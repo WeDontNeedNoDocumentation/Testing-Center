@@ -156,7 +156,7 @@
                         <a href="SeeExamRequests.jsp"><i class="fa fa-fw fa-table"></i> See Exam Requests</a>
                     </li>
                     <li class="active">
-                        <a href=ApptAttendanceDetails.jsp"><span class="glyphicon glyphicon-ok"></span></span></i> Appt/Attendance Details</a>
+                        <a href="ApptAttendanceDetails.jsp"><span class="glyphicon glyphicon-ok"></span></span></i> Appt/Attendance Details</a>
                     </li>
                     <li>
                         <a href="#"><i class="fa fa-fw fa-dashboard"></i> Display Utilization Center</a>
@@ -174,15 +174,15 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <h1 class="page-header">
-                            Approve/Reject Reservations
+                           Appointment Attendance Details
                         </h1>
                     </div>
                 </div>
-				<h2>Reservations</h2>
                 <div class="row">
+	                <h3>Select an exam to view details for</h3>
 	                <table class="table table-bordered table-hover">
 	                    <thead>
-	                    <!-- Columns course id section# term, duration, start date and time and end date and time -->
+	                    <!-- Columns -->
 	                        <tr class="active">
 	                            <th>Course ID</th>
 	                            <th>Section</th>
@@ -192,6 +192,7 @@
 	                            <th>Time</th>
 	                            <th>End Date</th>
 	                            <th>Time</th>
+	                            <th>Seats Available</th>
 	                            <th>Action</th>
 	                        </tr>
 	                    <!-- /Columns -->
@@ -203,15 +204,15 @@
 	                        <!-- row entries -->
 	                            <td>123456789</td>
 	                            <td>2</td>
-	                            <td>Fall 2015</td>
+	                            <td>Spring 2016</td>
 	                            <td>90</td>
 	                            <td>11/21/15</td>
 	                            <td>11:00AM</td>
 	                            <td>11/22/15</td>
 	                            <td>1:00PM</td>
+	                            <td>32</td>
 	                            <td>
-		                            <button type="button" class="btn btn-sm btn-success">Approve</button>
-		                    		<button type="button" class="btn btn-sm btn-danger">Deny</button>
+		                            <a href="ShowApptAttendanceDetails.jsp" button type="button" class="btn btn-sm btn-success">Select</a>
 	                    		</td>
 	                        <!-- /row entries -->    
 	                        </tr>

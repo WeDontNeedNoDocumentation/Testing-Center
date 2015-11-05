@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>SB Admin - Bootstrap Admin Template</title>
+    <title>Appointment/Attendance Details Page - Instructor</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -43,7 +43,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="scheduler.html">SB Admin</a>
+                <a class="navbar-brand" href="scheduler.html">Testing Scheduler Center</a>
             </div>
             <!-- Top Menu Items -->
             <ul class="nav navbar-right top-nav">
@@ -57,8 +57,7 @@
                                         <img class="media-object" src="http://placehold.it/50x50" alt="">
                                     </span>
                                     <div class="media-body">
-                                        <h5 class="media-heading">
-                                            <strong>John Smith</strong>
+                                        <h5 class="media-heading"><strong>John Smith</strong>
                                         </h5>
                                         <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
                                         <p>Lorem ipsum dolor sit amet, consectetur...</p>
@@ -73,8 +72,7 @@
                                         <img class="media-object" src="http://placehold.it/50x50" alt="">
                                     </span>
                                     <div class="media-body">
-                                        <h5 class="media-heading">
-                                            <strong>John Smith</strong>
+                                        <h5 class="media-heading"><strong>John Smith</strong>
                                         </h5>
                                         <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
                                         <p>Lorem ipsum dolor sit amet, consectetur...</p>
@@ -89,8 +87,7 @@
                                         <img class="media-object" src="http://placehold.it/50x50" alt="">
                                     </span>
                                     <div class="media-body">
-                                        <h5 class="media-heading">
-                                            <strong>John Smith</strong>
+                                        <h5 class="media-heading"><strong>John Smith</strong>
                                         </h5>
                                         <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
                                         <p>Lorem ipsum dolor sit amet, consectetur...</p>
@@ -153,42 +150,16 @@
             <div class="collapse navbar-collapse navbar-ex1-collapse">
                 <ul class="nav navbar-nav side-nav">
                     <li>
-                        <a href="scheduler.html"><span class="glyphicon glyphicon-calendar"></span></span></i> Scheduler</a>
+                        <a href="ScheduleExamRequest.jsp"><span class="glyphicon glyphicon-calendar"></span></span></i> Schedule Exam Request</a>
                     </li>
                     <li>
-                        <a href="tables.html"><i class="fa fa-fw fa-table"></i> Make Appointment</a>
-                    </li>
-                    <li>
-                        <a href="forms.html"><span class="glyphicon glyphicon-ok"></span></span></i> Approve/Reject RSV</a>
-                    </li>
-                    <li>
-                        <a href="charts.html"><span class="glyphicon glyphicon-saved"></span></i> Check-in Student</a>
-                    </li>
-                    <li>
-                        <a href="bootstrap-elements.html"><span class="glyphicon glyphicon-list"></span></i> View Appointments</a>
-                    </li>
-                    <li>
-                        <a href="bootstrap-grid.html"><i class="fa fa-fw fa-wrench"></i> Cancel/Edit Appointments</a>
-                    </li>
-                    <li>
-                        <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i class="fa fa-fw fa-arrows-v"></i> Import <i class="fa fa-fw fa-caret-down"></i></a>
-                        <ul id="demo" class="collapse">
-                            <li>
-                                <a href="#">Import Users</a>
-                            </li>
-                            <li>
-                                <a href="#">Import Class</a>
-                            </li>
-                            <li>
-                                <a href="#">Import Roster</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="index-rtl.html"><i class="fa fa-fw fa-dashboard"></i> Display Utilization Center</a>
+                        <a href="SeeExamRequests.jsp"><i class="fa fa-fw fa-table"></i> See Exam Requests</a>
                     </li>
                     <li class="active">
-                        <a href="blank-page.html"><i class="fa fa-fw fa-file"></i> Generate Report</a>
+                        <a href="ApptAttendanceDetails.jsp"><span class="glyphicon glyphicon-ok"></span></span></i> Appt/Attendance Details</a>
+                    </li>
+                    <li>
+                        <a href="#"><i class="fa fa-fw fa-dashboard"></i> Display Utilization Center</a>
                     </li>
                 </ul>
             </div>
@@ -203,21 +174,65 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <h1 class="page-header">
-                            Blank Page
-                            <small>Subheading</small>
+                        <!-- each student's appointment time if any, assigned seat, and if each student showed up for appointment -->
+                           Appointment Attendance Details
                         </h1>
-                        <ol class="breadcrumb">
-                            <li>
-                                <i class="fa fa-dashboard"></i>  <a href="scheduler.html">Dashboard</a>
-                            </li>
-                            <li class="active">
-                                <i class="fa fa-file"></i> Blank Page
-                            </li>
-                        </ol>
                     </div>
                 </div>
-                <!-- /.row -->
-
+                <div class="row">
+	                <h3>Exam Appointment and Attendance Details</h3>
+	                <table class="table table-bordered table-hover">
+	                    <thead>
+	                    <!-- Columns -->
+	                        <tr class="active">
+	                            <th>Student</th>
+	                            <th>Appointment Time</th>
+	                            <th>Seat</th>
+	                            <th>Attendance</th>
+	                        </tr>
+	                    <!-- /Columns -->
+	                    </thead>
+	                    <tbody>
+	                        <tr>
+	                        <!--enter code here for table -->
+	                        <%  %>
+	                        <!-- row entries -->
+	                            <td>Joe Mama</td>
+	                            <td>2:30PM</td>
+	                            <td>6F</td>
+	                            <td>
+	                            	<button type="button" class="btn btn-xs btn-success">Attended</button>
+	                            </td> 
+	                        </tr>
+	                    </tbody>
+	                    <tbody>
+	                        <tr>
+	                        <!--enter code here for table -->
+	                        <%  %>
+	                        <!-- row entries -->
+	                            <td>Joe Papa</td>
+	                            <td>2:30PM</td>
+	                            <td>6G</td>
+	                            <td>
+	                            	<button type="button" class="btn btn-xs btn-danger">No Attendance</button>
+	                            </td> 
+	                        </tr>
+	                    </tbody>
+	                    <tbody>
+	                        <tr>
+	                        <!--enter code here for table -->
+	                        <%  %>
+	                        <!-- row entries -->
+	                            <td>Joe Kid</td>
+	                            <td>2:30PM</td>
+	                            <td>6E</td>
+	                            <td>
+	                            	<button type="button" class="btn btn-xs btn-success">No Attendance</button>
+	                            </td> 
+	                        </tr>
+	                    </tbody>
+	                </table>
+                </div>
             </div>
             <!-- /.container-fluid -->
 
