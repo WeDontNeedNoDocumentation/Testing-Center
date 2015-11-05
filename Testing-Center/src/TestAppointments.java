@@ -26,20 +26,20 @@ public class TestAppointments {
 		db = Database.getDatabase();
 		tc = TestingCenter.getTestingCenter();
 		
-		db.updateQuery("CREATE DATABASE Test");
-		db.updateQuery("USE Test");
+//		db.updateQuery("CREATE DATABASE Test");
+//		db.updateQuery("USE Test");
 		
-		db.updateQuery("CREATE TABLE student (firstName varchar(45), lastName varchar(45), studentId varchar(45), email varchar(45))");
-		db.updateQuery("CREATE TABLE appointment (examId varchar(45), studentIdA varchar(45), dateIdA int, seatIdA int, appointmentId int)");
-		db.updateQuery("CREATE TABLE exam (examId varchar(45), start int, end int, boolCourseExam varchar(45), examStatus varchar(45), instructorId varchar(45), numSeats int)");
-		db.updateQuery("CREATE TABLE instructor (instructorId varchar(45), name varchar(45), email varchar(45))");
-		db.updateQuery("CREATE TABLE courseexam (examIdCE varchar(45), courseIdCE varchar(45))");
-		
+//		db.updateQuery("CREATE TABLE student (firstName varchar(45), lastName varchar(45), studentId varchar(45), email varchar(45))");
+//		db.updateQuery("CREATE TABLE appointment (examId varchar(45), studentIdA varchar(45), dateIdA int, seatIdA int, appointmentId int)");
+//		db.updateQuery("CREATE TABLE exam (examId varchar(45), start int, end int, boolCourseExam varchar(45), examStatus varchar(45), instructorId varchar(45), numSeats int)");
+//		db.updateQuery("CREATE TABLE instructor (instructorId varchar(45), name varchar(45), email varchar(45))");
+//		db.updateQuery("CREATE TABLE courseexam (examIdCE varchar(45), courseIdCE varchar(45))");
+//		
 //		db.updateQuery("INSERT INTO student VALUES ('Dan', 'Harel', 'dharel', 'dan.harel@stonybrook.edu')");
 //		db.updateQuery("INSERT INTO instructor VALUES ('sstoller', 'Scott Stoller', 'stoller@cs.stonybrook.edu')");
 		db.updateQuery("INSERT INTO student VALUES ('Dand', 'Hareld', 'dhareld', 'dand.hareld@stonybrook.edu')");
 		db.updateQuery("INSERT INTO instructor VALUES ('sstollerd', 'Scott Stollerd', 'stollerd@cs.stonybrook.edu')");
-
+		db.updateQuery("INSERT INTO exam VALUES('CSE',null, null, 'sstollerd', '64','2')");
 	}
 	
 	@Test

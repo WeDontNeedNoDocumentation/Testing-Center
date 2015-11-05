@@ -622,7 +622,11 @@ public class TestingCenter {
 					
 					
 				} else {
-					
+					List<Map<String, Object>> apps = db.query(String.format("SELECT "));
+					int[] slot =  seatsAvailable.get(end);
+					for(Map<String,Object> app : apps) {
+						slot[(int)app.get("seatIdA")] = (int) app.get("examIdA");
+					}
 				}
 				
 				//ADD INSERT EXISTING
