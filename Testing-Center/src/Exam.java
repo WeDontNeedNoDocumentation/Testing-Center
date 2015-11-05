@@ -84,4 +84,8 @@ public class Exam {
 		
 	}
 
+	public Object getLength() {
+		return duration;
+	}
+
 }

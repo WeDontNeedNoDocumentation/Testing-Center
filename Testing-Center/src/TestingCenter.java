@@ -207,15 +207,16 @@ public class TestingCenter {
 		logger.fine("Instructor ID: " + instructorId);
 		
 		String queryString = String.format("INSERT INTO exam "
-				+ "(examId, start, end, boolCourseExam, examStatus, instructorId, numSeats) "
-				+ "VALUES ('%s', %d, %d, %d, '%s', '%s', %d)", 
+				+ "(examId, start, end, boolCourseExam, examStatus, instructorId, numSeats, examLength) "
+				+ "VALUES ('%s', %d, %d, '%s', '%s', '%s', %d, %d)", 
 				exam.getExamID(), 
 				start.getMillis()/1000,
 				end.getMillis()/1000,
-				courseExam ? 0 : 1,
+				courseExam ? 1 : 0,
 				"P",
 				instructorId,
-				exam.getNumSeats()
+				exam.getNumSeats(),
+				exam.getLength()
 				);
 		db.updateQuery(queryString);
 		
@@ -263,7 +264,7 @@ public class TestingCenter {
 		logger.info("Retrieving all exams.");
 		
 		Database db = Database.getDatabase();
-		List<Map<String,Object>> exams = db.query("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, courseexam.courseIdCE,examLength "
+		List<Map<String,Object>> exams = db.query("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, numSeats, courseexam.courseIdCE, examLength "
 				+ "FROM exam "
 				+ "LEFT JOIN courseexam "
 				+ "ON exam.examId=courseexam.examIdCE");
@@ -321,8 +322,11 @@ public class TestingCenter {
 		logger.info("Retrieving all exams for instructor with innstructor ID: " + instructorId);
 		
 		List<Exam> exams = new ArrayList<Exam>();
-		String queryString = String.format("SELECT * FROM exam "
-				+ "INNER JOIN instructor ON exam.instructorId=instructor.instructorId WHERE exam.instructorId = '%s'",
+		String queryString = String.format("SELECT examId, start, end, examStatus, numSeats, examLength, boolCourseExam, courseexam.courseIdCE "
+				+ "FROM exam "
+				+ "LEFT JOIN courseexam "
+				+ "ON exam.examId=courseexam.examIdCE "
+				+ "WHERE exam.instructorId = '%s'",
 				instructorId
 				);
 		List<Map<String,Object>> examList = db.query(queryString);
@@ -330,11 +334,19 @@ public class TestingCenter {
 			String examId = (String) exam.get("examId");
 			DateTime start = new DateTime(new Long((int) exam.get("start")*1000));
 			DateTime end = new DateTime(new Long((int) exam.get("end")*1000));
-			String status = (String) exam.get("status");
+			String status = (String) exam.get("examStatus");
 			int numSeats = (int) exam.get("numSeats");
 			int duration = (int) exam.get("examLength");
 			
-			Exam newExam = new Exam(examId, start, end, status, numSeats,duration);
+			Exam newExam = null;
+			if ( ((String) exam.get("boolCourseExam")).equals("1") ) {
+				String courseId = (String) exam.get("courseIdCE");
+				newExam = new CourseExam(examId, start, end, status, instructorId, courseId, numSeats, duration);
+			}
+			else {
+				newExam = new OutsideExam(examId, start, end, status, instructorId, numSeats, duration);
+			}
+			
 			exams.add(newExam);
 		}
 		
@@ -640,7 +652,7 @@ public class TestingCenter {
 	public List<Exam> viewAvailableExams(Student st) {
 		logger.info("Retrieving all exams currently available to student with ID" + st.getNetID());
 		
-		String queryString = String.format("SELECT exam.examId, start, end, examStatus, numSeats, boolCourseExam, instructorId, courseexam.courseIdCE,examLength "
+		String queryString = String.format("SELECT exam.examId, start, end, examStatus, numSeats, boolCourseExam, instructorId, courseexam.courseIdCE, examLength "
 				+ "FROM exam "
 				+ "INNER JOIN courseexam "
 				+ "ON exam.examId=courseexam.examIdCE "
