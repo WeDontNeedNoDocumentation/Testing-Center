@@ -36,17 +36,25 @@ public class TestAppointments {
 		db.updateQuery("USE Test");
 
 		db.updateQuery("CREATE TABLE student (firstName varchar(45), lastName varchar(45), studentId varchar(45), email varchar(45))");
-		db.updateQuery("CREATE TABLE appointment (examId varchar(45), studentIdA varchar(45), dateIdA int, seatIdA int, appointmentId int)");
-		db.updateQuery("CREATE TABLE exam (examId varchar(45), start int, end int, boolCourseExam varchar(45), examStatus varchar(45), instructorId varchar(45), numSeats int)");
+		db.updateQuery("CREATE TABLE appointment (examIdA varchar(45), studentIdA varchar(45), dateIdA int, seatIdA int, appointmentId int)");
+		db.updateQuery("CREATE TABLE exam (examId varchar(45), start int, end int, boolCourseExam varchar(45), examStatus varchar(45), instructorId varchar(45), numSeats int, examLength int)");
 		db.updateQuery("CREATE TABLE instructor (instructorId varchar(45), name varchar(45), email varchar(45))");
 		db.updateQuery("CREATE TABLE courseexam (examIdCE varchar(45), courseIdCE varchar(45))");
 		db.updateQuery("CREATE TABLE coursestudent (courseIdCS varchar(45), studentIdCS varchar(45))");
+		db.updateQuery("CREATE TABLE course (courseId varchar(45), subject varchar(45), catalogNumber varchar(45), section varchar(45), instructor varchar(45))");
 		
 		db.updateQuery("INSERT INTO student VALUES ('Dan', 'Harel', 'dharel', 'dan.harel@stonybrook.edu')");
-		db.updateQuery("INSERT INTO instructor VALUES ('sstoller', 'Scott Stoller', 'stoller@cs.stonybrook.edu')");
-		db.updateQuery("INSERT INTO exam VALUES ('exam1', 0, 0, '1', 'A', 'SStoller', 64");
-		db.updateQuery("INSERT INTO exam VALUES ('exam2', 0, 0, '1', 'A', 'SStoller', 64");
-		db.updateQuery("INSERT INTO courseexam VALUES ('exam1', 0, 0, '1', 'A', 'SStoller', 64");
+		db.updateQuery("INSERT INTO instructor VALUES ('SStoller', 'Scott Stoller', 'stoller@cs.stonybrook.edu')");
+		db.updateQuery("INSERT INTO course VALUES ('81468-1158', 'CSE', '308', '01', 'SStoller')");
+		db.updateQuery("INSERT INTO course VALUES ('80450-1158', 'CSE', '373', '01', 'SSkiena')");		
+		db.updateQuery("INSERT INTO exam VALUES ('exam1', 0, 0, '1', 'A', 'SStoller', 64, 60)");
+		db.updateQuery("INSERT INTO exam VALUES ('exam2', 0, 0, '1', 'A', 'SStoller', 64, 60)");
+		db.updateQuery("INSERT INTO exam VALUES ('exam3', 0, 0, '1', 'A', 'SSkiena', 64, 60)");
+		db.updateQuery("INSERT INTO courseexam VALUES ('exam1', '81468-1158')");
+		db.updateQuery("INSERT INTO courseexam VALUES ('exam2', '81468-1158')");
+		db.updateQuery("INSERT INTO courseexam VALUES ('exam3', '80450-1158')");
+		db.updateQuery("INSERT INTO coursestudent VALUES ('81468-1158', 'dharel')");
+		db.updateQuery("INSERT INTO coursestudent VALUES ('80450-1158', 'dharel')");
 
 	}
 	
@@ -54,7 +62,7 @@ public class TestAppointments {
 	public void AtestStudentCreateAppointment() {
 		logger.info("Testing Student's ability to create an appointment.");
 		
-		Exam exam = new Exam("CSE", null, null, "sstoller", 64, 0);
+		Exam exam = new Exam("CSE", null, null, "SStoller", 64, 60);
 		
 		List<Appointment> appts;
 		
@@ -86,22 +94,28 @@ public class TestAppointments {
 		assertEquals(-1, endSize - startSize);
 	}
 	
-	// Not entirely sure how to test this one properly....
-	/*
 	@Test
 	public void CtestInstructorCreateAppointment() {
 		logger.info("Testing Instructor's ability to create an exam scheduling request.");
 		
 		Instructor inst = new Instructor("Scott Stollerd", "stollerd@cs.stonybrook.edu", tc, "SStollerd");
-		Exam exam = new OutsideExam("CSE", null, null, null, "sstollerd", 64,2);
+		List<Exam> exams;
+		
+		exams = inst.viewExams();
+		int startNumExams = exams.size();
+		
+		Exam exam = new CourseExam("CSE", null, null, null, "sstollerd", "P", 64,2);
 		
 		inst.makeExam(exam, new DateTime(2000,1,1,1,1), new DateTime(2000,1,1,1,2), true);
 		
-		List<Exam> exams = inst.viewExams();
-		assertEquals("CSE", exams.get(0).getExamID());
+		exams = inst.viewExams();
+		int endNumExams = exams.size();
+		
+		assertEquals(1, endNumExams - startNumExams);
+		//assertEquals("CSE", exams.get(0).getExamID());
 	}
-	*/
 	
+	/*
 	@Test
 	public void DtestViewPendingExams() {
 		logger.info("Testing Instructor's ability to view exam scheduling request.");
@@ -111,26 +125,41 @@ public class TestAppointments {
 		List<Exam> exams = admin.viewPendingExams();
 		assertEquals(1, exams.size());
 	}
+	*/
 	
 	@Test
 	public void EtestAcceptExam() {
 		logger.info("Testing Admin's ability to accept an exam scheduling request.");
 		
 		Administrator admin = new Administrator(null, null, null);
+		List<Exam> exams;
+		
+		exams = admin.viewPendingExams();
+		int startNumExams = exams.size();
+		
 		admin.approveDenyExam("CSE", "A");
 		
-		List<Exam> exams = admin.viewPendingExams();
-		assertEquals(0, exams.size());
+		exams = admin.viewPendingExams();
+		int endNumExams = exams.size();
+		
+		assertEquals(-1, endNumExams - startNumExams);
 	}
 	
 	@Test
 	public void FtestInstructorCancelExam() {
-		logger.info("Testing Admin's ability to reject an exam scheduling request.");
+		logger.info("Testing Instructor's ability to reject an exam scheduling request.");
+		
+		List<Exam> exams;
+		
+		exams = inst.viewExams();
+		int startNumExams = exams.size();
 		
 		inst.cancelExam("CSE");
 		
-		List<Exam> exams = inst.viewExams();
-		assertEquals(0, exams.size());
+		exams = inst.viewExams();
+		int endNumExams = exams.size();
+		
+		assertEquals(0, endNumExams - startNumExams);
 	}
 	
 	@Test
@@ -139,7 +168,7 @@ public class TestAppointments {
 		
 		List<Exam> exams = st.viewExams();
 		
-		
+		assertEquals(3, exams.size());
 	}
 	
 //	@Test

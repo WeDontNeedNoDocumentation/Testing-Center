@@ -207,15 +207,16 @@ public class TestingCenter {
 		logger.fine("Instructor ID: " + instructorId);
 		
 		String queryString = String.format("INSERT INTO exam "
-				+ "(examId, start, end, boolCourseExam, examStatus, instructorId, numSeats) "
-				+ "VALUES ('%s', %d, %d, %d, '%s', '%s', %d)", 
+				+ "(examId, start, end, boolCourseExam, examStatus, instructorId, numSeats, examLength) "
+				+ "VALUES ('%s', %d, %d, '%s', '%s', '%s', %d, %d)", 
 				exam.getExamID(), 
 				start.getMillis()/1000,
 				end.getMillis()/1000,
-				courseExam ? 0 : 1,
+				courseExam ? 1 : 0,
 				"P",
 				instructorId,
-				exam.getNumSeats()
+				exam.getNumSeats(),
+				exam.getLength()
 				);
 		db.updateQuery(queryString);
 		
@@ -263,7 +264,7 @@ public class TestingCenter {
 		logger.info("Retrieving all exams.");
 		
 		Database db = Database.getDatabase();
-		List<Map<String,Object>> exams = db.query("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, courseexam.courseIdCE,examLength "
+		List<Map<String,Object>> exams = db.query("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, numSeats, courseexam.courseIdCE, examLength "
 				+ "FROM exam "
 				+ "LEFT JOIN courseexam "
 				+ "ON exam.examId=courseexam.examIdCE");
@@ -321,8 +322,11 @@ public class TestingCenter {
 		logger.info("Retrieving all exams for instructor with innstructor ID: " + instructorId);
 		
 		List<Exam> exams = new ArrayList<Exam>();
-		String queryString = String.format("SELECT * FROM exam "
-				+ "INNER JOIN instructor ON exam.instructorId=instructor.instructorId WHERE exam.instructorId = '%s'",
+		String queryString = String.format("SELECT examId, start, end, examStatus, numSeats, examLength, boolCourseExam, courseexam.courseIdCE "
+				+ "FROM exam "
+				+ "LEFT JOIN courseexam "
+				+ "ON exam.examId=courseexam.examIdCE "
+				+ "WHERE exam.instructorId = '%s'",
 				instructorId
 				);
 		List<Map<String,Object>> examList = db.query(queryString);
@@ -330,11 +334,19 @@ public class TestingCenter {
 			String examId = (String) exam.get("examId");
 			DateTime start = new DateTime(new Long((int) exam.get("start")*1000));
 			DateTime end = new DateTime(new Long((int) exam.get("end")*1000));
-			String status = (String) exam.get("status");
+			String status = (String) exam.get("examStatus");
 			int numSeats = (int) exam.get("numSeats");
 			int duration = (int) exam.get("examLength");
 			
-			Exam newExam = new Exam(examId, start, end, status, numSeats,duration);
+			Exam newExam = null;
+			if ( ((String) exam.get("boolCourseExam")).equals("1") ) {
+				String courseId = (String) exam.get("courseIdCE");
+				newExam = new CourseExam(examId, start, end, status, instructorId, courseId, numSeats, duration);
+			}
+			else {
+				newExam = new OutsideExam(examId, start, end, status, instructorId, numSeats, duration);
+			}
+			
 			exams.add(newExam);
 		}
 		
@@ -591,46 +603,68 @@ public class TestingCenter {
 		this.makeReservation(newExam, newExam.getStart(), newExam.getEnd(), newExam instanceof CourseExam, newExam.getInstructorId());
 		DateTime now = DateTime.now();
 		long nowUnix = now.getMillis()/1000;
-		List<Map<String, Object>> exams = db.query(String.format(
-				"SELECT exam.examId, COUNT(appointment.examIdA) AS numAppointments, exam.start, exam.end, exam.numSeats "
-				+ "FROM exam "
-				+ "LEFT JOIN appointment "
-				+ "ON exam.examId=appointment.examIdA "
-				+ "WHERE end > %d "
-				+ "AND exam.examStatus <> 'R' "
-				+ "GROUP BY exam.examId "
-				+ "ORDER BY end DESC, start DESC;",
-				nowUnix
-				));
 		
-		Map<LocalDate, int[]> seatsAvailable = new HashMap<LocalDate, int[]>();
-
+		List<Map<String, Object>> exams = getOverlap(newExam);
+		
+		Map<Long, String[]> seatsAvailable = insertExisting(exams);
+		
 		for ( Map<String, Object> exam : exams ) {
 			long start = (long) exam.get("start");
 			long end = (long) exam.get("end");
 			long len = (long)exam.get("examLength");
+			String examId = (String) exam.get("StringIdA");
 			long apStart = end-(len*3600);
 			long apEnd = end;
-			int seatsLeft = (int) exam.get("numSeats");
+			/*
+			 * TODO
+			 * fix blahblah
+			 */
+			List<Map<String, Object>> apps = db.query(String.format("SELECT blahblah from appointments"
+					+ "WHERE examIdA = '%s'",
+					examId));
+			int seatsLeft = (int) exam.get("numSeats") - apps.size();
 			
 			while(seatsLeft != 0) {
 				if(apStart<start){
 					this.cancelExam(newExam.getExamID(), newExam.getInstructorId());
 					return false;
 				}
-				if (apEnd == end) {
-					
-					
-				} else {
-					List<Map<String, Object>> apps = db.query(String.format("SELECT "));
-					int[] slot =  seatsAvailable.get(end);
-					for(Map<String,Object> app : apps) {
-						slot[(int)app.get("seatIdA")] = (int) app.get("examIdA");
+				
+				
+				/*
+				 * TODO
+				 * This should work in theory I just need to add gap time
+				 */
+				long searchTime = apEnd;
+				ArrayList<String[]> appSeats = new ArrayList<String[]>();
+				int i = 0;
+				while(searchTime != apStart) {
+					searchTime = searchTime -1800;
+					if(!seatsAvailable.containsKey(searchTime)){
+						seatsAvailable.put(searchTime, new String[numberOfSeats-numberOfSetAside]);
 					}
+					appSeats.add(i, seatsAvailable.get(searchTime));
 				}
 				
-				//ADD INSERT EXISTING
+				for(int j = 0; j <numberOfSeats-numberOfSetAside;i++){
+					searchTime = apEnd;
+					boolean aval = true;
+					for(String[] slot : appSeats) {
+						if(slot[j] != null || slot[j-1] == examId||slot[j+1] == examId){
+							aval = false;
+							break;
+						}
+						if(aval) {
+							for(String[] slotFill : appSeats) {
+								slotFill[j] = examId;
+							}
+							seatsLeft--;
+						}
+					}
+					
+					
 				
+				}
 				apEnd = apEnd - 1800;
 				apStart = apStart-1800;
 			}
@@ -640,11 +674,43 @@ public class TestingCenter {
 		return true;
 	}
 	
+	private Map<Long, String[]> insertExisting(List<Map<String, Object>> exams) {
+		Map<Long, String[]> seatsAvailable = new HashMap<Long, String[]>();
+		for(Map<String,Object> exam : exams) {
+			String examId = (String) exam.get("StringIdA");
+			/*
+			 * TODO
+			 * fix blahblah
+			 */
+			List<Map<String, Object>> apps = db.query(String.format("SELECT blahblah from appointments"
+					+ "WHERE examIdA = '%s'",
+					examId));
+			
+			for(Map<String,Object> app : apps) {
+				long searchTime = (long)app.get("end");
+				while(searchTime != (long)app.get("start")) {
+					searchTime = searchTime -1800;
+					if(!seatsAvailable.containsKey(searchTime)){
+						seatsAvailable.put(searchTime, new String[numberOfSeats-numberOfSetAside]);
+					}
+					String[] slot =  seatsAvailable.get(searchTime);
+					slot[(int)app.get("seatIdA")] = (String) app.get("examIdA");
+				}
+			}
+		}
+		return seatsAvailable;
+	}
+
+	private List<Map<String, Object>> getOverlap(Exam newExam) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	//retrieve a list of all exams that may be selected by a certain student
 	public List<Exam> viewAvailableExams(Student st) {
 		logger.info("Retrieving all exams currently available to student with ID" + st.getNetID());
 		
-		String queryString = String.format("SELECT exam.examId, start, end, examStatus, numSeats, boolCourseExam, instructorId, courseexam.courseIdCE,examLength "
+		String queryString = String.format("SELECT exam.examId, start, end, examStatus, numSeats, boolCourseExam, instructorId, courseexam.courseIdCE, examLength "
 				+ "FROM exam "
 				+ "INNER JOIN courseexam "
 				+ "ON exam.examId=courseexam.examIdCE "
