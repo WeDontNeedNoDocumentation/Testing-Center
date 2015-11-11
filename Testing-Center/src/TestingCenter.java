@@ -104,6 +104,14 @@ public class TestingCenter {
 			instance = new TestingCenter(days, numberOfSeats, numberOfSetAside,
 					open, close, gap, reminderInt
 					);
+			
+			logger.info("Instantiating testing center.");
+			logger.fine("Days open: " + instance.days);
+			logger.fine("Number of seats: " + instance.numberOfSeats);
+			logger.fine("Opening time: " + instance.open.toString());
+			logger.fine("Close time: " + instance.close.toString());
+			logger.fine("Gap time: " + instance.gap.toString());
+			logger.fine("Reminder interval: " + instance.reminderInt.toString());
 		}
 		return instance;
 	}
@@ -391,63 +399,40 @@ public class TestingCenter {
 		
 		return examsList;
 	}
+	
+	private void updateTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
+		ArrayList<String> lines = new ArrayList<String>();
+		String currentLine;
+		
+		FileReader reader = new FileReader(new File(filename));
+		BufferedReader bReader = new BufferedReader(reader);
+		while ((currentLine = bReader.readLine()) != null){
+			lines.add(currentLine);
+		}
+		bReader.close();
+		for(int i = 1; i < lines.size(); i++) {
+			StringBuilder sb = new StringBuilder("INSERT INTO " + tableName + " VALUES (");
+			sb.append(queryFormat(lines.get(i)));
+			sb.append(");");
+			db.updateQuery(sb.toString());
+			//System.out.println(lines.get(i));
+		}
+	}
 
 	/*
 	 * This method reads in the 3 .csv files that were provided to us and then stores that data in the 
 	 * corresponding tables in our data base.
 	 * (NOTE: At the moment the function will try to add an entry even if the Primary Key already exists.)
 	 */
-	public boolean updateData() {
+	public boolean updateData(String studentsFileName, String coursesFileName, String rostersFileName) {
 		logger.info("Reading csv files, updating database");
-		ArrayList<String> lines = new ArrayList<String>();
-		
-		
+	
 		try {
-			String currentLine;
+			updateTableFromFile(studentsFileName, "student");
 			
-			FileReader reader = new FileReader(new File("user.csv"));
-			BufferedReader bReader = new BufferedReader(reader);
-			while ((currentLine = bReader.readLine()) != null){
-				lines.add(currentLine);
-			}
-			bReader.close();
-			for(int i = 1; i < lines.size(); i++) {
-				StringBuilder sb = new StringBuilder("INSERT INTO student VALUES (");
-				sb.append(queryFormat(lines.get(i)));
-				sb.append(");");
-				db.query(sb.toString());
-				//System.out.println(lines.get(i));
-			}
+			updateTableFromFile(coursesFileName, "course");
 			
-			lines = new ArrayList<String>();
-			FileReader reader2 = new FileReader(new File("class.csv"));
-			BufferedReader bReader2 = new BufferedReader(reader2);
-			while ((currentLine = bReader2.readLine()) != null){
-				lines.add(currentLine);
-			}
-			bReader2.close();
-			for(int i = 1; i < lines.size(); i++) {
-				StringBuilder sb = new StringBuilder("INSERT INTO course VALUES (");
-				sb.append(queryFormat(lines.get(i)));
-				sb.append(");");
-				db.query(sb.toString());
-				//System.out.println(lines.get(i));
-			}
-			
-			lines = new ArrayList<String>();
-			FileReader reader3 = new FileReader(new File("roster.csv"));
-			BufferedReader bReader3 = new BufferedReader(reader3);
-			while ((currentLine = bReader3.readLine()) != null){
-				lines.add(currentLine);
-			}
-			bReader3.close();
-			for(int i = 1; i < lines.size(); i++) {
-				StringBuilder sb = new StringBuilder("INSERT INTO coursestudent VALUES (");
-				sb.append(queryFormat(lines.get(i)));
-				sb.append(");");
-				db.query(sb.toString());
-				//System.out.println(lines.get(i));
-			}
+			updateTableFromFile(rostersFileName, "coursestudent");
 			
 			return true;
 			

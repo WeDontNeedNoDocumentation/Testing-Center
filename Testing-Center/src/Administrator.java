@@ -15,13 +15,13 @@ import org.joda.time.DateTime;
 public class Administrator {
 	private String name;
 	private String email;
-	private TestingCenter tC;
 	
-	public Administrator(String name, String email, TestingCenter tC) {
+	private final TestingCenter tC = TestingCenter.getTestingCenter();
+	
+	public Administrator(String name, String email) {
 		super();
 		this.name = name;
 		this.email = email;
-		this.tC = tC;
 	}
 	
 	/*
@@ -63,8 +63,8 @@ public class Administrator {
 	/*
 	 * Gives the testingCenter the command to update the data in the database.
 	 */
-	public void importData() {
-		tC.updateData();
+	public void importData(String studentsFileName, String coursesFileName, String rostersFileName) {
+		tC.updateData(studentsFileName, coursesFileName, rostersFileName);
 	}
 	
 	public void displayUtilization() {
@@ -86,13 +86,12 @@ public class Administrator {
 	 * @param examId	ID of the exam
 	 * @param newStatus	Must be either "A" for ACCEPT or "D" for DENY
 	 */
-	public void approveDenyExam(String examId, String newStatus) {
-		TestingCenter tc = TestingCenter.getTestingCenter();
-		tc.setExamStatus(examId, newStatus);
+	public void setExamStatus(String examId, String newStatus) {
+		tC.setExamStatus(examId, newStatus);
 	}
 	
-	public void approveDenyExam(Exam exam, String newStatus) {
-		approveDenyExam(exam.getExamID(), newStatus);
+	public void setExamStatus(Exam exam, String newStatus) {
+		setExamStatus(exam.getExamID(), newStatus);
 	}
 	
 	public void generateReport() {

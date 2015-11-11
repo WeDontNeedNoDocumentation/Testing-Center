@@ -27,6 +27,7 @@ public class Main {
 	
 	private static final Logger log = Logger.getLogger(Main.class.getName());
 	
+	/*
 	public static void main(String[] args) throws SecurityException, IOException
 	{
 //		log.info("Logger Name: "+log.getName());
@@ -46,10 +47,12 @@ public class Main {
 //		}
 
 		Database.createDatabase();
+		*/
 		
 		/*
 		 * Test that the database actually works
 		 */
+	/*
 		Database db = Database.getDatabase();
 		List<Map<String,Object>> results = db.query("SHOW DATABASES");
 		for (Map<String, Object> map : results) {
@@ -106,5 +109,6 @@ public class Main {
 		}
 
 	}
+*/
 
 }

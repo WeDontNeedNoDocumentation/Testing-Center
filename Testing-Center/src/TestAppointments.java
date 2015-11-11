@@ -130,13 +130,13 @@ public class TestAppointments {
 	public void EtestAcceptExam() {
 		logger.info("Testing Admin's ability to accept an exam scheduling request.");
 		
-		Administrator admin = new Administrator(null, null, null);
+		Administrator admin = new Administrator(null, null);
 		List<Exam> exams;
 		
 		exams = admin.viewPendingExams();
 		int startNumExams = exams.size();
 		
-		admin.approveDenyExam("CSE", "A");
+		admin.setExamStatus("CSE", "A");
 		
 		exams = admin.viewPendingExams();
 		int endNumExams = exams.size();
