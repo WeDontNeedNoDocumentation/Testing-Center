@@ -18,17 +18,17 @@ public class Instructor {
 
 	private String name;
 	private String email;
-	private TestingCenter tC;
 	private String instructorId;
+	
+	private final TestingCenter tC = TestingCenter.getTestingCenter();
 	
 	/**
 	 * 
 	 */
 	
-	public Instructor(String name, String email, TestingCenter tC, String instructorId) {
+	public Instructor(String name, String email, String instructorId) {
 		this.name = name;
 		this.email = email;
-		this.tC = TestingCenter.getTestingCenter();
 		this.instructorId = instructorId;
 	}
 	
@@ -46,14 +46,6 @@ public class Instructor {
 
 	public void setEmail(String email) {
 		this.email = email;
-	}
-
-	public TestingCenter gettC() {
-		return tC;
-	}
-
-	public void settC(TestingCenter tC) {
-		this.tC = tC;
 	}
 
 	public String getInstructorId() {

@@ -29,7 +29,7 @@ public class TestAppointments {
 		db = Database.getDatabase();
 		tc = TestingCenter.getTestingCenter();
 		
-		inst = new Instructor("Stoller", "stoller@cs.stonybrook.edu", tc, "sstoller");
+		inst = new Instructor("Stoller", "stoller@cs.stonybrook.edu", "sstoller");
 		st = new Student("Dan Harel", "dharel", "dan.harel@stonybrook.edu", null);
 		
 		db.updateQuery("CREATE DATABASE Test");
@@ -97,7 +97,7 @@ public class TestAppointments {
 	public void CtestInstructorCreateAppointment() {
 		logger.info("Testing Instructor's ability to create an exam scheduling request.");
 		
-		Instructor inst = new Instructor("Scott Stollerd", "stollerd@cs.stonybrook.edu", tc, "SStollerd");
+		Instructor inst = new Instructor("Scott Stollerd", "stollerd@cs.stonybrook.edu", "SStollerd");
 		List<Exam> exams;
 		
 		exams = inst.viewExams();
