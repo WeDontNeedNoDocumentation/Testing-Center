@@ -77,6 +77,29 @@ public class TestAppointments {
 		assertEquals(1, endSize - startSize);
 	}
 	
+
+	public void frontAtestStudentCreateAppointment(String examId, String studentIdA, int month, int day, int hour, int seatIdA, int appointmentId, String instructorId ) {
+		Exam exam = new Exam(examId, null, null, instructorId, 64, 60);
+		
+		List<Appointment> appts;
+		
+		appts = st.viewAppointments();
+	//	int startSize = appts.size();
+		
+		DateTime time = new DateTime(2000,month,day,hour,1);
+		
+		st.makeAppointment(exam, time, seatIdA, appointmentId);
+		
+	//	appts = st.viewAppointments();
+	//	int endSize = appts.size();
+		
+		//assertEquals(1, endSize - startSize);
+	}
+	
+	public void frontAtestStudentViewAppointments(){
+		st.viewAppointments();
+	}
+	
 	@Test
 	public void BtestStudentDeleteAppointment() {
 		logger.info("Testing Student's ability to delete an appointment.");
