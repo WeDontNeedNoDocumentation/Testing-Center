@@ -702,8 +702,23 @@ public class TestingCenter {
 	}
 
 	private List<Map<String, Object>> getOverlap(Exam newExam) {
-		// TODO Auto-generated method stub
-		return null;
+		//Set set = new Set(); //prior to this method
+		//List numList = new List();
+		
+		//set.add(newExam)
+		//SELECT examIds FROM Exam 
+		//WHERE start < this.start & end > this.end
+		//OR start < this.start & end > this.start & end < this.end
+		//OR start > this.start & start < this.end
+		//
+		//if(response==null){return;}
+		//else{ for each overlap, set.add(overlap) ; numList.add(numNewExams) if it is
+		//a new examId
+		// Iterator iter = set.iterator(); 
+		//while (iter.hasNext()){getOverlap(iter.next())}
+		//}
+		//after entire method is complete, print the static set & numList
+		//empty out both 
 	}
 
 	//retrieve a list of all exams that may be selected by a certain student
