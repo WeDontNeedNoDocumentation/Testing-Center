@@ -833,7 +833,74 @@ public class TestingCenter {
 		}
 		
 	}
+	
+	/*
+	 * 
+	 */
+	public double actualUtilization(LocalDate date) {
+		long dateStartMillis = date.toDateTimeAtStartOfDay().getMillis();
+		String queryString = String.format("SELECT startA, startB "
+				+ "AS numAppointments "
+				+ "FROM appointment "
+				+ "WHERE startA BETWEEN %d AND %d",
+				dateStartMillis + open.getMillisOfDay()/1000,
+				dateStartMillis + close.getMillisOfDay()/1000
+				);
+		List<Map<String, Object>> appointments = Database.getDatabase().query(queryString);
+		
+		// Summation of the duration of every appointment scheduled for this day, in milliseconds.
+		int totalDurationOccupied = 0;
+		for (Map<String, Object> appointment : appointments) {
+			int start = (int) appointment.get("startA") * 1000;
+			int end = (int) appointment.get("endA") * 1000;
+			
+			totalDurationOccupied += (end - start) + gap.getMillis();
+		}
+		
+		int totalDurationAvailable = numberOfSeats * (close.getMillisOfDay() - open.getMillisOfDay()); 
+		
+		return 1.0*totalDurationOccupied/totalDurationAvailable;
+	}
 
+	// appt.start < tc.close &&
+	// appt.end > tc.open
+	public double expectedUtilization(LocalDate date) {
+		double expectedUtilization = actualUtilization(date);
+		
+		long dateStartMillis = date.toDateTimeAtStartOfDay().getMillis();
+		String queryString = String.format("SELECT exam.examId, exam.start, exam.end, exam.numSeats, exam.examLength, COUNT(appointmentId) AS numAppointments "
+				+ "FROM exam "
+				+ "LEFT JOIN appointment "
+				+ "ON exam.examId = appointment.examIdA "
+				+ "WHERE exam.start < %d "
+				+ "AND exam.end > %d "
+				+ "GROUP BY exam.examId;",
+				dateStartMillis + open.getMillisOfDay()/1000,
+				dateStartMillis + close.getMillisOfDay()/1000
+				);
+		List<Map<String, Object>> exams = Database.getDatabase().query(queryString);
+		for (Map<String, Object> exam : exams) {
+			// Here I'm assuming that the duration of the exam will be in
+			// seconds, just like the start and end times.
+			int durationMillis = (int) exam.get("examLength") * 1000;
+			int numSeats = (int) exam.get("numSeats");
+			int numAppointments = (int) exam.get("numAppointments");
+			long startMillis = (long) exam.get("start") * 1000;
+			long endMillis = (long) exam.get("end") * 1000;
+			
+			LocalDate startDate = new LocalDate(startMillis);
+			LocalDate endDate = new LocalDate(endMillis);
+			long millisSpanned = endDate.toDateTimeAtStartOfDay().getMillis() - startDate.toDateTimeAtStartOfDay().getMillis();
+			
+			int timeOccupied = durationMillis + gap.getMillis();
+			int studentsRemaining = numSeats - numAppointments;
+			int daysSpanned = (int) millisSpanned/(1000*60*60*24);
+			
+			expectedUtilization += 1.0*timeOccupied*studentsRemaining/daysSpanned;
+		}
+		
+		return expectedUtilization;
+	}
 	
 /*
 	public static void main(String[] args) {
