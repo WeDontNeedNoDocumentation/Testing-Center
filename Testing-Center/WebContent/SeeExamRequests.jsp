@@ -221,7 +221,7 @@
                                     String eDate = rs.getString(3);
                                     //String eTime = rs.getString();
                                     String status = rs.getString(4);
-                            %>
+                            %> 
 	                        <!-- row entries -->
 	                            <td><%out.print(courseId);%></td>
 	                            <td><%out.print(duration);%></td>
