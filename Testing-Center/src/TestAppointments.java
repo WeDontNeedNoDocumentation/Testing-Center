@@ -28,8 +28,8 @@ public class TestAppointments {
 		
 		db = Database.getDatabase();
 		tc = TestingCenter.getTestingCenter();
-
-		inst = new Instructor("Stoller", "stoller@cs.stonybrook.edu", tc, "sstoller");
+		
+		inst = new Instructor("Stoller", "stoller@cs.stonybrook.edu", "sstoller");
 		st = new Student("Dan Harel", "dharel", "dan.harel@stonybrook.edu", null);
 		
 		db.updateQuery("CREATE DATABASE Test");
