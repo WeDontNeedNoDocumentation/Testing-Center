@@ -1,4 +1,4 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="DBWorks.DBConnection"%>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -215,13 +215,23 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                        <%  %>
+                                        <!-- HAVE NOT DONE TIME ENTERED AND AVAILAIBLE SEATS YET -->
+                                        <%
+			                            	String query = "SELECT * FROM appointment";
+			                               	java.sql.ResultSet rs = DBConnection.ExecQuery(query);
+			                               	while(rs.next())
+			                               	{
+			                                    String appointment = rs.getString(5);
+			                                    String time = "na";
+			                                    String availSeats = "na";
+		                              	%>
                                         <!-- row entries -->
-                                            <td>Sample appointment</td>
-                                            <td>S10:00AM</td>
-                                            <td>39</td>
+                                            <td><%out.print(appointment);%></td>
+                                            <td><%out.print(time);%></td>
+                                            <td><%out.print(availSeats);%></td>
                                         <!-- /row entries -->    
                                         </tr>
+                                        <%} %>
                                     </tbody>
                                 </table>
                             </div>
