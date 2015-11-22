@@ -114,7 +114,60 @@ public class TestingCenter {
 	 * use checkAvailability().) 
 	 */
 	
-	public synchronized void checkAvailability() {
+	public synchronized List<DateTime> getAvailabile(Exam exam, String netId) {
+		List<DateTime> slots = new ArrayList<DateTime>();
+		DateTime tStart = exam.getStart();
+		DateTime tEnd = exam.getEnd();
+		long start = tStart.getMillis()/1000;
+		long end = tEnd.getMillis()/1000;
+		List<Map<String, Object>> apps = db.query(String.format("SELECT appointmentId from appointments"
+				+ "WHERE studentIdA = '%s'",
+				netId));
+		if(apps.get(0) != null){
+			return null;
+		}
+		long len = 0; //TODO 
+		long search = start;
+		
+		for(long l = start;l<(end-len); l = l+1800){
+			boolean coexist = true;
+			while(coexist) {
+				apps = db.query(String.format("SELECT end from appointments"
+						+ "WHERE studentIdA = '%s' AND start = '%d'",
+						netId, search));
+				if(apps.get(0) == null) {
+					coexist = false;
+				} else {
+					search = (long) apps.get(0).get("end");
+				}
+			}
+			for(int i = 0;i<numberOfSeats-numberOfSetAside;i++) {
+				boolean clear = true;
+				for(l = search; l<search+len && clear; l=l+1800) {
+					apps = db.query(String.format("SELECT examId from timeSlots"
+							+ "WHERE dateId = '%d' AND seatId = '%d'",
+							search,i));
+					if(apps.get(0)!= null) {
+						clear = false;
+					} else {
+						apps = db.query(String.format("SELECT seatId from timeSlots"
+								+ "WHERE dateId = '%d' AND examId = '%s'",
+								search,exam.getExamID()));
+						if(apps.contains((i-1))|| apps.contains((i+1))) {
+							clear = false;
+						}
+					}
+				}
+				if(clear) {
+					//TODO gaptime?
+					DateTime possible = new DateTime(search*1000);
+					slots.add(possible);
+				}
+			}
+		}
+			
+		
+		return slots;
 		
 	}
 	
@@ -279,8 +332,8 @@ public class TestingCenter {
 			String instructorId = (String) exam.get("instructorId");
 			int numSeats = (int) exam.get("numSeats");
 			String courseId = (String) exam.get("courseIdCE");
-			int duration = (int) exam.get("examLength");
-			
+			//int duration = (int) exam.get("examLength");
+			int duration = 2;
 			Exam newExam = ((String) exam.get("boolCourseExam")).equals("1") ? 
 					new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, courseId, numSeats,duration) : 
 						new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, numSeats,duration); 
@@ -615,11 +668,8 @@ public class TestingCenter {
 			String examId = (String) exam.get("StringIdA");
 			long apStart = end-(len*3600);
 			long apEnd = end;
-			/*
-			 * TODO
-			 * fix blahblah
-			 */
-			List<Map<String, Object>> apps = db.query(String.format("SELECT blahblah from appointments"
+
+			List<Map<String, Object>> apps = db.query(String.format("SELECT appointmentId from appointments"
 					+ "WHERE examIdA = '%s'",
 					examId));
 			int seatsLeft = (int) exam.get("numSeats") - apps.size();
@@ -678,11 +728,8 @@ public class TestingCenter {
 		Map<Long, String[]> seatsAvailable = new HashMap<Long, String[]>();
 		for(Map<String,Object> exam : exams) {
 			String examId = (String) exam.get("StringIdA");
-			/*
-			 * TODO
-			 * fix blahblah
-			 */
-			List<Map<String, Object>> apps = db.query(String.format("SELECT blahblah from appointments"
+
+			List<Map<String, Object>> apps = db.query(String.format("SELECT startTime, endTime appointments"
 					+ "WHERE examIdA = '%s'",
 					examId));
 			
