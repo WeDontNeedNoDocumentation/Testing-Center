@@ -1,4 +1,7 @@
+<%@page import="DBWorks.DBConnection" %>
+
 <!DOCTYPE html>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <html lang="en">
 
 <head>
@@ -178,7 +181,8 @@
                         </h1>
                     </div>
                 </div>
-
+                <jsp:useBean id="b" class="Bean.InstructorBean" scope="application" />
+                
                 <div class="row">
                 <h3>Current Term</h3>
 	                <table class="table table-bordered table-hover">
@@ -186,39 +190,62 @@
 	                    <!-- Columns -->
 	                        <tr class="active">
 	                            <th>Course ID</th>
-	                            <th>Section</th>
-	                            <th>Term</th>
 	                            <th>Duration</th>
 	                            <th>Start Date</th>
-	                            <th>Time</th>
 	                            <th>End Date</th>
-	                            <th>Time</th>
 	                            <th>Status</th>
 	                            <th>Action</th>
 	                        </tr>
 	                    <!-- /Columns -->
 	                    </thead>
 	                    <tbody>
+	                    	
 	                        <tr>
 	                        <!--enter code here for table -->
-	                        <%  %>
+	      					<%
+	    
+                            	String query = "SELECT examId, start, end, examStatus, numSeats, examLength, boolCourseExam, courseexam.courseIdCE "
+                        				+ "FROM exam "
+                        				+ "LEFT JOIN courseexam "
+                        				+ "ON exam.examId=courseexam.examIdCE "
+                        				+ "WHERE exam.instructorId = 'sstoller'";
+	                        		
+                               	java.sql.ResultSet rs = DBConnection.ExecQuery(query);
+                               	while(rs.next())
+                               	{
+                                    String courseId = rs.getString(8);
+                                    String duration = rs.getString(6);
+                                    String sDate = rs.getString(2);
+                                    String numSeats = rs.getString(5);
+                                    //String sTime = rs.getString();
+                                    String eDate = rs.getString(3);
+                                    //String eTime = rs.getString();
+                                    String status = rs.getString(4);
+                            %> 
 	                        <!-- row entries -->
-	                            <td>123456789</td>
-	                            <td>2</td>
-	                            <td>Fall 2015</td>
-	                            <td>90</td>
-	                            <td>11/21/15</td>
-	                            <td>11:00AM</td>
-	                            <td>11/22/15</td>
-	                            <td>1:00PM</td>
+	                            <td><%out.print(courseId);%></td>
+	                            <td><%out.print(duration);%></td>
+	                            <td><%out.print(sDate);%></td>
+	                            <td><%out.print(eDate);%></td>
 	                            <td>
-		                            <div class="alert alert-success">Approved</div>
+	                            	<%if(status.equals("P"))
+	                            	{%>
+		                            	<button type="button" class="btn btn-sm btn-info">Pending</button>
+		                           	<%}else if(status.equals("A"))
+		                           	{%>
+		                           		<button type="button" class="btn btn-sm btn-success">Approved</button>
+		                           	<%}else
+		                           	{%>
+		                           		<button type="button" class="btn btn-sm btn-danger">Denied</button>
+		                           	<%}
+		                           	%>
 				                </td>
 	                            <td>
 		                            <button type="button" class="btn btn-sm btn-danger">Cancel</button>
 	                    		</td>
 	                        <!-- /row entries -->    
 	                        </tr>
+	                        <%} %>
 	                    </tbody>
 	                </table>
 	                <h3>Future Term</h3>
@@ -244,19 +271,19 @@
 	                        <!--enter code here for table -->
 	                        <%  %>
 	                        <!-- row entries -->
-	                            <td>123456789</td>
-	                            <td>2</td>
-	                            <td>Spring 2016</td>
-	                            <td>90</td>
-	                            <td>11/21/15</td>
-	                            <td>11:00AM</td>
-	                            <td>11/22/15</td>
-	                            <td>1:00PM</td>
+	                            <td></td>
+	                            <td></td>
+	                            <td></td>
+	                            <td></td>
+	                            <td></td>
+	                            <td></td>
+	                            <td></td>
+	                            <td></td>
 	                            <td>
-		                            <div class="alert alert-danger">Denied</div>
+		                            
 				                </td>
 	                            <td>
-		                            <button type="button" class="btn btn-sm btn-danger">Cancel</button>
+		                            
 	                    		</td>
 	                        <!-- /row entries -->    
 	                        </tr>

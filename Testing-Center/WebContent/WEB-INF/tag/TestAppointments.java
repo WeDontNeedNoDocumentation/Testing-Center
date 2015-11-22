@@ -34,7 +34,7 @@ public class TestAppointments {
 		
 		db.updateQuery("CREATE DATABASE Test");
 		db.updateQuery("USE Test");
-
+		
 		db.updateQuery("CREATE TABLE student (firstName varchar(45), lastName varchar(45), studentId varchar(45), email varchar(45))");
 		db.updateQuery("CREATE TABLE appointment (examIdA varchar(45), studentIdA varchar(45), dateIdA int, seatIdA int, appointmentId int)");
 		db.updateQuery("CREATE TABLE exam (examId varchar(45), start int, end int, boolCourseExam varchar(45), examStatus varchar(45), instructorId varchar(45), numSeats int, examLength int)");
@@ -55,7 +55,6 @@ public class TestAppointments {
 		db.updateQuery("INSERT INTO courseexam VALUES ('exam3', '80450-1158')");
 		db.updateQuery("INSERT INTO coursestudent VALUES ('81468-1158', 'dharel')");
 		db.updateQuery("INSERT INTO coursestudent VALUES ('80450-1158', 'dharel')");
-
 	}
 	
 	@Test
@@ -75,29 +74,6 @@ public class TestAppointments {
 		int endSize = appts.size();
 		
 		assertEquals(1, endSize - startSize);
-	}
-	
-
-	public void frontAtestStudentCreateAppointment(String examId, String studentIdA, int month, int day, int hour, int seatIdA, int appointmentId, String instructorId ) {
-		Exam exam = new Exam(examId, null, null, instructorId, 64, 60);
-		
-		List<Appointment> appts;
-		
-		appts = st.viewAppointments();
-	//	int startSize = appts.size();
-		
-		DateTime time = new DateTime(2000,month,day,hour,1);
-		
-		st.makeAppointment(exam, time, seatIdA, appointmentId);
-		
-	//	appts = st.viewAppointments();
-	//	int endSize = appts.size();
-		
-		//assertEquals(1, endSize - startSize);
-	}
-	
-	public void frontAtestStudentViewAppointments(){
-		st.viewAppointments();
 	}
 	
 	@Test
@@ -121,7 +97,7 @@ public class TestAppointments {
 	public void CtestInstructorCreateAppointment() {
 		logger.info("Testing Instructor's ability to create an exam scheduling request.");
 		
-		Instructor inst = new Instructor("Scott Stollerd", "stollerd@cs.stonybrook.edu", tc, "SStollerd");
+		Instructor inst = new Instructor("Scott Stollerd", "stollerd@cs.stonybrook.edu", "SStollerd");
 		List<Exam> exams;
 		
 		exams = inst.viewExams();
@@ -150,23 +126,23 @@ public class TestAppointments {
 	}
 	*/
 	
-//	@Test
-//	public void EtestAcceptExam() {
-//		logger.info("Testing Admin's ability to accept an exam scheduling request.");
-//		
-//		Administrator admin = new Administrator(null, null, null);
-//		List<Exam> exams;
-//		
-//		exams = admin.viewPendingExams();
-//		int startNumExams = exams.size();
-//		
-//		admin.approveDenyExam("CSE", "A");
-//		
-//		exams = admin.viewPendingExams();
-//		int endNumExams = exams.size();
-//		
-//		assertEquals(-1, endNumExams - startNumExams);
-//	}
+	@Test
+	public void EtestAcceptExam() {
+		logger.info("Testing Admin's ability to accept an exam scheduling request.");
+		
+		Administrator admin = new Administrator(null, null);
+		List<Exam> exams;
+		
+		exams = admin.viewPendingExams();
+		int startNumExams = exams.size();
+		
+		admin.setExamStatus("CSE", "A");
+		
+		exams = admin.viewPendingExams();
+		int endNumExams = exams.size();
+		
+		assertEquals(-1, endNumExams - startNumExams);
+	}
 	
 	@Test
 	public void FtestInstructorCancelExam() {
@@ -194,10 +170,10 @@ public class TestAppointments {
 		assertEquals(3, exams.size());
 	}
 	
-	@Test
-	public void testNotifierThread(){
-		logger.info("Testing the existance of one thread for the notifier");
-	}
+//	@Test
+//	public void testNotifierThread(){
+//		logger.info("Testing the existance of one thread for the notifier");
+//	}
 	
 	@Test
 	public void testCheckIn() {

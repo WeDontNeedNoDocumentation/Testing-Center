@@ -31,12 +31,6 @@ public class Instructor {
 		this.email = email;
 		this.instructorId = instructorId;
 	}
-	//
-	public Instructor(String name, String email,TestingCenter tc, String instructorId) {
-		this.name = name;
-		this.email = email;
-		this.instructorId = instructorId;
-	}
 	
 	public String getName() {
 		return name;

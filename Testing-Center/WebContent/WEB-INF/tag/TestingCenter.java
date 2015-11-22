@@ -122,60 +122,7 @@ public class TestingCenter {
 	 * use checkAvailability().) 
 	 */
 	
-	public synchronized List<DateTime> getAvailabile(Exam exam, String netId) {
-		List<DateTime> slots = new ArrayList<DateTime>();
-		DateTime tStart = exam.getStart();
-		DateTime tEnd = exam.getEnd();
-		long start = tStart.getMillis()/1000;
-		long end = tEnd.getMillis()/1000;
-		List<Map<String, Object>> apps = db.query(String.format("SELECT appointmentId from appointments"
-				+ "WHERE studentIdA = '%s'",
-				netId));
-		if(apps.get(0) != null){
-			return null;
-		}
-		long len = 0; //TODO 
-		long search = start;
-		
-		for(long l = start;l<(end-len); l = l+1800){
-			boolean coexist = true;
-			while(coexist) {
-				apps = db.query(String.format("SELECT end from appointments"
-						+ "WHERE studentIdA = '%s' AND start = '%d'",
-						netId, search));
-				if(apps.get(0) == null) {
-					coexist = false;
-				} else {
-					search = (long) apps.get(0).get("end");
-				}
-			}
-			for(int i = 0;i<numberOfSeats-numberOfSetAside;i++) {
-				boolean clear = true;
-				for(l = search; l<search+len && clear; l=l+1800) {
-					apps = db.query(String.format("SELECT examId from timeSlots"
-							+ "WHERE dateId = '%d' AND seatId = '%d'",
-							search,i));
-					if(apps.get(0)!= null) {
-						clear = false;
-					} else {
-						apps = db.query(String.format("SELECT seatId from timeSlots"
-								+ "WHERE dateId = '%d' AND examId = '%s'",
-								search,exam.getExamID()));
-						if(apps.contains((i-1))|| apps.contains((i+1))) {
-							clear = false;
-						}
-					}
-				}
-				if(clear) {
-					//TODO gaptime?
-					DateTime possible = new DateTime(search*1000);
-					slots.add(possible);
-				}
-			}
-		}
-			
-		
-		return slots;
+	public synchronized void checkAvailability() {
 		
 	}
 	
@@ -340,8 +287,8 @@ public class TestingCenter {
 			String instructorId = (String) exam.get("instructorId");
 			int numSeats = (int) exam.get("numSeats");
 			String courseId = (String) exam.get("courseIdCE");
-			//int duration = (int) exam.get("examLength");
-			int duration = 2;
+			int duration = (int) exam.get("examLength");
+			
 			Exam newExam = ((String) exam.get("boolCourseExam")).equals("1") ? 
 					new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, courseId, numSeats,duration) : 
 						new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, numSeats,duration); 
@@ -641,65 +588,42 @@ public class TestingCenter {
 		this.makeReservation(newExam, newExam.getStart(), newExam.getEnd(), newExam instanceof CourseExam, newExam.getInstructorId());
 		DateTime now = DateTime.now();
 		long nowUnix = now.getMillis()/1000;
+		List<Map<String, Object>> exams = db.query(String.format(
+				"SELECT exam.examId, COUNT(appointment.examIdA) AS numAppointments, exam.start, exam.end, exam.numSeats "
+				+ "FROM exam "
+				+ "LEFT JOIN appointment "
+				+ "ON exam.examId=appointment.examIdA "
+				+ "WHERE end > %d "
+				+ "AND exam.examStatus <> 'R' "
+				+ "GROUP BY exam.examId "
+				+ "ORDER BY end DESC, start DESC;",
+				nowUnix
+				));
 		
-		List<Map<String, Object>> exams = getOverlap(newExam);
-		
-		Map<Long, String[]> seatsAvailable = insertExisting(exams);
-		
+		Map<LocalDate, int[]> seatsAvailable = new HashMap<LocalDate, int[]>();
+
 		for ( Map<String, Object> exam : exams ) {
 			long start = (long) exam.get("start");
 			long end = (long) exam.get("end");
 			long len = (long)exam.get("examLength");
-			String examId = (String) exam.get("StringIdA");
 			long apStart = end-(len*3600);
 			long apEnd = end;
-
-			List<Map<String, Object>> apps = db.query(String.format("SELECT appointmentId from appointments"
-					+ "WHERE examIdA = '%s'",
-					examId));
-			int seatsLeft = (int) exam.get("numSeats") - apps.size();
+			int seatsLeft = (int) exam.get("numSeats");
 			
 			while(seatsLeft != 0) {
 				if(apStart<start){
 					this.cancelExam(newExam.getExamID(), newExam.getInstructorId());
 					return false;
 				}
-				
-				
-				/*
-				 * TODO
-				 * This should work in theory I just need to add gap time
-				 */
-				long searchTime = apEnd;
-				ArrayList<String[]> appSeats = new ArrayList<String[]>();
-				int i = 0;
-				while(searchTime != apStart) {
-					searchTime = searchTime -1800;
-					if(!seatsAvailable.containsKey(searchTime)){
-						seatsAvailable.put(searchTime, new String[numberOfSeats-numberOfSetAside]);
-					}
-					appSeats.add(i, seatsAvailable.get(searchTime));
-				}
-				
-				for(int j = 0; j <numberOfSeats-numberOfSetAside;i++){
-					searchTime = apEnd;
-					boolean aval = true;
-					for(String[] slot : appSeats) {
-						if(slot[j] != null || slot[j-1] == examId||slot[j+1] == examId){
-							aval = false;
-							break;
-						}
-						if(aval) {
-							for(String[] slotFill : appSeats) {
-								slotFill[j] = examId;
-							}
-							seatsLeft--;
-						}
-					}
+				if (apEnd == end) {
 					
 					
-				
+				} else {
+					
 				}
+				
+				//ADD INSERT EXISTING
+				
 				apEnd = apEnd - 1800;
 				apStart = apStart-1800;
 			}
@@ -709,52 +633,6 @@ public class TestingCenter {
 		return true;
 	}
 	
-	private Map<Long, String[]> insertExisting(List<Map<String, Object>> exams) {
-		Map<Long, String[]> seatsAvailable = new HashMap<Long, String[]>();
-		for(Map<String,Object> exam : exams) {
-			String examId = (String) exam.get("StringIdA");
-
-			List<Map<String, Object>> apps = db.query(String.format("SELECT startTime, endTime appointments"
-					+ "WHERE examIdA = '%s'",
-					examId));
-			
-			for(Map<String,Object> app : apps) {
-				long searchTime = (long)app.get("end");
-				while(searchTime != (long)app.get("start")) {
-					searchTime = searchTime -1800;
-					if(!seatsAvailable.containsKey(searchTime)){
-						seatsAvailable.put(searchTime, new String[numberOfSeats-numberOfSetAside]);
-					}
-					String[] slot =  seatsAvailable.get(searchTime);
-					slot[(int)app.get("seatIdA")] = (String) app.get("examIdA");
-				}
-			}
-		}
-		return seatsAvailable;
-	}
-
-	private List<Map<String, Object>> getOverlap(Exam newExam) {
-		//Set set = new Set(); //prior to this method
-		//List numList = new List();
-		
-		//set.add(newExam)
-		//SELECT examIds FROM Exam 
-		//WHERE start < this.start & end > this.end
-		//OR start < this.start & end > this.start & end < this.end
-		//OR start > this.start & start < this.end
-		//
-		//if(response==null){return;}
-		//else{ for each overlap, set.add(overlap) ; numList.add(numNewExams) if it is
-		//a new examId
-		// Iterator iter = set.iterator(); 
-		//while (iter.hasNext()){getOverlap(iter.next())}
-		//}
-		//after entire method is complete, print the static set & numList
-		//empty out both 
-		
-		return null;
-	}
-
 	//retrieve a list of all exams that may be selected by a certain student
 	public List<Exam> viewAvailableExams(Student st) {
 		logger.info("Retrieving all exams currently available to student with ID" + st.getNetID());
@@ -955,74 +833,7 @@ public class TestingCenter {
 		}
 		
 	}
-	
-	/*
-	 * 
-	 */
-	public double actualUtilization(LocalDate date) {
-		long dateStartMillis = date.toDateTimeAtStartOfDay().getMillis();
-		String queryString = String.format("SELECT startA, startB "
-				+ "AS numAppointments "
-				+ "FROM appointment "
-				+ "WHERE startA BETWEEN %d AND %d",
-				dateStartMillis + open.getMillisOfDay()/1000,
-				dateStartMillis + close.getMillisOfDay()/1000
-				);
-		List<Map<String, Object>> appointments = Database.getDatabase().query(queryString);
-		
-		// Summation of the duration of every appointment scheduled for this day, in milliseconds.
-		int totalDurationOccupied = 0;
-		for (Map<String, Object> appointment : appointments) {
-			int start = (int) appointment.get("startA") * 1000;
-			int end = (int) appointment.get("endA") * 1000;
-			
-			totalDurationOccupied += (end - start) + gap.getMillis();
-		}
-		
-		int totalDurationAvailable = numberOfSeats * (close.getMillisOfDay() - open.getMillisOfDay()); 
-		
-		return 1.0*totalDurationOccupied/totalDurationAvailable;
-	}
 
-	// appt.start < tc.close &&
-	// appt.end > tc.open
-	public double expectedUtilization(LocalDate date) {
-		double expectedUtilization = actualUtilization(date);
-		
-		long dateStartMillis = date.toDateTimeAtStartOfDay().getMillis();
-		String queryString = String.format("SELECT exam.examId, exam.start, exam.end, exam.numSeats, exam.examLength, COUNT(appointmentId) AS numAppointments "
-				+ "FROM exam "
-				+ "LEFT JOIN appointment "
-				+ "ON exam.examId = appointment.examIdA "
-				+ "WHERE exam.start < %d "
-				+ "AND exam.end > %d "
-				+ "GROUP BY exam.examId;",
-				dateStartMillis + open.getMillisOfDay()/1000,
-				dateStartMillis + close.getMillisOfDay()/1000
-				);
-		List<Map<String, Object>> exams = Database.getDatabase().query(queryString);
-		for (Map<String, Object> exam : exams) {
-			// Here I'm assuming that the duration of the exam will be in
-			// seconds, just like the start and end times.
-			int durationMillis = (int) exam.get("examLength") * 1000;
-			int numSeats = (int) exam.get("numSeats");
-			int numAppointments = (int) exam.get("numAppointments");
-			long startMillis = (long) exam.get("start") * 1000;
-			long endMillis = (long) exam.get("end") * 1000;
-			
-			LocalDate startDate = new LocalDate(startMillis);
-			LocalDate endDate = new LocalDate(endMillis);
-			long millisSpanned = endDate.toDateTimeAtStartOfDay().getMillis() - startDate.toDateTimeAtStartOfDay().getMillis();
-			
-			int timeOccupied = durationMillis + gap.getMillis();
-			int studentsRemaining = numSeats - numAppointments;
-			int daysSpanned = (int) millisSpanned/(1000*60*60*24);
-			
-			expectedUtilization += 1.0*timeOccupied*studentsRemaining/daysSpanned;
-		}
-		
-		return expectedUtilization;
-	}
 	
 /*
 	public static void main(String[] args) {
