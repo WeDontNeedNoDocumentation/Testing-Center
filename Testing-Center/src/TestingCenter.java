@@ -1013,6 +1013,36 @@ public class TestingCenter {
 	}
 	
 	/**
+	 * Takes the List<Map<String, Object>> returned by a DB query and outputs
+	 * 	a List<Exam> by constructing an Exam object for each row.
+	 * @param exams
+	 * @return List<Exam> corresponding to the results of the query
+	 * @precondition The query is called with the following fields:
+	 * 		examId, start, end, examStatus, numSeats, boolCourseExam, instructorId, examLength, courseIdCE
+	 */
+	private List<Exam> getExamListFromDBResult(List<Map<String,Object>> exams) {
+		List<Exam> examList = new ArrayList<Exam>();
+		
+		for (Map<String, Object> exam : exams) {
+			String examId = (String) exam.get("examId");
+			DateTime start = new DateTime( (long) exam.get("start")*1000);
+			DateTime end = new DateTime ( (long) exam.get("end")*1000);
+			String examStatus = (String) exam.get("examStatus");
+			int numSeats = (int) exam.get("numSeats");
+			boolean adHocExam = ((String) exam.get("boolCourseExam")).equals("0");
+			String instructorId = (String) exam.get("instructorId");
+			int duration = (int) exam.get("examLength");
+			String courseId = (String) exam.get("courseIdCE");
+			
+			Exam newExam = new Exam(examId, start, end, examStatus, instructorId, courseId, numSeats, duration, adHocExam);
+			
+			examList.add(newExam);
+		}
+		
+		return examList;
+	}
+	
+	/**
 	 * For each day in a specified term, report the number of student appointments on that day.
 	 * Used for report a.
 	 * 
