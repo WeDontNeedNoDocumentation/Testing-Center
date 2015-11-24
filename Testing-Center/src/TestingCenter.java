@@ -259,6 +259,8 @@ public class TestingCenter {
 	//Make a reservation for an exam, given the examID, start time, end time,
 	//whether it is a course exam or an adhoc exam, and the instructor id
 	public synchronized boolean makeReservation(Exam exam, DateTime start, DateTime end, boolean courseExam, String instructorId) {
+		logger.severe("DOES NOT ADD ALL OF THE NECESSARY FIELDS. FIX THIS PLEASE.");
+		
 		logger.info("Creating new reservation request.");
 		logger.fine("Exam ID: " + exam.getExamID());
 		logger.fine("Exam start time: " + start.toString());
@@ -281,14 +283,13 @@ public class TestingCenter {
 				);
 		db.updateQuery(queryString);
 		
-		if (exam instanceof CourseExam) {
-			CourseExam ce = (CourseExam) exam;
-			logger.info("Adding entry into courseexam database with course ID: " + ce.getCourseId());
+		if (!exam.isAdHocExam()) {
+			logger.info("Adding entry into courseexam database with course ID: " + exam.getCourseId());
 			
 			queryString = String.format("INSERT INTO courseexam "
 					+ "(courseIdCE, examIdCE) "
 					+ "VALUES ('%s', '%s')", 
-					ce.getCourseId(),
+					exam.getCourseId(),
 					exam.getExamID()
 					);
 			db.updateQuery(queryString);
@@ -334,17 +335,17 @@ public class TestingCenter {
 		for (Map<String,Object> exam : exams) {
 			
 			String id = (String) exam.get("examId");
-			long startMilliseconds = new Long((int) exam.get("start")*1000);
-			long endMilliseconds = new Long((int) exam.get("end")*1000);
+			DateTime start = new DateTime((long) exam.get("start")*1000);
+			DateTime end = new DateTime((long) exam.get("end")*1000);
 			String examStatus = (String) exam.get("examStatus");
 			String instructorId = (String) exam.get("instructorId");
 			int numSeats = (int) exam.get("numSeats");
 			String courseId = (String) exam.get("courseIdCE");
 			//int duration = (int) exam.get("examLength");
-			int duration = 2;
-			Exam newExam = ((String) exam.get("boolCourseExam")).equals("1") ? 
-					new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, courseId, numSeats,duration) : 
-						new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, numSeats,duration); 
+			int duration = 60;
+			boolean adHocExam = ((String) exam.get("boolCourseExam")).equals("0");
+			
+			Exam newExam = new Exam(id, start, end, examStatus, instructorId, courseId, numSeats, duration, adHocExam);
 			
 			examsList.add(newExam);
 		}
@@ -354,9 +355,10 @@ public class TestingCenter {
 
 	/*
 	 * Returns a list of adHoc exams from the database.
-	 * Not actually used by anything...
+	 * Not actually used by anything... so I commented it out
 	 */
-	public List<OutsideExam> getAdHocExams() {
+	/*
+	public List<Exam> getAdHocExams() {
 		logger.info("Retrieving all ad hoc exams");
 		Database db = Database.getDatabase();
 		List<Map<String,Object>> adHocExams = db.query("SELECT (examId, start, end, examStatus, instructorId,examLength) FROM exam WHERE boolCourseExam = 0");
@@ -377,6 +379,7 @@ public class TestingCenter {
 		
 		return exams;
 	}
+	*/
 
 	//retrieve a list of all exams, given a certain instructor id
 	public List<Exam> getInstructorExams(String instructorId) {
@@ -398,15 +401,10 @@ public class TestingCenter {
 			String status = (String) exam.get("examStatus");
 			int numSeats = (int) exam.get("numSeats");
 			int duration = (int) exam.get("examLength");
+			String courseId = (String) exam.get("courseIdCE");
+			boolean adHocExam = ((String) exam.get("boolCourseExam")).equals("0");
 			
-			Exam newExam = null;
-			if ( ((String) exam.get("boolCourseExam")).equals("1") ) {
-				String courseId = (String) exam.get("courseIdCE");
-				newExam = new CourseExam(examId, start, end, status, instructorId, courseId, numSeats, duration);
-			}
-			else {
-				newExam = new OutsideExam(examId, start, end, status, instructorId, numSeats, duration);
-			}
+			Exam newExam = new Exam(examId, start, end, status, instructorId, courseId, numSeats, duration, adHocExam);
 			
 			exams.add(newExam);
 		}
@@ -428,24 +426,17 @@ public class TestingCenter {
 		
 		List<Exam> examsList = new ArrayList<Exam>();
 		for (Map<String,Object> exam : exams) {
-			
-			Exam newExam = null;
-			
 			String id = (String) exam.get("examId");
-			long startMilliseconds = new Long((int) exam.get("start")*1000);
-			long endMilliseconds = new Long((int) exam.get("end")*1000);
+			DateTime start= new DateTime((long) exam.get("start")*1000);
+			DateTime end= new DateTime((long) exam.get("end")*1000);
 			String examStatus = (String) exam.get("examStatus");
 			int numSeats = (int) exam.get("numSeats");
 			String instructorId = (String) exam.get("instructorId");
+			String courseId = (String) exam.get("courseIdCE");
 			int duration = (int) exam.get("examLength");
+			boolean adHocExam = ((String) exam.get("boolCourseExam")).equals("0");
 			
-			if ( ((String) exam.get("boolCourseExam")).equals("1") ) {
-				String courseId = (String) exam.get("courseIdCE");
-				newExam = new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, courseId, numSeats, duration);
-			}
-			else {
-				newExam = new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, numSeats, duration);
-			}
+			Exam newExam = new Exam(id, start, end, examStatus, instructorId, courseId, numSeats, duration, adHocExam);
 			
 			examsList.add(newExam);
 		}
@@ -638,7 +629,7 @@ public class TestingCenter {
 		This function was not completed due to several errors that appeared in the last few hours.
 	 */
 	public synchronized boolean isExamSchedulable(Exam newExam) {
-		this.makeReservation(newExam, newExam.getStart(), newExam.getEnd(), newExam instanceof CourseExam, newExam.getInstructorId());
+		this.makeReservation(newExam, newExam.getStart(), newExam.getEnd(), !newExam.isAdHocExam(), newExam.getInstructorId());
 		DateTime now = DateTime.now();
 		long nowUnix = now.getMillis()/1000;
 		
@@ -773,24 +764,17 @@ public class TestingCenter {
 		List<Exam> availableExams = new ArrayList<Exam>();
 		
 		for (Map<String, Object> exam : exams) {
-			Exam newExam;
-			
 			String examId = (String) exam.get("examId");
-			long startMilliseconds = new Long((int) exam.get("start")*1000);
-			long endMilliseconds = new Long((int) exam.get("end")*1000);
+			DateTime start = new DateTime( (long) exam.get("start")*1000);
+			DateTime end = new DateTime ( (long) exam.get("end")*1000);
 			String examStatus = (String) exam.get("examStatus");
 			int numSeats = (int) exam.get("numSeats");
-			boolean courseExam = ((String) exam.get("boolCourseExam")).equals("1") ? true : false;
+			boolean adHocExam = ((String) exam.get("boolCourseExam")).equals("0");
 			String instructorId = (String) exam.get("instructorId");
 			int duration = (int) exam.get("examLength");
+			String courseId = (String) exam.get("courseIdCE");
 			
-			if (courseExam) {
-				String courseId = (String) exam.get("courseIdCE");
-				newExam = new CourseExam(examId, startMilliseconds, endMilliseconds, examStatus, instructorId, courseId, numSeats,duration);
-			}
-			else {
-				newExam = new OutsideExam(examId, endMilliseconds, endMilliseconds, examStatus, instructorId, numSeats,duration);
-			}
+			Exam newExam = new Exam(examId, start, end, examStatus, instructorId, courseId, numSeats, duration, adHocExam);
 			
 			availableExams.add(newExam);
 		}
@@ -878,7 +862,9 @@ public class TestingCenter {
 			
 			
 			for (Map<String,Object> appointment : appointments) {
-				String queryString = String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId,examLength FROM exam"
+				String queryString = String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, examLength FROM exam, courseExam.courseIdCE"
+						+ "LEFT JOIN courseexam "
+						+ "ON exam.examId=courseexam.examIdCE "
 						+ "WHERE examID = '%s'",
 						appointment.get("examIdA"));
 				List<Map<String,Object>> exams = db.query(queryString);
@@ -892,11 +878,13 @@ public class TestingCenter {
 				DateTime start = new DateTime(new Long((int) exam.get("start")*1000));
 				DateTime end = new DateTime(new Long((int) exam.get("end")*1000));
 				String status = (String) exam.get("status");
+				String instructorId = (String) exam.get("instructorId");
+				String courseId = (String) exam.get("courseIdCE");
 				int numSeats = (int) exam.get("numSeats");
 				int duration = (int) exam.get("examLength");
+				boolean adHocExam = ((String) exam.get("boolCourseExam")).equals("0");
 				
-
-				Exam examObj = new Exam(examId, start, end, status, numSeats,duration);				
+				Exam examObj = new Exam(examId, start, end, status, instructorId, courseId, numSeats, duration, adHocExam);				
 				logger.info("Send email to: "+(String)emails.get(0).get("email"));
 				sendNotice((String)emails.get(0).get("email"),examObj);
 			}

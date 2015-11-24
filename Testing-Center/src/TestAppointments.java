@@ -62,7 +62,7 @@ public class TestAppointments {
 	public void AtestStudentCreateAppointment() {
 		logger.info("Testing Student's ability to create an appointment.");
 		
-		Exam exam = new Exam("CSE", null, null, "SStoller", 64, 60);
+		Exam exam = new Exam("CSE", null, null, "SStoller", null, 64, 60, true);
 		
 		List<Appointment> appts;
 		
@@ -79,7 +79,7 @@ public class TestAppointments {
 	
 
 	public void frontAtestStudentCreateAppointment(String examId, String studentIdA, int month, int day, int hour, int seatIdA, int appointmentId, String instructorId ) {
-		Exam exam = new Exam(examId, null, null, instructorId, 64, 60);
+		Exam exam = new Exam(examId, null, null, instructorId, null, 64, 60, true);
 		
 		List<Appointment> appts;
 		
@@ -127,7 +127,7 @@ public class TestAppointments {
 		exams = inst.viewExams();
 		int startNumExams = exams.size();
 		
-		Exam exam = new CourseExam("CSE", null, null, null, "sstollerd", "P", 64,2);
+		Exam exam = new Exam("CSE", null, null, null, "sstollerd", "P", 64, 120, true);
 		
 		inst.makeExam(exam, new DateTime(2000,1,1,1,1), new DateTime(2000,1,1,1,2), true);
 		
