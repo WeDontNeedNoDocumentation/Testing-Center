@@ -89,6 +89,9 @@ public class Main {
 				ad.importData();
 				} else if (option == 2) {
 					System.out.println(ad.checkInStudent("a"));
+				} else if (option == 3) {
+					List<Exam> exams = ad.viewExams();
+					System.out.println(exams.toString());
 				}
 				
 			} else if (option == 2) {
