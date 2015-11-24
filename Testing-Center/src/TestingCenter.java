@@ -977,6 +977,19 @@ public class TestingCenter {
 		return expectedUtilization;
 	}
 	
+	/**
+	 * For each day in a specified term, report the number of student appointments on that day.
+	 * Used for report a.
+	 * 
+	 * @param term	Integer code for the specified term
+	 * @return
+	 */
+	public Map<LocalDate, Integer> appointmentsPerDay(int term) {
+		String queryString = String.format("");
+		
+		return null;
+	}
+	
 /*
 	public static void main(String[] args) {
 		DateTime start = new DateTime(2015, 10, 29, 8, 0);
