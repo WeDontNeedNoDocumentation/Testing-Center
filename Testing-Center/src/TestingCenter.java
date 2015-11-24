@@ -471,6 +471,25 @@ public class TestingCenter {
 			//System.out.println(lines.get(i));
 		}
 	}
+	
+	private void updateClassTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
+		ArrayList<String> lines = new ArrayList<String>();
+		String currentLine;
+		
+		FileReader reader = new FileReader(new File(filename));
+		BufferedReader bReader = new BufferedReader(reader);
+		while ((currentLine = bReader.readLine()) != null){
+			lines.add(currentLine);
+		}
+		bReader.close();
+		for(int i = 1; i < lines.size(); i++) {
+			StringBuilder sb = new StringBuilder("INSERT INTO " + tableName + " VALUES (");
+			sb.append(queryClassFormat(lines.get(i)));
+			sb.append(");");
+			db.updateQuery(sb.toString());
+			//System.out.println(lines.get(i));
+		}
+	}
 
 	/*
 	 * This method reads in the 3 .csv files that were provided to us and then stores that data in the 
@@ -483,7 +502,7 @@ public class TestingCenter {
 		try {
 			updateTableFromFile(studentsFileName, "student");
 			
-			updateTableFromFile(coursesFileName, "course");
+			updateClassTableFromFile(coursesFileName, "course");
 			
 			updateTableFromFile(rostersFileName, "coursestudent");
 			
@@ -504,6 +523,23 @@ public class TestingCenter {
 	 */
 	private String queryFormat(String line) {
 		String[] words = line.split(",");
+		StringBuilder sb = new StringBuilder("");
+		for(int i = 0; i < words.length;i++) {
+			sb.append("'");
+			words[i] = words[i].replace("'", "''");
+			sb.append(words[i]);
+			sb.append("'");
+			if(i != words.length-1){
+				sb.append(",");
+			}
+		}
+		//logger.info("sb.toString());
+		return sb.toString();
+		
+	}
+	
+	private String queryClassFormat(String line) {
+		String[] words = line.split("[-,]");
 		StringBuilder sb = new StringBuilder("");
 		for(int i = 0; i < words.length;i++) {
 			sb.append("'");
