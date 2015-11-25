@@ -227,7 +227,7 @@ public class TestingCenter {
 		for (Map<String,Object> appt : appts) {
 			String examId = (String) appt.get("examId");
 			String netId = (String) appt.get("studentIdA");
-			DateTime time = new DateTime((int) appt.get("dateIdA")*1000);
+			DateTime time = new DateTime((long) appt.get("dateIdA")*1000);
 			
 			Appointment newAppointment = new Appointment(examId, netId, time);
 			appointments.add(newAppointment);
@@ -246,7 +246,7 @@ public class TestingCenter {
 		for (Map<String,Object> appt : appts) {
 			String examId = (String) appt.get("examId");
 			String netId = (String) appt.get("studentIdA");
-			DateTime time = new DateTime((int) appt.get("dateIdA")*1000);
+			DateTime time = new DateTime((long) appt.get("dateIdA")*1000);
 			
 			Appointment newAppointment = new Appointment(examId, netId, time);
 			appointments.add(newAppointment);
@@ -396,8 +396,8 @@ public class TestingCenter {
 		List<Map<String,Object>> examList = db.query(queryString);
 		for (Map<String,Object> exam : examList) {
 			String examId = (String) exam.get("examId");
-			DateTime start = new DateTime(new Long((int) exam.get("start")*1000));
-			DateTime end = new DateTime(new Long((int) exam.get("end")*1000));
+			DateTime start = new DateTime((long) exam.get("start")*1000);
+			DateTime end = new DateTime((long) exam.get("end")*1000);
 			String status = (String) exam.get("examStatus");
 			int numSeats = (int) exam.get("numSeats");
 			int duration = (int) exam.get("examLength");
@@ -875,8 +875,8 @@ public class TestingCenter {
 				
 				Map<String,Object>exam = exams.get(0);
 				String examId = (String) exam.get("examId");
-				DateTime start = new DateTime(new Long((int) exam.get("start")*1000));
-				DateTime end = new DateTime(new Long((int) exam.get("end")*1000));
+				DateTime start = new DateTime((long) exam.get("start")*1000);
+				DateTime end = new DateTime((long) exam.get("end")*1000);
 				String status = (String) exam.get("status");
 				String instructorId = (String) exam.get("instructorId");
 				String courseId = (String) exam.get("courseIdCE");

@@ -36,8 +36,8 @@ public class TestAppointments {
 		db.updateQuery("USE Test");
 
 		db.updateQuery("CREATE TABLE student (firstName varchar(45), lastName varchar(45), studentId varchar(45), email varchar(45))");
-		db.updateQuery("CREATE TABLE appointment (examIdA varchar(45), studentIdA varchar(45), dateIdA int, seatIdA int, appointmentId int)");
-		db.updateQuery("CREATE TABLE exam (examId varchar(45), start int, end int, boolCourseExam varchar(45), examStatus varchar(45), instructorId varchar(45), numSeats int, examLength int)");
+		db.updateQuery("CREATE TABLE appointment (examIdA varchar(45), studentIdA varchar(45), dateIdA bigint(20), seatIdA int, appointmentId int)");
+		db.updateQuery("CREATE TABLE exam (examId varchar(45), start bigint(20), end bigint(20), boolCourseExam varchar(45), examStatus varchar(45), instructorId varchar(45), numSeats int, examLength int)");
 		db.updateQuery("CREATE TABLE instructor (instructorId varchar(45), name varchar(45), email varchar(45))");
 		db.updateQuery("CREATE TABLE courseexam (examIdCE varchar(45), courseIdCE varchar(45))");
 		db.updateQuery("CREATE TABLE coursestudent (courseIdCS varchar(45), studentIdCS varchar(45))");
@@ -202,7 +202,7 @@ public class TestAppointments {
 	@Test
 	public void testCheckIn() {
 		logger.info("Testing ability to check student in.");
-		assertTrue(tc.checkIn("dhareld")>0);
+		assertTrue(tc.checkIn("dharel")>0);
 	}
 	
 //	@Test
