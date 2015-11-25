@@ -270,8 +270,8 @@ public class TestingCenter {
 		logger.fine("Instructor ID: " + instructorId);
 		
 		String queryString = String.format("INSERT INTO exam "
-				+ "(examId, start, end, boolCourseExam, examStatus, instructorId, numSeats, examLength) "
-				+ "VALUES ('%s', %d, %d, '%s', '%s', '%s', %d, %d)", 
+				+ "(examId, start, end, boolCourseExam, examStatus, instructorIdA, numSeats, examLength, courseId) "
+				+ "VALUES ('%s', %d, %d, '%s', '%s', '%s', %d, %d, '%s')", 
 				exam.getExamID(), 
 				start.getMillis()/1000,
 				end.getMillis()/1000,
@@ -279,10 +279,13 @@ public class TestingCenter {
 				"P",
 				instructorId,
 				exam.getNumSeats(),
-				exam.getLength()
+				exam.getLength(),
+				exam.getCourseId()
 				);
 		db.updateQuery(queryString);
 		
+		// No longer needed if exams have a courseId attached.
+		/*
 		if (!exam.isAdHocExam()) {
 			logger.info("Adding entry into courseexam database with course ID: " + exam.getCourseId());
 			
@@ -294,6 +297,7 @@ public class TestingCenter {
 					);
 			db.updateQuery(queryString);
 		}
+		*/
 		
 		return true;
 	}
@@ -303,7 +307,7 @@ public class TestingCenter {
 		logger.info("Cancelling exam with exam ID: " + examId);
 		String queryString = String.format("DELETE FROM exam"
 				+ " WHERE "
-				+ "instructorId='%s'"
+				+ "instructorIdA='%s'"
 				+ " AND "
 				+ "examId='%s'",
 				instructorId,
@@ -311,6 +315,8 @@ public class TestingCenter {
 				);
 		db.updateQuery(queryString);
 		
+		// No longer needed, since exams have the courseId as well
+		/*
 		queryString = String.format("DELETE FROM courseexam"
 				+ " WHERE "
 				+ "examIdCE='%s'",
@@ -318,7 +324,7 @@ public class TestingCenter {
 				examId
 				);
 		db.updateQuery(queryString);
-		
+		*/
 	}
 
 	//retrieve a list of all exams
@@ -326,10 +332,8 @@ public class TestingCenter {
 		logger.info("Retrieving all exams.");
 		
 		Database db = Database.getDatabase();
-		List<Map<String,Object>> exams = db.query("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, numSeats, courseexam.courseIdCE, examLength "
-				+ "FROM exam "
-				+ "LEFT JOIN courseexam "
-				+ "ON exam.examId=courseexam.examIdCE");
+		List<Map<String,Object>> exams = db.query("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, numSeats, courseId, examLength, courseId "
+				+ "FROM exam");
 		
 		List<Exam> examsList = new ArrayList<Exam>();
 		for (Map<String,Object> exam : exams) {
@@ -340,9 +344,8 @@ public class TestingCenter {
 			String examStatus = (String) exam.get("examStatus");
 			String instructorId = (String) exam.get("instructorId");
 			int numSeats = (int) exam.get("numSeats");
-			String courseId = (String) exam.get("courseIdCE");
-			//int duration = (int) exam.get("examLength");
-			int duration = 60;
+			String courseId = (String) exam.get("courseId");
+			int duration = (int) exam.get("examLength");
 			boolean adHocExam = ((String) exam.get("boolCourseExam")).equals("0");
 			
 			Exam newExam = new Exam(id, start, end, examStatus, instructorId, courseId, numSeats, duration, adHocExam);
@@ -386,11 +389,9 @@ public class TestingCenter {
 		logger.info("Retrieving all exams for instructor with innstructor ID: " + instructorId);
 		
 		List<Exam> exams = new ArrayList<Exam>();
-		String queryString = String.format("SELECT examId, start, end, examStatus, numSeats, examLength, boolCourseExam, courseexam.courseIdCE "
+		String queryString = String.format("SELECT examId, start, end, examStatus, numSeats, examLength, boolCourseExam, courseId "
 				+ "FROM exam "
-				+ "LEFT JOIN courseexam "
-				+ "ON exam.examId=courseexam.examIdCE "
-				+ "WHERE exam.instructorId = '%s'",
+				+ "WHERE exam.instructorIdA = '%s'",
 				instructorId
 				);
 		List<Map<String,Object>> examList = db.query(queryString);
@@ -401,7 +402,7 @@ public class TestingCenter {
 			String status = (String) exam.get("examStatus");
 			int numSeats = (int) exam.get("numSeats");
 			int duration = (int) exam.get("examLength");
-			String courseId = (String) exam.get("courseIdCE");
+			String courseId = (String) exam.get("courseId");
 			boolean adHocExam = ((String) exam.get("boolCourseExam")).equals("0");
 			
 			Exam newExam = new Exam(examId, start, end, status, instructorId, courseId, numSeats, duration, adHocExam);
@@ -417,10 +418,8 @@ public class TestingCenter {
 		logger.info("Retrieving all pending exam reservation requests.");
 		
 		List<Map<String,Object>> exams = db.query(
-				String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, numSeats, courseexam.courseIdCE,examLength "
+				String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, numSeats, courseId, examLength "
 				+ "FROM exam "
-				+ "LEFT JOIN courseexam "
-				+ "ON exam.examId=courseexam.examIdCE "
 				+ "WHERE examStatus = 'P'"
 				));
 		
@@ -432,7 +431,7 @@ public class TestingCenter {
 			String examStatus = (String) exam.get("examStatus");
 			int numSeats = (int) exam.get("numSeats");
 			String instructorId = (String) exam.get("instructorId");
-			String courseId = (String) exam.get("courseIdCE");
+			String courseId = (String) exam.get("courseId");
 			int duration = (int) exam.get("examLength");
 			boolean adHocExam = ((String) exam.get("boolCourseExam")).equals("0");
 			
@@ -786,12 +785,10 @@ public class TestingCenter {
 	public List<Exam> viewAvailableExams(Student st) {
 		logger.info("Retrieving all exams currently available to student with ID" + st.getNetID());
 		
-		String queryString = String.format("SELECT exam.examId, start, end, examStatus, numSeats, boolCourseExam, instructorId, courseexam.courseIdCE, examLength "
+		String queryString = String.format("SELECT exam.examId, start, end, examStatus, numSeats, boolCourseExam, instructorIdA, courseId, examLength "
 				+ "FROM exam "
-				+ "INNER JOIN courseexam "
-				+ "ON exam.examId=courseexam.examIdCE "
 				+ "INNER JOIN coursestudent "
-				+ "ON courseexam.courseIdCE=coursestudent.courseIdCS "
+				+ "ON exam.courseId=coursestudent.courseIdCS "
 				+ "WHERE coursestudent.studentIdCS='%s';", 
 				st.getNetID());
 		Database db = Database.getDatabase();
@@ -808,7 +805,7 @@ public class TestingCenter {
 			boolean adHocExam = ((String) exam.get("boolCourseExam")).equals("0");
 			String instructorId = (String) exam.get("instructorId");
 			int duration = (int) exam.get("examLength");
-			String courseId = (String) exam.get("courseIdCE");
+			String courseId = (String) exam.get("courseId");
 			
 			Exam newExam = new Exam(examId, start, end, examStatus, instructorId, courseId, numSeats, duration, adHocExam);
 			
@@ -898,9 +895,7 @@ public class TestingCenter {
 			
 			
 			for (Map<String,Object> appointment : appointments) {
-				String queryString = String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, examLength FROM exam, courseExam.courseIdCE"
-						+ "LEFT JOIN courseexam "
-						+ "ON exam.examId=courseexam.examIdCE "
+				String queryString = String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, examLength FROM exam, courseId"
 						+ "WHERE examID = '%s'",
 						appointment.get("examIdA"));
 				List<Map<String,Object>> exams = db.query(queryString);
@@ -915,7 +910,7 @@ public class TestingCenter {
 				DateTime end = new DateTime((long) exam.get("end")*1000);
 				String status = (String) exam.get("status");
 				String instructorId = (String) exam.get("instructorId");
-				String courseId = (String) exam.get("courseIdCE");
+				String courseId = (String) exam.get("courseId");
 				int numSeats = (int) exam.get("numSeats");
 				int duration = (int) exam.get("examLength");
 				boolean adHocExam = ((String) exam.get("boolCourseExam")).equals("0");
@@ -1054,7 +1049,7 @@ public class TestingCenter {
 	 * @param exams
 	 * @return List<Exam> corresponding to the results of the query
 	 * @precondition The query is called with the following fields:
-	 * 		examId, start, end, examStatus, numSeats, boolCourseExam, instructorId, examLength, courseIdCE
+	 * 		examId, start, end, examStatus, numSeats, boolCourseExam, instructorId, examLength, courseId
 	 */
 	private List<Exam> getExamListFromDBResult(List<Map<String,Object>> exams) {
 		List<Exam> examList = new ArrayList<Exam>();
@@ -1068,7 +1063,7 @@ public class TestingCenter {
 			boolean adHocExam = ((String) exam.get("boolCourseExam")).equals("0");
 			String instructorId = (String) exam.get("instructorId");
 			int duration = (int) exam.get("examLength");
-			String courseId = (String) exam.get("courseIdCE");
+			String courseId = (String) exam.get("courseId");
 			
 			Exam newExam = new Exam(examId, start, end, examStatus, instructorId, courseId, numSeats, duration, adHocExam);
 			
