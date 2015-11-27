@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -462,6 +463,25 @@ public class TestingCenter {
 		}
 	}
 	
+	private void updateUsersTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
+		ArrayList<String> lines = new ArrayList<String>();
+		String currentLine;
+		
+		FileReader reader = new FileReader(new File(filename));
+		BufferedReader bReader = new BufferedReader(reader);
+		while ((currentLine = bReader.readLine()) != null){
+			lines.add(currentLine);
+		}
+		bReader.close();
+		for(int i = 1; i < lines.size(); i++) {
+			StringBuilder sb = new StringBuilder("INSERT INTO " + tableName + " VALUES (");
+			sb.append(queryUsersFormat(lines.get(i)));
+			sb.append(");");
+			db.updateQuery(sb.toString());
+			//System.out.println(lines.get(i));
+		}
+	}
+	
 	private void updateClassTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
 		ArrayList<String> lines = new ArrayList<String>();
 		String currentLine;
@@ -480,21 +500,85 @@ public class TestingCenter {
 			//System.out.println(lines.get(i));
 		}
 	}
+	
+	private void updateInstructorTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
+		ArrayList<String> lines = new ArrayList<String>();
+		String currentLine;
+		
+		FileReader reader = new FileReader(new File(filename));
+		BufferedReader bReader = new BufferedReader(reader);
+		while ((currentLine = bReader.readLine()) != null){
+			lines.add(currentLine);
+		}
+		bReader.close();
+		for(int i = 1; i < lines.size(); i++) {
+			StringBuilder sb = new StringBuilder("INSERT INTO " + tableName + " VALUES (");
+			sb.append(queryInstructorFormat(lines.get(i)));
+			sb.append(");");
+			db.updateQuery(sb.toString());
+			//System.out.println(lines.get(i));
+		}
+	}
+	
+	private void updateStudentTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
+		ArrayList<String> lines = new ArrayList<String>();
+		String currentLine;
+		
+		FileReader reader = new FileReader(new File(filename));
+		BufferedReader bReader = new BufferedReader(reader);
+		while ((currentLine = bReader.readLine()) != null){
+			lines.add(currentLine);
+		}
+		bReader.close();
+		for(int i = 1; i < lines.size(); i++) {
+			StringBuilder sb = new StringBuilder("INSERT INTO " + tableName + " VALUES (");
+			sb.append(queryStudentFormat(lines.get(i)));
+			sb.append(");");
+			db.updateQuery(sb.toString());
+			//System.out.println(lines.get(i));
+		}
+	}
+	
+	private void updateCourseStudentTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
+		ArrayList<String> lines = new ArrayList<String>();
+		String currentLine;
+		
+		FileReader reader = new FileReader(new File(filename));
+		BufferedReader bReader = new BufferedReader(reader);
+		while ((currentLine = bReader.readLine()) != null){
+			lines.add(currentLine);
+		}
+		bReader.close();
+		for(int i = 1; i < lines.size(); i++) {
+			StringBuilder sb = new StringBuilder("INSERT INTO " + tableName + " VALUES (");
+			sb.append(queryCourseStudentFormat(lines.get(i)));
+			sb.append(");");
+			db.updateQuery(sb.toString());
+			//System.out.println(lines.get(i));
+		}
+	}
 
 	/*
 	 * This method reads in the 3 .csv files that were provided to us and then stores that data in the 
 	 * corresponding tables in our data base.
 	 * (NOTE: At the moment the function will try to add an entry even if the Primary Key already exists.)
 	 */
-	public boolean updateData(String studentsFileName, String coursesFileName, String rostersFileName) {
+	public boolean updateData(String usersFileName, String instructorFileName, String coursesFileName, String rostersFileName) {
 		logger.info("Reading csv files, updating database");
 	
 		try {
-			updateTableFromFile(studentsFileName, "student");
+			updateStudentTableFromFile(usersFileName, "student");
+			
+			updateUsersTableFromFile(usersFileName, "users");
+			
+			updateUsersTableFromFile(instructorFileName, "users");
+			
+			updateInstructorTableFromFile(instructorFileName, "instructor");
 			
 			updateClassTableFromFile(coursesFileName, "course");
 			
-			updateTableFromFile(rostersFileName, "coursestudent");
+			updateCourseStudentTableFromFile(rostersFileName, "coursestudent");
+			
 			
 			return true;
 			
@@ -502,7 +586,11 @@ public class TestingCenter {
 			logger.warning("File not found.");
 			return false;
 		} catch (IOException e) {
-			logger.warning("An error occured while reading.");
+			logger.warning("An error occurred while reading file.");
+			return false;
+		}
+		catch (Exception e) {
+			logger.warning("Data was not formatted properly. Please check to make sure your input is correct, then try again.");
 			return false;
 		}
 	}
@@ -528,9 +616,115 @@ public class TestingCenter {
 		
 	}
 	
-	private String queryClassFormat(String line) {
-		String[] words = line.split("[-,]");
+	private String queryStudentFormat(String line) {
+		String[] wordsFromLine = line.split(",");
 		StringBuilder sb = new StringBuilder("");
+		
+		String[] words = new String[5];
+		words[0] = wordsFromLine[0];
+		words[1] = wordsFromLine[1];
+		words[2] = wordsFromLine[2];
+		words[3] = wordsFromLine[3];
+		words[4] = wordsFromLine[2];
+		
+		for(int i = 0; i < words.length;i++) {
+			sb.append("'");
+			words[i] = words[i].replace("'", "''");
+			sb.append(words[i]);
+			sb.append("'");
+			if(i != words.length-1){
+				sb.append(",");
+			}
+		}
+		//logger.info("sb.toString());
+		return sb.toString();
+		
+	}
+	
+	private String queryCourseStudentFormat(String line) {
+		String[] wordsFromLine = line.split(",");
+		StringBuilder sb = new StringBuilder("");
+		
+		String[] words = new String[2];
+		words[0] = wordsFromLine[1];
+		words[1] = wordsFromLine[0];
+		
+		for(int i = 0; i < words.length;i++) {
+			sb.append("'");
+			words[i] = words[i].replace("'", "''");
+			sb.append(words[i]);
+			sb.append("'");
+			if(i != words.length-1){
+				sb.append(",");
+			}
+		}
+		//logger.info("sb.toString());
+		return sb.toString();
+		
+	}
+	
+	private String queryUsersFormat(String line) {
+		String[] wordsFromLine = line.split(",");
+		StringBuilder sb = new StringBuilder("");
+		
+		String[] words = new String[4];
+		words[0] = wordsFromLine[2];
+		words[1] = wordsFromLine[0];
+		words[2] = wordsFromLine[1];
+		words[3] = wordsFromLine[3];
+		
+		for(int i = 0; i < words.length;i++) {
+			sb.append("'");
+			words[i] = words[i].replace("'", "''");
+			sb.append(words[i]);
+			sb.append("'");
+			if(i != words.length-1){
+				sb.append(",");
+			}
+		}
+		//logger.info("sb.toString());
+		return sb.toString();
+		
+	}
+	
+	private String queryClassFormat(String line) {
+		String[] wordsFromLine = line.split("[-,]");
+		StringBuilder sb = new StringBuilder("");
+		
+		String[] words = new String[7];
+		words[0] = wordsFromLine[0];
+		words[1] = wordsFromLine[2];
+		words[2] = wordsFromLine[3];
+		words[3] = wordsFromLine[4];
+		words[4] = wordsFromLine[5];
+		words[5] = wordsFromLine[1];
+		words[6] = wordsFromLine[0] + "-" + wordsFromLine[1];
+		
+		for(int i = 0; i < words.length;i++) {
+			sb.append("'");
+			words[i] = words[i].replace("'", "''");
+			sb.append(words[i]);
+			sb.append("'");
+			if(i != words.length-1){
+				sb.append(",");
+			}
+		}
+		//logger.info("sb.toString());
+		return sb.toString();
+		
+	}
+	
+	private String queryInstructorFormat(String line) {
+		String[] wordsFromLine = line.split(",");
+		StringBuilder sb = new StringBuilder("");
+		
+		String[] words = new String[5];
+		words[0] = wordsFromLine[2];
+		words[1] = wordsFromLine[1];
+		words[2] = wordsFromLine[0];
+		words[3] = wordsFromLine[3];
+		words[4] = wordsFromLine[2];
+		
 		for(int i = 0; i < words.length;i++) {
 			sb.append("'");
 			words[i] = words[i].replace("'", "''");
@@ -1081,9 +1275,84 @@ public class TestingCenter {
 	 * @return
 	 */
 	public Map<LocalDate, Integer> appointmentsPerDay(int term) {
-		String queryString = String.format("");
+		Map<LocalDate, Integer> dailyCount = new HashMap<LocalDate, Integer>();
 		
-		return null;
+		String queryString = String.format("SELECT appointment.startTime "
+				+ "FROM appointment "
+				+ "INNER JOIN exam "
+				+ "ON exam.examId=appointment.examIdA "
+				+ "INNER JOIN course "
+				+ "ON exam.courseId=course.courseTerm"
+				+ " WHERE course.termId = %d;",
+				term);
+		List<Map<String, Object>> appointments = Database.getDatabase().query(queryString);
+		
+		for (Map<String, Object> appointment : appointments) {
+			long startTime = (long) appointment.get("startTime");
+			LocalDate date = new LocalDate(startTime);
+			
+			if (!dailyCount.containsKey(date)) {
+				dailyCount.put(date, 1);
+			}
+			else {
+				dailyCount.put(date, dailyCount.get(date) + 1);
+			}
+		}
+		
+		return dailyCount;
+	}
+	
+	public List<Course> coursesUsed(int term) {
+		List<Course> coursesResult = new ArrayList<Course>();
+		String queryString = String.format("SELECT course.* "
+				+ "FROM course "
+				+ "INNER JOIN exam "
+				+ "ON course.courseTerm = exam.courseId "
+				+ "WHERE course.termId = %d;",
+				term);
+		List<Map<String, Object>> courses = Database.getDatabase().query(queryString);
+		
+		for (Map<String, Object> course : courses) {
+			String courseId = (String) course.get("courseId");
+			String subject = (String) course.get("subject");
+			int catalogNumber = (int) course.get("catalogNumber");
+			String section = (String) course.get("section");
+			String instructorId = (String) course.get("instructorIdB");
+			int termId = (int) course.get("termId");
+			String courseTerm = (String) course.get("courseTerm");
+			
+			Course newCourse = new Course(courseId, subject, catalogNumber, section, instructorId, termId, courseTerm);
+			
+			coursesResult.add(newCourse);
+		}
+		
+		return coursesResult;
+	}
+	
+	public Map<Integer, Integer> appointmentsPerTerm(int startTerm, int endTerm) {
+		Map<Integer, Integer> apptsPerTerm = new HashMap<Integer, Integer>();
+		
+		String queryString = String.format("SELECT course.termId, COUNT(1) AS numAppointments "
+				+ "FROM appointment "
+				+ "INNER JOIN exam "
+				+ "ON appointment.examIdA = exam.examId "
+				+ "INNER JOIN course "
+				+ "ON exam.courseId = course.courseTerm "
+				+ "WHERE course.termId >= %d "
+				+ "AND course.termID <= %d "
+				+ "GROUP BY termId;",
+				startTerm,
+				endTerm);
+		List<Map<String, Object>> terms = Database.getDatabase().query(queryString);
+		
+		for (Map<String, Object> term : terms) {
+			int termId = (int) term.get("termId");
+			long numAppointments = (long) term.get("numAppointments");
+			
+			apptsPerTerm.put(termId, (int) numAppointments);
+		}
+		
+		return apptsPerTerm;
 	}
 	
 /*
@@ -1105,4 +1374,26 @@ public class TestingCenter {
 		}
 	}
 */	
+	
+	public static void main(String[] args) {
+		TestingCenter tc = getTestingCenter();
+		
+		Map<LocalDate, Integer> dailyCount = tc.appointmentsPerDay(1158);
+		for (Entry<LocalDate, Integer> entry : dailyCount.entrySet()) {
+			System.out.println(entry.getKey() + ":" + entry.getValue());
+		}
+		
+		List<Course> courses = tc.coursesUsed(1158);
+		System.out.println(courses.size());
+		for (Course course : courses) {
+			System.out.println(course);
+		}
+		
+		Map<Integer, Integer> apptsPerTerm = tc.appointmentsPerTerm(1150, 1160);
+		System.out.println(apptsPerTerm);
+		
+		//tc.updateData("user.csv", "instructor.csv", "class.csv", "roster.csv");
+		
+		
+	}
 }

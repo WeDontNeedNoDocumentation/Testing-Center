@@ -63,8 +63,8 @@ public class Administrator {
 	/*
 	 * Gives the testingCenter the command to update the data in the database.
 	 */
-	public void importData(String studentsFileName, String coursesFileName, String rostersFileName) {
-		tC.updateData(studentsFileName, coursesFileName, rostersFileName);
+	public void importData(String studentsFileName, String instructorFileName, String coursesFileName, String rostersFileName) {
+		tC.updateData(studentsFileName, instructorFileName, coursesFileName, rostersFileName);
 	}
 	
 	public void displayUtilization() {
