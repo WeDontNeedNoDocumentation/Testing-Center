@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
@@ -125,7 +126,60 @@ public class TestingCenter {
 	 * use checkAvailability().) 
 	 */
 	
-	public synchronized void checkAvailability() {
+	public synchronized List<DateTime> getAvailabile(Exam exam, String netId) {
+		List<DateTime> slots = new ArrayList<DateTime>();
+		DateTime tStart = exam.getStart();
+		DateTime tEnd = exam.getEnd();
+		long start = tStart.getMillis()/1000;
+		long end = tEnd.getMillis()/1000;
+		List<Map<String, Object>> apps = db.query(String.format("SELECT appointmentId from appointments"
+				+ "WHERE studentIdA = '%s'",
+				netId));
+		if(apps.get(0) != null){
+			return null;
+		}
+		long len = 0; //TODO 
+		long search = start;
+		
+		for(long l = start;l<(end-len); l = l+1800){
+			boolean coexist = true;
+			while(coexist) {
+				apps = db.query(String.format("SELECT end from appointments"
+						+ "WHERE studentIdA = '%s' AND start = '%d'",
+						netId, search));
+				if(apps.get(0) == null) {
+					coexist = false;
+				} else {
+					search = (long) apps.get(0).get("end");
+				}
+			}
+			for(int i = 0;i<numberOfSeats-numberOfSetAside;i++) {
+				boolean clear = true;
+				for(l = search; l<search+len && clear; l=l+1800) {
+					apps = db.query(String.format("SELECT examId from timeSlots"
+							+ "WHERE dateId = '%d' AND seatId = '%d'",
+							search,i));
+					if(apps.get(0)!= null) {
+						clear = false;
+					} else {
+						apps = db.query(String.format("SELECT seatId from timeSlots"
+								+ "WHERE dateId = '%d' AND examId = '%s'",
+								search,exam.getExamID()));
+						if(apps.contains((i-1))|| apps.contains((i+1))) {
+							clear = false;
+						}
+					}
+				}
+				if(clear) {
+					//TODO gaptime?
+					DateTime possible = new DateTime(search*1000);
+					slots.add(possible);
+				}
+			}
+		}
+			
+		
+		return slots;
 		
 	}
 	
@@ -177,7 +231,7 @@ public class TestingCenter {
 		for (Map<String,Object> appt : appts) {
 			String examId = (String) appt.get("examId");
 			String netId = (String) appt.get("studentIdA");
-			DateTime time = new DateTime((int) appt.get("dateIdA")*1000);
+			DateTime time = new DateTime((long) appt.get("dateIdA")*1000);
 			
 			Appointment newAppointment = new Appointment(examId, netId, time);
 			appointments.add(newAppointment);
@@ -196,7 +250,7 @@ public class TestingCenter {
 		for (Map<String,Object> appt : appts) {
 			String examId = (String) appt.get("examId");
 			String netId = (String) appt.get("studentIdA");
-			DateTime time = new DateTime((int) appt.get("dateIdA")*1000);
+			DateTime time = new DateTime((long) appt.get("dateIdA")*1000);
 			
 			Appointment newAppointment = new Appointment(examId, netId, time);
 			appointments.add(newAppointment);
@@ -209,6 +263,8 @@ public class TestingCenter {
 	//Make a reservation for an exam, given the examID, start time, end time,
 	//whether it is a course exam or an adhoc exam, and the instructor id
 	public synchronized boolean makeReservation(Exam exam, DateTime start, DateTime end, boolean courseExam, String instructorId) {
+		logger.severe("DOES NOT ADD ALL OF THE NECESSARY FIELDS. FIX THIS PLEASE.");
+		
 		logger.info("Creating new reservation request.");
 		logger.fine("Exam ID: " + exam.getExamID());
 		logger.fine("Exam start time: " + start.toString());
@@ -218,8 +274,8 @@ public class TestingCenter {
 		logger.fine("Instructor ID: " + instructorId);
 		
 		String queryString = String.format("INSERT INTO exam "
-				+ "(examId, start, end, boolCourseExam, examStatus, instructorId, numSeats, examLength) "
-				+ "VALUES ('%s', %d, %d, '%s', '%s', '%s', %d, %d)", 
+				+ "(examId, start, end, boolCourseExam, examStatus, instructorIdA, numSeats, examLength, courseId) "
+				+ "VALUES ('%s', %d, %d, '%s', '%s', '%s', %d, %d, '%s')", 
 				exam.getExamID(), 
 				start.getMillis()/1000,
 				end.getMillis()/1000,
@@ -227,22 +283,25 @@ public class TestingCenter {
 				"P",
 				instructorId,
 				exam.getNumSeats(),
-				exam.getLength()
+				exam.getLength(),
+				exam.getCourseId()
 				);
 		db.updateQuery(queryString);
 		
-		if (exam instanceof CourseExam) {
-			CourseExam ce = (CourseExam) exam;
-			logger.info("Adding entry into courseexam database with course ID: " + ce.getCourseId());
+		// No longer needed if exams have a courseId attached.
+		/*
+		if (!exam.isAdHocExam()) {
+			logger.info("Adding entry into courseexam database with course ID: " + exam.getCourseId());
 			
 			queryString = String.format("INSERT INTO courseexam "
 					+ "(courseIdCE, examIdCE) "
 					+ "VALUES ('%s', '%s')", 
-					ce.getCourseId(),
+					exam.getCourseId(),
 					exam.getExamID()
 					);
 			db.updateQuery(queryString);
 		}
+		*/
 		
 		return true;
 	}
@@ -252,7 +311,7 @@ public class TestingCenter {
 		logger.info("Cancelling exam with exam ID: " + examId);
 		String queryString = String.format("DELETE FROM exam"
 				+ " WHERE "
-				+ "instructorId='%s'"
+				+ "instructorIdA='%s'"
 				+ " AND "
 				+ "examId='%s'",
 				instructorId,
@@ -260,6 +319,8 @@ public class TestingCenter {
 				);
 		db.updateQuery(queryString);
 		
+		// No longer needed, since exams have the courseId as well
+		/*
 		queryString = String.format("DELETE FROM courseexam"
 				+ " WHERE "
 				+ "examIdCE='%s'",
@@ -267,7 +328,7 @@ public class TestingCenter {
 				examId
 				);
 		db.updateQuery(queryString);
-		
+		*/
 	}
 
 	//retrieve a list of all exams
@@ -275,26 +336,23 @@ public class TestingCenter {
 		logger.info("Retrieving all exams.");
 		
 		Database db = Database.getDatabase();
-		List<Map<String,Object>> exams = db.query("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, numSeats, courseexam.courseIdCE, examLength "
-				+ "FROM exam "
-				+ "LEFT JOIN courseexam "
-				+ "ON exam.examId=courseexam.examIdCE");
+		List<Map<String,Object>> exams = db.query("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, numSeats, courseId, examLength, courseId "
+				+ "FROM exam");
 		
 		List<Exam> examsList = new ArrayList<Exam>();
 		for (Map<String,Object> exam : exams) {
 			
 			String id = (String) exam.get("examId");
-			long startMilliseconds = new Long((int) exam.get("start")*1000);
-			long endMilliseconds = new Long((int) exam.get("end")*1000);
+			DateTime start = new DateTime((long) exam.get("start")*1000);
+			DateTime end = new DateTime((long) exam.get("end")*1000);
 			String examStatus = (String) exam.get("examStatus");
 			String instructorId = (String) exam.get("instructorId");
 			int numSeats = (int) exam.get("numSeats");
-			String courseId = (String) exam.get("courseIdCE");
+			String courseId = (String) exam.get("courseId");
 			int duration = (int) exam.get("examLength");
+			boolean adHocExam = ((String) exam.get("boolCourseExam")).equals("0");
 			
-			Exam newExam = ((String) exam.get("boolCourseExam")).equals("1") ? 
-					new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, courseId, numSeats,duration) : 
-						new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, numSeats,duration); 
+			Exam newExam = new Exam(id, start, end, examStatus, instructorId, courseId, numSeats, duration, adHocExam);
 			
 			examsList.add(newExam);
 		}
@@ -304,9 +362,10 @@ public class TestingCenter {
 
 	/*
 	 * Returns a list of adHoc exams from the database.
-	 * Not actually used by anything...
+	 * Not actually used by anything... so I commented it out
 	 */
-	public List<OutsideExam> getAdHocExams() {
+	/*
+	public List<Exam> getAdHocExams() {
 		logger.info("Retrieving all ad hoc exams");
 		Database db = Database.getDatabase();
 		List<Map<String,Object>> adHocExams = db.query("SELECT (examId, start, end, examStatus, instructorId,examLength) FROM exam WHERE boolCourseExam = 0");
@@ -327,36 +386,30 @@ public class TestingCenter {
 		
 		return exams;
 	}
+	*/
 
 	//retrieve a list of all exams, given a certain instructor id
 	public List<Exam> getInstructorExams(String instructorId) {
 		logger.info("Retrieving all exams for instructor with innstructor ID: " + instructorId);
 		
 		List<Exam> exams = new ArrayList<Exam>();
-		String queryString = String.format("SELECT examId, start, end, examStatus, numSeats, examLength, boolCourseExam, courseexam.courseIdCE "
+		String queryString = String.format("SELECT examId, start, end, examStatus, numSeats, examLength, boolCourseExam, courseId "
 				+ "FROM exam "
-				+ "LEFT JOIN courseexam "
-				+ "ON exam.examId=courseexam.examIdCE "
-				+ "WHERE exam.instructorId = '%s'",
+				+ "WHERE exam.instructorIdA = '%s'",
 				instructorId
 				);
 		List<Map<String,Object>> examList = db.query(queryString);
 		for (Map<String,Object> exam : examList) {
 			String examId = (String) exam.get("examId");
-			DateTime start = new DateTime(new Long((int) exam.get("start")*1000));
-			DateTime end = new DateTime(new Long((int) exam.get("end")*1000));
+			DateTime start = new DateTime((long) exam.get("start")*1000);
+			DateTime end = new DateTime((long) exam.get("end")*1000);
 			String status = (String) exam.get("examStatus");
 			int numSeats = (int) exam.get("numSeats");
 			int duration = (int) exam.get("examLength");
+			String courseId = (String) exam.get("courseId");
+			boolean adHocExam = ((String) exam.get("boolCourseExam")).equals("0");
 			
-			Exam newExam = null;
-			if ( ((String) exam.get("boolCourseExam")).equals("1") ) {
-				String courseId = (String) exam.get("courseIdCE");
-				newExam = new CourseExam(examId, start, end, status, instructorId, courseId, numSeats, duration);
-			}
-			else {
-				newExam = new OutsideExam(examId, start, end, status, instructorId, numSeats, duration);
-			}
+			Exam newExam = new Exam(examId, start, end, status, instructorId, courseId, numSeats, duration, adHocExam);
 			
 			exams.add(newExam);
 		}
@@ -369,33 +422,24 @@ public class TestingCenter {
 		logger.info("Retrieving all pending exam reservation requests.");
 		
 		List<Map<String,Object>> exams = db.query(
-				String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, numSeats, courseexam.courseIdCE,examLength "
+				String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, numSeats, courseId, examLength "
 				+ "FROM exam "
-				+ "LEFT JOIN courseexam "
-				+ "ON exam.examId=courseexam.examIdCE "
 				+ "WHERE examStatus = 'P'"
 				));
 		
 		List<Exam> examsList = new ArrayList<Exam>();
 		for (Map<String,Object> exam : exams) {
-			
-			Exam newExam = null;
-			
 			String id = (String) exam.get("examId");
-			long startMilliseconds = new Long((int) exam.get("start")*1000);
-			long endMilliseconds = new Long((int) exam.get("end")*1000);
+			DateTime start= new DateTime((long) exam.get("start")*1000);
+			DateTime end= new DateTime((long) exam.get("end")*1000);
 			String examStatus = (String) exam.get("examStatus");
 			int numSeats = (int) exam.get("numSeats");
 			String instructorId = (String) exam.get("instructorId");
+			String courseId = (String) exam.get("courseId");
 			int duration = (int) exam.get("examLength");
+			boolean adHocExam = ((String) exam.get("boolCourseExam")).equals("0");
 			
-			if ( ((String) exam.get("boolCourseExam")).equals("1") ) {
-				String courseId = (String) exam.get("courseIdCE");
-				newExam = new CourseExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, courseId, numSeats, duration);
-			}
-			else {
-				newExam = new OutsideExam(id, startMilliseconds, endMilliseconds, examStatus, instructorId, numSeats, duration);
-			}
+			Exam newExam = new Exam(id, start, end, examStatus, instructorId, courseId, numSeats, duration, adHocExam);
 			
 			examsList.add(newExam);
 		}
@@ -421,21 +465,123 @@ public class TestingCenter {
 			//System.out.println(lines.get(i));
 		}
 	}
+	
+	private void updateUsersTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
+		ArrayList<String> lines = new ArrayList<String>();
+		String currentLine;
+		
+		FileReader reader = new FileReader(new File(filename));
+		BufferedReader bReader = new BufferedReader(reader);
+		while ((currentLine = bReader.readLine()) != null){
+			lines.add(currentLine);
+		}
+		bReader.close();
+		for(int i = 1; i < lines.size(); i++) {
+			StringBuilder sb = new StringBuilder("INSERT INTO " + tableName + " VALUES (");
+			sb.append(queryUsersFormat(lines.get(i)));
+			sb.append(");");
+			db.updateQuery(sb.toString());
+			//System.out.println(lines.get(i));
+		}
+	}
+	
+	private void updateClassTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
+		ArrayList<String> lines = new ArrayList<String>();
+		String currentLine;
+		
+		FileReader reader = new FileReader(new File(filename));
+		BufferedReader bReader = new BufferedReader(reader);
+		while ((currentLine = bReader.readLine()) != null){
+			lines.add(currentLine);
+		}
+		bReader.close();
+		for(int i = 1; i < lines.size(); i++) {
+			StringBuilder sb = new StringBuilder("INSERT INTO " + tableName + " VALUES (");
+			sb.append(queryClassFormat(lines.get(i)));
+			sb.append(");");
+			db.updateQuery(sb.toString());
+			//System.out.println(lines.get(i));
+		}
+	}
+	
+	private void updateInstructorTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
+		ArrayList<String> lines = new ArrayList<String>();
+		String currentLine;
+		
+		FileReader reader = new FileReader(new File(filename));
+		BufferedReader bReader = new BufferedReader(reader);
+		while ((currentLine = bReader.readLine()) != null){
+			lines.add(currentLine);
+		}
+		bReader.close();
+		for(int i = 1; i < lines.size(); i++) {
+			StringBuilder sb = new StringBuilder("INSERT INTO " + tableName + " VALUES (");
+			sb.append(queryInstructorFormat(lines.get(i)));
+			sb.append(");");
+			db.updateQuery(sb.toString());
+			//System.out.println(lines.get(i));
+		}
+	}
+	
+	private void updateStudentTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
+		ArrayList<String> lines = new ArrayList<String>();
+		String currentLine;
+		
+		FileReader reader = new FileReader(new File(filename));
+		BufferedReader bReader = new BufferedReader(reader);
+		while ((currentLine = bReader.readLine()) != null){
+			lines.add(currentLine);
+		}
+		bReader.close();
+		for(int i = 1; i < lines.size(); i++) {
+			StringBuilder sb = new StringBuilder("INSERT INTO " + tableName + " VALUES (");
+			sb.append(queryStudentFormat(lines.get(i)));
+			sb.append(");");
+			db.updateQuery(sb.toString());
+			//System.out.println(lines.get(i));
+		}
+	}
+	
+	private void updateCourseStudentTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
+		ArrayList<String> lines = new ArrayList<String>();
+		String currentLine;
+		
+		FileReader reader = new FileReader(new File(filename));
+		BufferedReader bReader = new BufferedReader(reader);
+		while ((currentLine = bReader.readLine()) != null){
+			lines.add(currentLine);
+		}
+		bReader.close();
+		for(int i = 1; i < lines.size(); i++) {
+			StringBuilder sb = new StringBuilder("INSERT INTO " + tableName + " VALUES (");
+			sb.append(queryCourseStudentFormat(lines.get(i)));
+			sb.append(");");
+			db.updateQuery(sb.toString());
+			//System.out.println(lines.get(i));
+		}
+	}
 
 	/*
 	 * This method reads in the 3 .csv files that were provided to us and then stores that data in the 
 	 * corresponding tables in our data base.
 	 * (NOTE: At the moment the function will try to add an entry even if the Primary Key already exists.)
 	 */
-	public boolean updateData(String studentsFileName, String coursesFileName, String rostersFileName) {
+	public boolean updateData(String usersFileName, String instructorFileName, String coursesFileName, String rostersFileName) {
 		logger.info("Reading csv files, updating database");
 	
 		try {
-			updateTableFromFile(studentsFileName, "student");
+			updateStudentTableFromFile(usersFileName, "student");
 			
-			updateTableFromFile(coursesFileName, "course");
+			updateUsersTableFromFile(usersFileName, "users");
 			
-			updateTableFromFile(rostersFileName, "coursestudent");
+			updateUsersTableFromFile(instructorFileName, "users");
+			
+			updateInstructorTableFromFile(instructorFileName, "instructor");
+			
+			updateClassTableFromFile(coursesFileName, "course");
+			
+			updateCourseStudentTableFromFile(rostersFileName, "coursestudent");
+			
 			
 			return true;
 			
@@ -443,7 +589,11 @@ public class TestingCenter {
 			logger.warning("File not found.");
 			return false;
 		} catch (IOException e) {
-			logger.warning("An error occured while reading.");
+			logger.warning("An error occurred while reading file.");
+			return false;
+		}
+		catch (Exception e) {
+			logger.warning("Data was not formatted properly. Please check to make sure your input is correct, then try again.");
 			return false;
 		}
 	}
@@ -455,6 +605,129 @@ public class TestingCenter {
 	private String queryFormat(String line) {
 		String[] words = line.split(",");
 		StringBuilder sb = new StringBuilder("");
+		for(int i = 0; i < words.length;i++) {
+			sb.append("'");
+			words[i] = words[i].replace("'", "''");
+			sb.append(words[i]);
+			sb.append("'");
+			if(i != words.length-1){
+				sb.append(",");
+			}
+		}
+		//logger.info("sb.toString());
+		return sb.toString();
+		
+	}
+	
+	private String queryStudentFormat(String line) {
+		String[] wordsFromLine = line.split(",");
+		StringBuilder sb = new StringBuilder("");
+		
+		String[] words = new String[5];
+		words[0] = wordsFromLine[0];
+		words[1] = wordsFromLine[1];
+		words[2] = wordsFromLine[2];
+		words[3] = wordsFromLine[3];
+		words[4] = wordsFromLine[2];
+		
+		for(int i = 0; i < words.length;i++) {
+			sb.append("'");
+			words[i] = words[i].replace("'", "''");
+			sb.append(words[i]);
+			sb.append("'");
+			if(i != words.length-1){
+				sb.append(",");
+			}
+		}
+		//logger.info("sb.toString());
+		return sb.toString();
+		
+	}
+	
+	private String queryCourseStudentFormat(String line) {
+		String[] wordsFromLine = line.split(",");
+		StringBuilder sb = new StringBuilder("");
+		
+		String[] words = new String[2];
+		words[0] = wordsFromLine[1];
+		words[1] = wordsFromLine[0];
+		
+		for(int i = 0; i < words.length;i++) {
+			sb.append("'");
+			words[i] = words[i].replace("'", "''");
+			sb.append(words[i]);
+			sb.append("'");
+			if(i != words.length-1){
+				sb.append(",");
+			}
+		}
+		//logger.info("sb.toString());
+		return sb.toString();
+		
+	}
+	
+	private String queryUsersFormat(String line) {
+		String[] wordsFromLine = line.split(",");
+		StringBuilder sb = new StringBuilder("");
+		
+		String[] words = new String[4];
+		words[0] = wordsFromLine[2];
+		words[1] = wordsFromLine[0];
+		words[2] = wordsFromLine[1];
+		words[3] = wordsFromLine[3];
+		
+		for(int i = 0; i < words.length;i++) {
+			sb.append("'");
+			words[i] = words[i].replace("'", "''");
+			sb.append(words[i]);
+			sb.append("'");
+			if(i != words.length-1){
+				sb.append(",");
+			}
+		}
+		//logger.info("sb.toString());
+		return sb.toString();
+		
+	}
+	
+	private String queryClassFormat(String line) {
+		String[] wordsFromLine = line.split("[-,]");
+		StringBuilder sb = new StringBuilder("");
+		
+		String[] words = new String[7];
+		words[0] = wordsFromLine[0];
+		words[1] = wordsFromLine[2];
+		words[2] = wordsFromLine[3];
+		words[3] = wordsFromLine[4];
+		words[4] = wordsFromLine[5];
+		words[5] = wordsFromLine[1];
+		words[6] = wordsFromLine[0] + "-" + wordsFromLine[1];
+		
+		for(int i = 0; i < words.length;i++) {
+			sb.append("'");
+			words[i] = words[i].replace("'", "''");
+			sb.append(words[i]);
+			sb.append("'");
+			if(i != words.length-1){
+				sb.append(",");
+			}
+		}
+		//logger.info("sb.toString());
+		return sb.toString();
+		
+	}
+	
+	private String queryInstructorFormat(String line) {
+		String[] wordsFromLine = line.split(",");
+		StringBuilder sb = new StringBuilder("");
+		
+		String[] words = new String[5];
+		words[0] = wordsFromLine[2];
+		words[1] = wordsFromLine[1];
+		words[2] = wordsFromLine[0];
+		words[3] = wordsFromLine[3];
+		words[4] = wordsFromLine[2];
+		
 		for(int i = 0; i < words.length;i++) {
 			sb.append("'");
 			words[i] = words[i].replace("'", "''");
@@ -588,7 +861,7 @@ public class TestingCenter {
 		This function was not completed due to several errors that appeared in the last few hours.
 	 */
 	public synchronized boolean isExamSchedulable(Exam newExam) {
-		this.makeReservation(newExam, newExam.getStart(), newExam.getEnd(), newExam instanceof CourseExam, newExam.getInstructorId());
+		this.makeReservation(newExam, newExam.getStart(), newExam.getEnd(), !newExam.isAdHocExam(), newExam.getInstructorId());
 		DateTime now = DateTime.now();
 		long nowUnix = now.getMillis()/1000;
 		
@@ -603,11 +876,8 @@ public class TestingCenter {
 			String examId = (String) exam.get("StringIdA");
 			long apStart = end-(len*3600);
 			long apEnd = end;
-			/*
-			 * TODO
-			 * fix blahblah
-			 */
-			List<Map<String, Object>> apps = db.query(String.format("SELECT blahblah from appointments"
+
+			List<Map<String, Object>> apps = db.query(String.format("SELECT appointmentId from appointments"
 					+ "WHERE examIdA = '%s'",
 					examId));
 			int seatsLeft = (int) exam.get("numSeats") - apps.size();
@@ -666,11 +936,8 @@ public class TestingCenter {
 		Map<Long, String[]> seatsAvailable = new HashMap<Long, String[]>();
 		for(Map<String,Object> exam : exams) {
 			String examId = (String) exam.get("StringIdA");
-			/*
-			 * TODO
-			 * fix blahblah
-			 */
-			List<Map<String, Object>> apps = db.query(String.format("SELECT blahblah from appointments"
+
+			List<Map<String, Object>> apps = db.query(String.format("SELECT startTime, endTime appointments"
 					+ "WHERE examIdA = '%s'",
 					examId));
 			
@@ -754,12 +1021,10 @@ public class TestingCenter {
 	public List<Exam> viewAvailableExams(Student st) {
 		logger.info("Retrieving all exams currently available to student with ID" + st.getNetID());
 		
-		String queryString = String.format("SELECT exam.examId, start, end, examStatus, numSeats, boolCourseExam, instructorId, courseexam.courseIdCE, examLength "
+		String queryString = String.format("SELECT exam.examId, start, end, examStatus, numSeats, boolCourseExam, instructorIdA, courseId, examLength "
 				+ "FROM exam "
-				+ "INNER JOIN courseexam "
-				+ "ON exam.examId=courseexam.examIdCE "
 				+ "INNER JOIN coursestudent "
-				+ "ON courseexam.courseIdCE=coursestudent.courseIdCS "
+				+ "ON exam.courseId=coursestudent.courseIdCS "
 				+ "WHERE coursestudent.studentIdCS='%s';", 
 				st.getNetID());
 		Database db = Database.getDatabase();
@@ -768,24 +1033,17 @@ public class TestingCenter {
 		List<Exam> availableExams = new ArrayList<Exam>();
 		
 		for (Map<String, Object> exam : exams) {
-			Exam newExam;
-			
 			String examId = (String) exam.get("examId");
-			long startMilliseconds = new Long((int) exam.get("start")*1000);
-			long endMilliseconds = new Long((int) exam.get("end")*1000);
+			DateTime start = new DateTime( (long) exam.get("start")*1000);
+			DateTime end = new DateTime ( (long) exam.get("end")*1000);
 			String examStatus = (String) exam.get("examStatus");
 			int numSeats = (int) exam.get("numSeats");
-			boolean courseExam = ((String) exam.get("boolCourseExam")).equals("1") ? true : false;
+			boolean adHocExam = ((String) exam.get("boolCourseExam")).equals("0");
 			String instructorId = (String) exam.get("instructorId");
 			int duration = (int) exam.get("examLength");
+			String courseId = (String) exam.get("courseId");
 			
-			if (courseExam) {
-				String courseId = (String) exam.get("courseIdCE");
-				newExam = new CourseExam(examId, startMilliseconds, endMilliseconds, examStatus, instructorId, courseId, numSeats,duration);
-			}
-			else {
-				newExam = new OutsideExam(examId, endMilliseconds, endMilliseconds, examStatus, instructorId, numSeats,duration);
-			}
+			Exam newExam = new Exam(examId, start, end, examStatus, instructorId, courseId, numSeats, duration, adHocExam);
 			
 			availableExams.add(newExam);
 		}
@@ -873,7 +1131,7 @@ public class TestingCenter {
 			
 			
 			for (Map<String,Object> appointment : appointments) {
-				String queryString = String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId,examLength FROM exam"
+				String queryString = String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, examLength FROM exam, courseId"
 						+ "WHERE examID = '%s'",
 						appointment.get("examIdA"));
 				List<Map<String,Object>> exams = db.query(queryString);
@@ -884,14 +1142,16 @@ public class TestingCenter {
 				
 				Map<String,Object>exam = exams.get(0);
 				String examId = (String) exam.get("examId");
-				DateTime start = new DateTime(new Long((int) exam.get("start")*1000));
-				DateTime end = new DateTime(new Long((int) exam.get("end")*1000));
+				DateTime start = new DateTime((long) exam.get("start")*1000);
+				DateTime end = new DateTime((long) exam.get("end")*1000);
 				String status = (String) exam.get("status");
+				String instructorId = (String) exam.get("instructorId");
+				String courseId = (String) exam.get("courseId");
 				int numSeats = (int) exam.get("numSeats");
 				int duration = (int) exam.get("examLength");
+				boolean adHocExam = ((String) exam.get("boolCourseExam")).equals("0");
 				
-
-				Exam examObj = new Exam(examId, start, end, status, numSeats,duration);				
+				Exam examObj = new Exam(examId, start, end, status, instructorId, courseId, numSeats, duration, adHocExam);				
 				logger.info("Send email to: "+(String)emails.get(0).get("email"));
 				sendNotice((String)emails.get(0).get("email"),examObj);
 			}
@@ -1019,6 +1279,124 @@ public class TestingCenter {
 		return expectedUtilization;
 	}
 	
+	/**
+	 * Takes the List<Map<String, Object>> returned by a DB query and outputs
+	 * 	a List<Exam> by constructing an Exam object for each row.
+	 * @param exams
+	 * @return List<Exam> corresponding to the results of the query
+	 * @precondition The query is called with the following fields:
+	 * 		examId, start, end, examStatus, numSeats, boolCourseExam, instructorId, examLength, courseId
+	 */
+	private List<Exam> getExamListFromDBResult(List<Map<String,Object>> exams) {
+		List<Exam> examList = new ArrayList<Exam>();
+		
+		for (Map<String, Object> exam : exams) {
+			String examId = (String) exam.get("examId");
+			DateTime start = new DateTime( (long) exam.get("start")*1000);
+			DateTime end = new DateTime ( (long) exam.get("end")*1000);
+			String examStatus = (String) exam.get("examStatus");
+			int numSeats = (int) exam.get("numSeats");
+			boolean adHocExam = ((String) exam.get("boolCourseExam")).equals("0");
+			String instructorId = (String) exam.get("instructorId");
+			int duration = (int) exam.get("examLength");
+			String courseId = (String) exam.get("courseId");
+			
+			Exam newExam = new Exam(examId, start, end, examStatus, instructorId, courseId, numSeats, duration, adHocExam);
+			
+			examList.add(newExam);
+		}
+		
+		return examList;
+	}
+	
+	/**
+	 * For each day in a specified term, report the number of student appointments on that day.
+	 * Used for report a.
+	 * 
+	 * @param term	Integer code for the specified term
+	 * @return
+	 */
+	public Map<LocalDate, Integer> appointmentsPerDay(int term) {
+		Map<LocalDate, Integer> dailyCount = new HashMap<LocalDate, Integer>();
+		
+		String queryString = String.format("SELECT appointment.startTime "
+				+ "FROM appointment "
+				+ "INNER JOIN exam "
+				+ "ON exam.examId=appointment.examIdA "
+				+ "INNER JOIN course "
+				+ "ON exam.courseId=course.courseTerm"
+				+ " WHERE course.termId = %d;",
+				term);
+		List<Map<String, Object>> appointments = Database.getDatabase().query(queryString);
+		
+		for (Map<String, Object> appointment : appointments) {
+			long startTime = (long) appointment.get("startTime");
+			LocalDate date = new LocalDate(startTime);
+			
+			if (!dailyCount.containsKey(date)) {
+				dailyCount.put(date, 1);
+			}
+			else {
+				dailyCount.put(date, dailyCount.get(date) + 1);
+			}
+		}
+		
+		return dailyCount;
+	}
+	
+	public List<Course> coursesUsed(int term) {
+		List<Course> coursesResult = new ArrayList<Course>();
+		String queryString = String.format("SELECT course.* "
+				+ "FROM course "
+				+ "INNER JOIN exam "
+				+ "ON course.courseTerm = exam.courseId "
+				+ "WHERE course.termId = %d;",
+				term);
+		List<Map<String, Object>> courses = Database.getDatabase().query(queryString);
+		
+		for (Map<String, Object> course : courses) {
+			String courseId = (String) course.get("courseId");
+			String subject = (String) course.get("subject");
+			int catalogNumber = (int) course.get("catalogNumber");
+			String section = (String) course.get("section");
+			String instructorId = (String) course.get("instructorIdB");
+			int termId = (int) course.get("termId");
+			String courseTerm = (String) course.get("courseTerm");
+			
+			Course newCourse = new Course(courseId, subject, catalogNumber, section, instructorId, termId, courseTerm);
+			
+			coursesResult.add(newCourse);
+		}
+		
+		return coursesResult;
+	}
+	
+	public Map<Integer, Integer> appointmentsPerTerm(int startTerm, int endTerm) {
+		Map<Integer, Integer> apptsPerTerm = new HashMap<Integer, Integer>();
+		
+		String queryString = String.format("SELECT course.termId, COUNT(1) AS numAppointments "
+				+ "FROM appointment "
+				+ "INNER JOIN exam "
+				+ "ON appointment.examIdA = exam.examId "
+				+ "INNER JOIN course "
+				+ "ON exam.courseId = course.courseTerm "
+				+ "WHERE course.termId >= %d "
+				+ "AND course.termID <= %d "
+				+ "GROUP BY termId;",
+				startTerm,
+				endTerm);
+		List<Map<String, Object>> terms = Database.getDatabase().query(queryString);
+		
+		for (Map<String, Object> term : terms) {
+			int termId = (int) term.get("termId");
+			long numAppointments = (long) term.get("numAppointments");
+			
+			apptsPerTerm.put(termId, (int) numAppointments);
+		}
+		
+		return apptsPerTerm;
+	}
+	
 /*
 	public static void main(String[] args) {
 		DateTime start = new DateTime(2015, 10, 29, 8, 0);
@@ -1038,4 +1416,26 @@ public class TestingCenter {
 		}
 	}
 */	
+	
+	public static void main(String[] args) {
+		TestingCenter tc = getTestingCenter();
+		
+		Map<LocalDate, Integer> dailyCount = tc.appointmentsPerDay(1158);
+		for (Entry<LocalDate, Integer> entry : dailyCount.entrySet()) {
+			System.out.println(entry.getKey() + ":" + entry.getValue());
+		}
+		
+		List<Course> courses = tc.coursesUsed(1158);
+		System.out.println(courses.size());
+		for (Course course : courses) {
+			System.out.println(course);
+		}
+		
+		Map<Integer, Integer> apptsPerTerm = tc.appointmentsPerTerm(1150, 1160);
+		System.out.println(apptsPerTerm);
+		
+		//tc.updateData("user.csv", "instructor.csv", "class.csv", "roster.csv");
+		
+		
+	}
 }
