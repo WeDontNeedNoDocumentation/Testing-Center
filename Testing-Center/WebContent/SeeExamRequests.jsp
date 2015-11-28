@@ -209,7 +209,6 @@
                         				+ "LEFT JOIN courseexam "
                         				+ "ON exam.examId=courseexam.examIdCE "
                         				+ "WHERE exam.instructorId = 'sstoller'";
-	                        		
                                	java.sql.ResultSet rs = DBConnection.ExecQuery(query);
                                	while(rs.next())
                                	{
