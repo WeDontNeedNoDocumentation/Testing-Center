@@ -6,9 +6,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import java.util.Stack;
 import java.util.logging.Logger;
 
 import javax.mail.Message;
@@ -687,26 +690,65 @@ public class TestingCenter {
 	}
 
 	private List<Map<String, Object>> getOverlap(Exam newExam) {
-		//Set set = new Set(); //prior to this method
-		//List numList = new List();
-		
-		//set.add(newExam)
-		//SELECT examIds FROM Exam 
-		//WHERE start < this.start & end > this.end
-		//OR start < this.start & end > this.start & end < this.end
-		//OR start > this.start & start < this.end
-		//
-		//if(response==null){return;}
-		//else{ for each overlap, set.add(overlap) ; numList.add(numNewExams) if it is
-		//a new examId
-		// Iterator iter = set.iterator(); 
-		//while (iter.hasNext()){getOverlap(iter.next())}
-		//}
-		//after entire method is complete, print the static set & numList
-		//empty out both 
-		
-		return null;
+		Set<Exam> set = new HashSet<Exam>();
+		List<Map<String, Object>>fullList = new ArrayList();
+		getOverlap(set, newExam, fullList);
+		return fullList;
 	}
+	
+	private List<Map<String, Object>> getOverlap(Set set, Exam newExam,List fullList) {
+		DateTime start = newExam.getStart();
+		DateTime end = newExam.getEnd();
+		List<Exam> exams = new ArrayList<Exam>();
+		Stack stack = new Stack();
+		
+		set.add(newExam);
+		
+		fullList.add(newExam);
+		
+		String queryString = String.format("SELECT examId, start, end, examStatus, numSeats, examLength, boolCourseExam, courseexam.courseIdCE "
+				+ "FROM exam"
+				+ "WHERE (exam.start < '%s' AND exam.end > '%s')"
+				+ "OR (exam.start < '%s' AND exam.end BETWEEN '%s' AND '%s')"
+				+ "OR (exam.start > '%s' AND exam.start < '%s')",
+				start, end, start, end, end, start, end
+				);
+		List<Map<String,Object>> examList = db.query(queryString);
+		for (Map<String, Object> exam : examList) {
+			fullList.add(exam);
+			if(!set.contains(exam)){
+				stack.push(exam);
+			}
+		};
+		while(!stack.isEmpty()){
+			getOverlap(set,(Exam)stack.pop(), fullList);
+		}
+		
+		return fullList;
+	}
+
+	
+//	private List<Map<String, Object>> getOverlap(Exam newExam) {
+//		//Set set = new Set(); //prior to this method
+//		//List numList = new List();
+//		
+//		//set.add(newExam)
+//		//SELECT examIds FROM Exam 
+//		//WHERE start < this.start & end > this.end
+//		//OR start < this.start & end > this.start & end < this.end
+//		//OR start > this.start & start < this.end
+//		//
+//		//if(response==null){return;}
+//		//else{ for each overlap, set.add(overlap) ; numList.add(numNewExams) if it is
+//		//a new examId
+//		// Iterator iter = set.iterator(); 
+//		//while (iter.hasNext()){getOverlap(iter.next())}
+//		//}
+//		//after entire method is complete, print the static set & numList
+//		//empty out both 
+//		
+//		return null;
+//	}
 
 	//retrieve a list of all exams that may be selected by a certain student
 	public List<Exam> viewAvailableExams(Student st) {

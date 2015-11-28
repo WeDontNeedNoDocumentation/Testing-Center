@@ -181,7 +181,7 @@
                         </h1>
                     </div>
                 </div>
-                <jsp:useBean id="b" class="Bean.InstructorBean" scope="application" />
+                <%-- <jsp:useBean id="b" class="Bean.InstructorBean" scope="application" /> --%>
                 
                 <div class="row">
                 <h3>Current Term</h3>
