@@ -88,8 +88,8 @@ public class Student {
 	 * This is used to create an exam appointment for a specific exam.
 	 * (NOTE: At this time no checks are made to see if this appointment is in any way valid.)
 	 */
-	public void makeAppointment(Exam exam, DateTime time, int seatId, int appointmentId) {
-		tC.makeAppointment(exam, time, seatId, appointmentId, netID);
+	public void makeAppointment(Exam exam, DateTime time, int seatId, int appointmentId, DateTime startTime, DateTime endTime) {
+		tC.makeAppointment(exam, time, seatId, appointmentId, netID, startTime, endTime);
 	}
 	
 	/*
@@ -105,8 +105,8 @@ public class Student {
 	 * When called, returns a list of appointments associated with the student.
 	 * (NOTE: Later this will be required to be called before canceling.)
 	 */
-	public List<Appointment> viewAppointments() {
-		return tC.showAppointments(netID);
+	public List<Appointment> viewAppointments(int term) {
+		return tC.showAppointments(netID, term);
 	}
 	
 	public void checkAvailability() {
