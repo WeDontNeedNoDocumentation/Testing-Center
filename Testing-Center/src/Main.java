@@ -86,7 +86,7 @@ public class Main {
 				s = new Scanner(System.in);
 				option = s.nextInt();
 				if(option == 1) {
-				ad.importData("user.csv","class.csv","roster.csv");
+				ad.importData("user.csv","instructor.csv","class.csv","roster.csv");
 				} else if (option == 2) {
 					System.out.println(ad.checkInStudent("a"));
 				} else if (option == 3) {
@@ -95,16 +95,19 @@ public class Main {
 				}
 				
 			} else if (option == 2) {
-
+				/*
 				Exam exam = new Exam("CSE", null, null, inst.getInstructorId(), 0,2);
 				
 				inst.makeExam(exam, new DateTime(2000,1,1,1,1), new DateTime(2000,1,1,1,2), true);
+				*/
 			} else if (option == 3) {
+				/*
 				Student student = new Student("Anvika .", "a", "a@example.com", null);
 				Exam exam = new Exam("CSE", null, null, inst.getInstructorId(), 0,2);
 
 				
 				student.makeAppointment(exam, new DateTime(2015,10,25,19,0), 7, 1);
+				*/
 			} else if (option == 4) {
 				running = false;
 			}

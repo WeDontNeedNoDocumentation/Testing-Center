@@ -132,20 +132,15 @@ public class TestingCenter {
 		DateTime tEnd = exam.getEnd();
 		long start = tStart.getMillis()/1000;
 		long end = tEnd.getMillis()/1000;
-		List<Map<String, Object>> apps = db.query(String.format("SELECT appointmentId from appointments"
-				+ "WHERE studentIdA = '%s'",
-				netId));
-		if(apps.get(0) != null){
-			return null;
-		}
+		
 		long len = 0; //TODO 
 		long search = start;
 		
 		for(long l = start;l<(end-len); l = l+1800){
 			boolean coexist = true;
 			while(coexist) {
-				apps = db.query(String.format("SELECT end from appointments"
-						+ "WHERE studentIdA = '%s' AND start = '%d'",
+				List<Map<String,Object>> apps = db.query(String.format("SELECT end FROM appointment"
+						+ "WHERE studentIdA = '%s' AND startTime = '%d'",
 						netId, search));
 				if(apps.get(0) == null) {
 					coexist = false;
@@ -156,13 +151,13 @@ public class TestingCenter {
 			for(int i = 0;i<numberOfSeats-numberOfSetAside;i++) {
 				boolean clear = true;
 				for(l = search; l<search+len && clear; l=l+1800) {
-					apps = db.query(String.format("SELECT examId from timeSlots"
+					List<Map<String,Object>> apps = db.query(String.format("SELECT examId FROM timeSlots"
 							+ "WHERE dateId = '%d' AND seatId = '%d'",
 							search,i));
 					if(apps.get(0)!= null) {
 						clear = false;
 					} else {
-						apps = db.query(String.format("SELECT seatId from timeSlots"
+						apps = db.query(String.format("SELECT seatId FROM timeSlots"
 								+ "WHERE dateId = '%d' AND examId = '%s'",
 								search,exam.getExamID()));
 						if(apps.contains((i-1))|| apps.contains((i+1))) {
@@ -873,11 +868,11 @@ public class TestingCenter {
 			long start = (long) exam.get("start");
 			long end = (long) exam.get("end");
 			long len = (long)exam.get("examLength");
-			String examId = (String) exam.get("StringIdA");
+			String examId = (String) exam.get("examId");
 			long apStart = end-(len*3600);
 			long apEnd = end;
 
-			List<Map<String, Object>> apps = db.query(String.format("SELECT appointmentId from appointments"
+			List<Map<String, Object>> apps = db.query(String.format("SELECT appointmentId FROM appointment"
 					+ "WHERE examIdA = '%s'",
 					examId));
 			int seatsLeft = (int) exam.get("numSeats") - apps.size();
@@ -932,18 +927,20 @@ public class TestingCenter {
 		return true;
 	}
 	
+
 	private Map<Long, String[]> insertExisting(List<Map<String, Object>> exams) {
 		Map<Long, String[]> seatsAvailable = new HashMap<Long, String[]>();
 		for(Map<String,Object> exam : exams) {
 			String examId = (String) exam.get("StringIdA");
 
-			List<Map<String, Object>> apps = db.query(String.format("SELECT startTime, endTime appointments"
+			List<Map<String, Object>> apps = db.query(String.format("SELECT startTime, endTime, examIdA, seatIdA "
+					+ "FROM appointment"
 					+ "WHERE examIdA = '%s'",
 					examId));
 			
 			for(Map<String,Object> app : apps) {
-				long searchTime = (long)app.get("end");
-				while(searchTime != (long)app.get("start")) {
+				long searchTime = (long)app.get("endTime");
+				while(searchTime != (long)app.get("startStart")) {
 					searchTime = searchTime -1800;
 					if(!seatsAvailable.containsKey(searchTime)){
 						seatsAvailable.put(searchTime, new String[numberOfSeats-numberOfSetAside]);
@@ -957,24 +954,23 @@ public class TestingCenter {
 	}
 
 	private List<Map<String, Object>> getOverlap(Exam newExam) {
-		Set<Exam> set = new HashSet<Exam>();
-		List<Map<String, Object>>fullList = new ArrayList();
-		getOverlap(set, newExam, fullList);
+		List<Map<String, Object>>fullList = new ArrayList<Map<String,Object>>();
+		List<Map<String,Object>> newExamEntry = db.query(String.format("SELECT examId, start,end,examStatus,numSeats,examLength,boolCourseExam,courseId,instructor.instructorId"
+				+"FROM exam"
+				+"WHERE examId = '%s'"
+				, newExam.getExamID()));
+		fullList.add(newExamEntry.get(0));
+		fullList = getOverlap(newExamEntry.get(0), fullList);
 		return fullList;
 	}
 	
 	
-	private List<Map<String, Object>> getOverlap(Set set, Exam newExam,List fullList) {
-		DateTime start = newExam.getStart();
-		DateTime end = newExam.getEnd();
-		List<Exam> exams = new ArrayList<Exam>();
-		Stack stack = new Stack();
+	private List<Map<String, Object>> getOverlap(Map<String,Object> newExam,List<Map<String,Object>> fullList) {
+		long start = (long) newExam.get("start");
+		long end = (long) newExam.get("end");
+			
 		
-		set.add(newExam);
-		
-		fullList.add(newExam);
-		
-		String queryString = String.format("SELECT examId, start, end, examStatus, numSeats, examLength, boolCourseExam, courseexam.courseIdCE "
+		String queryString = String.format("SELECT examId, start, end, examStatus, numSeats, examLength, boolCourseExam,courseId,instructor.instructorId"
 				+ "FROM exam"
 				+ "WHERE (exam.start < '%s' AND exam.end > '%s')"
 				+ "OR (exam.start < '%s' AND exam.end BETWEEN '%s' AND '%s')"
@@ -983,14 +979,13 @@ public class TestingCenter {
 				);
 		List<Map<String,Object>> examList = db.query(queryString);
 		for (Map<String, Object> exam : examList) {
-			fullList.add(exam);
-			if(!set.contains(exam)){
-				stack.push(exam);
+			
+			if(!fullList.contains(exam)) {
+				fullList.add(exam);
+				fullList = getOverlap(exam,fullList);
 			}
+			
 		};
-		while(!stack.isEmpty()){
-			getOverlap(set,(Exam)stack.pop(), fullList);
-		}
 		
 		return fullList;
 	}
