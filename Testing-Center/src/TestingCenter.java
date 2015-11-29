@@ -405,7 +405,7 @@ public class TestingCenter {
 			DateTime start = new DateTime((long) exam.get("start")*1000);
 			DateTime end = new DateTime((long) exam.get("end")*1000);
 			String examStatus = (String) exam.get("examStatus");
-			String instructorId = (String) exam.get("instructorId");
+			String instructorId = (String) exam.get("instructorIdA");
 			int numSeats = (int) exam.get("numSeats");
 			String courseId = (String) exam.get("courseId");
 			int duration = (int) exam.get("examLength");
@@ -1033,16 +1033,7 @@ public class TestingCenter {
 		long start = (long) newExam.get("start");
 		long end = (long) newExam.get("end");
 			
-		
-<<<<<<< HEAD
-		set.add(newExam); //each distinct exam
-		
-		fullList.add(newExam); //continually added full list of exam overlaps 
-		
-		String queryString = String.format("SELECT examId, start, end, examStatus, numSeats, examLength, boolCourseExam, courseexam.courseIdCE "
-=======
 		String queryString = String.format("SELECT examId, start, end, examStatus, numSeats, examLength, boolCourseExam,courseId,instructor.instructorId"
->>>>>>> branch 'master' of https://github.com/WeDontNeedNoDocumentation/Testing-Center.git
 				+ "FROM exam"
 				+ "WHERE (exam.start < '%s' AND exam.end > '%s')"
 				+ "OR (exam.start < '%s' AND exam.end BETWEEN '%s' AND '%s')"
