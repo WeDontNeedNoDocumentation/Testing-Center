@@ -422,6 +422,7 @@ public class TestingCenter {
 	/*
 	 * Returns a list of adHoc exams from the database.
 	 * Not actually used by anything... so I commented it out
+	 * 
 	/*
 	public List<Exam> getAdHocExams() {
 		logger.info("Retrieving all ad hoc exams");
