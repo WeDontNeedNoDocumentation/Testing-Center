@@ -33,7 +33,7 @@ public class AllTests {
 		Exam exam = new Exam("CSE", new DateTime(0), new DateTime(1000*60*60*24), "sstoller", "P", 64, 120, true);
 
 		
-		student.makeAppointment(exam, new DateTime(2000,1,1,1,1), 0, 1);
+		//student.makeAppointment(exam, new DateTime(2000,1,1,1,1), 0, 1, null, null);
 	}
 
 }

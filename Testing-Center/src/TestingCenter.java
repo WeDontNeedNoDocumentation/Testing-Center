@@ -27,6 +27,7 @@ import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.Period;
+import org.joda.time.base.BaseDateTime;
 
 /**
  * This class represents all actions of the testing center. Interactions with the database will be made
@@ -180,7 +181,7 @@ public class TestingCenter {
 	
 	//make an appointment to take an exam
 	//
-	public synchronized void makeAppointment(Exam exam, DateTime time, int seatId, int appointmentId, String netID) {
+	public synchronized void makeAppointment(Exam exam, DateTime time, int seatId, int appointmentId, String netID, DateTime startTime, DateTime endTime) throws ExistingAppointmentException {
 		logger.info("Creating new Appointment");
 		logger.fine("Exam id: " + exam.getExamID());
 		logger.fine("Student ID: " + netID);
@@ -188,17 +189,74 @@ public class TestingCenter {
 		logger.fine("Seat ID: " + seatId);
 		logger.fine("Appointment ID: " + appointmentId);
 		
+		if (hasAppointment(netID, exam.getExamID())) {
+			logger.warning("Student " + netID + " already has appointment for exam " + exam.getExamID());
+			throw new ExistingAppointmentException("Student " + netID + " already has appointment for exam " + exam.getExamID()); 
+		}
+		
+		if (conflictingAppointment(netID, startTime, endTime)) {
+			logger.warning("Student " + netID + " already has an appointment between " + startTime + " and " + endTime);
+			throw new ConflictingAppointmentException("Student " + netID + " already has an appointment between " + startTime + " and " + endTime);
+		}
+		
+		if (appointmentOutOfExamBounds(exam.getExamID(), startTime, endTime)) {
+			logger.warning("Requested appointment not within bounds of exam " + exam.getExamID() + " start and end times.");
+			throw new OutOfExamBoundsException("Requested appointment not within bounds of exam " + exam.getExamID() + " start and end times.");
+		}
+		
 		String queryString = String.format("INSERT INTO appointment VALUES ("
-				+ "'%s', '%s', %d, %d, %d)", 
+				+ "'%s', '%s', %d, %d, %d, %d, %d)", 
 				exam.getExamID(), 
 				netID, 
 				time.getMillis()/1000,
 				seatId,
-				appointmentId
+				appointmentId,
+				startTime.getMillis()/1000,
+				endTime.getMillis()/1000
 				);
 		db.updateQuery(queryString);
 	}
 	
+	private boolean appointmentOutOfExamBounds(String examID, DateTime startTime, DateTime endTime) {
+		String queryString = String.format("SELECT start, end "
+				+ "FROM exam "
+				+ "WHERE examId = '%s'",
+				examID);
+		List<Map<String, Object>> exams = Database.getDatabase().query(queryString);
+		
+		// We assume that exactly one exam exists with id examID
+		Map<String, Object> exam = exams.get(0);
+		
+		return ((long) exam.get("start") > endTime.getMillis()/1000) || ((long) exam.get("end") < startTime.getMillis()/1000); 
+	}
+
+	private boolean conflictingAppointment(String netID, DateTime startTime, DateTime endTime) {
+		String queryString = String.format("SELECT appointmentId "
+				+ "FROM appointment "
+				+ "WHERE studentIdA = '%s' "
+				+ "AND "
+				+ "(startTime <= '%s' "
+				+ "AND endTime >= '%s')", 
+				netID,
+				endTime.getMillis()/1000 + gap.getMillis()/1000,
+				startTime.getMillis()/1000 - gap.getMillis()/1000);
+		List<Map<String, Object>> appointments = Database.getDatabase().query(queryString);
+		
+		return appointments.size() > 0; 
+	}
+
+	private boolean hasAppointment(String netID, String examID) {
+		String queryString = String.format("SELECT appointmentId "
+				+ "FROM appointment "
+				+ "WHERE examIdA = '%s' "
+				+ "AND studentIdA = '%s'",
+				examID,
+				netID);
+		List<Map<String, Object>> appointments = Database.getDatabase().query(queryString);
+		
+		return appointments.size() > 0;
+	}
+
 	//Allows the user to cancel a student appointment, given the appointment id
 	public synchronized void cancelAppointment(int appID) {
 		logger.info("Cancelling appointment with ID " + appID);
@@ -213,14 +271,20 @@ public class TestingCenter {
 		db.updateQuery(queryString);
 	}
 	
-	//Return a list of all appointments, given a student's netID
-	public List<Appointment> showAppointments(String netID) {
+	//Return a list of all appointments, given a student's netID and the desired term
+	public List<Appointment> showAppointments(String netID, int termId) {
 		logger.info("Retrieving all appointments for student ID " + netID);
 		
 		List<Appointment> appointments = new ArrayList<Appointment>();
 		String queryString = String.format("SELECT * FROM appointment "
-				+ "WHERE studentIdA='%s'",
-				netID
+				+ "LEFT JOIN exam "
+				+ "ON appointment.examIdA = exam.examId "
+				+ "LEFT JOIN course "
+				+ "ON exam.courseId = course.courseTerm "
+				+ "WHERE appointment.studentIdA='%s' "
+				+ "AND course.termId = %d;",
+				netID,
+				termId
 				);
 		List<Map<String,Object>> appts = db.query(queryString);
 		for (Map<String,Object> appt : appts) {
@@ -1431,7 +1495,5 @@ public class TestingCenter {
 		System.out.println(apptsPerTerm);
 		
 		//tc.updateData("user.csv", "instructor.csv", "class.csv", "roster.csv");
-		
-		
 	}
 }
