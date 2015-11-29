@@ -1370,7 +1370,7 @@ public class TestingCenter {
 			String examStatus = (String) exam.get("examStatus");
 			int numSeats = (int) exam.get("numSeats");
 			boolean adHocExam = ((String) exam.get("boolCourseExam")).equals("0");
-			String instructorId = (String) exam.get("instructorId");
+			String instructorId = (String) exam.get("instructorIdA");
 			int duration = (int) exam.get("examLength");
 			String courseId = (String) exam.get("courseId");
 			
