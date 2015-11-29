@@ -413,7 +413,7 @@ public class TestingCenter {
 			DateTime start = new DateTime((long) exam.get("start")*1000);
 			DateTime end = new DateTime((long) exam.get("end")*1000);
 			String examStatus = (String) exam.get("examStatus");
-			String instructorId = (String) exam.get("instructorId");
+			String instructorId = (String) exam.get("instructorIdA");
 			int numSeats = (int) exam.get("numSeats");
 			String courseId = (String) exam.get("courseId");
 			int duration = (int) exam.get("examLength");
