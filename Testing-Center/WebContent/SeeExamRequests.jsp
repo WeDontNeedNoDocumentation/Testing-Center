@@ -1,7 +1,8 @@
-<%@page import="DBWorks.DBConnection" %>
+<%@page import="DBWorks.DBConnection"%>
+<%@page import="Java.*" %>
+<%@ page import="java.util.*" %>
 
 <!DOCTYPE html>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <html lang="en">
 
 <head>
@@ -181,7 +182,6 @@
                         </h1>
                     </div>
                 </div>
-                <jsp:useBean id="b" class="Bean.InstructorBean" scope="application" />
                 
                 <div class="row">
                 <h3>Current Term</h3>
@@ -204,22 +204,31 @@
 	                        <!--enter code here for table -->
 	      					<%
 	    
-                            	String query = "SELECT examId, start, end, examStatus, numSeats, examLength, boolCourseExam, courseexam.courseIdCE "
+                            	/* String query = "SELECT examId, start, end, examStatus, numSeats, examLength, boolCourseExam, courseexam.courseIdCE "
                         				+ "FROM exam "
                         				+ "LEFT JOIN courseexam "
                         				+ "ON exam.examId=courseexam.examIdCE "
                         				+ "WHERE exam.instructorId = 'sstoller'";
-                               	java.sql.ResultSet rs = DBConnection.ExecQuery(query);
-                               	while(rs.next())
+                               	java.sql.ResultSet rs = DBConnection.ExecQuery(query); */
+	      						String email = session.getAttribute("email").toString();
+                        		String id = session.getAttribute("id").toString();
+                        		String name = session.getAttribute("name").toString();
+                        		
+      							Instructor instr = new Instructor(name, email, id);
+                               	
+                               	List<Exam> exams = new ArrayList<Exam>();
+                               	exams = instr.viewExams();
+                               	
+                               	for(Exam e : exams)
                                	{
-                                    String courseId = rs.getString(8);
-                                    String duration = rs.getString(6);
-                                    String sDate = rs.getString(2);
-                                    String numSeats = rs.getString(5);
+                                    String courseId = e.getExamID();
+                                    String duration = e.getExamID();
+                                    String sDate = e.getExamID();
+                                    String numSeats = e.getExamID();
                                     //String sTime = rs.getString();
-                                    String eDate = rs.getString(3);
+                                    String eDate = e.getExamID();
                                     //String eTime = rs.getString();
-                                    String status = rs.getString(4);
+                                    String status = e.getExamID();
                             %> 
 	                        <!-- row entries -->
 	                            <td><%out.print(courseId);%></td>

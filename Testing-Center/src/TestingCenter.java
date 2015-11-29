@@ -98,6 +98,8 @@ public class TestingCenter {
 		return instance;
 	}
 	
+	
+	
 	public static TestingCenter getTestingCenter(List<Day> days, int numberOfSeats, int numberOfSetAside, LocalTime open, LocalTime close,
 			Period gap, Period reminderInt) {
 		if (instance == null) {

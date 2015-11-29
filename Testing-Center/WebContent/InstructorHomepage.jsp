@@ -26,7 +26,12 @@
 
 </head>
 <body>
-
+	<%
+		String email = session.getAttribute("email").toString();
+		String id = session.getAttribute("id").toString();
+		String name = session.getAttribute("name").toString();
+		
+	%>
     <!-- Navigation -->
     <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
         <div class="container">
@@ -56,7 +61,7 @@
         <div class="row">
             <div class="col-lg-12">
                 <h1 class="page-header">Testing Center Scheduler
-                    <small>What would you like to do?</small>
+                    <small>What would you like to do? <% out.print(id);%></small>
                 </h1>
             </div>
         </div>
