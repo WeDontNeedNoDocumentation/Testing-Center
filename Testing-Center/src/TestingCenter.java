@@ -970,9 +970,9 @@ public class TestingCenter {
 		List<Exam> exams = new ArrayList<Exam>();
 		Stack stack = new Stack();
 		
-		set.add(newExam);
+		set.add(newExam); //each distinct exam
 		
-		fullList.add(newExam);
+		fullList.add(newExam); //continually added full list of exam overlaps 
 		
 		String queryString = String.format("SELECT examId, start, end, examStatus, numSeats, examLength, boolCourseExam, courseexam.courseIdCE "
 				+ "FROM exam"
