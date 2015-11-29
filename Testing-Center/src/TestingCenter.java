@@ -403,7 +403,7 @@ public class TestingCenter {
 		logger.info("Retrieving all exams.");
 		
 		Database db = Database.getDatabase();
-		List<Map<String,Object>> exams = db.query("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, numSeats, courseId, examLength, courseId "
+		List<Map<String,Object>> exams = db.query("SELECT examId, start, end, boolCourseExam, examStatus, instructorIdA, numSeats, courseId, examLength "
 				+ "FROM exam");
 		
 		List<Exam> examsList = new ArrayList<Exam>();
@@ -413,7 +413,7 @@ public class TestingCenter {
 			DateTime start = new DateTime((long) exam.get("start")*1000);
 			DateTime end = new DateTime((long) exam.get("end")*1000);
 			String examStatus = (String) exam.get("examStatus");
-			String instructorId = (String) exam.get("instructorIdA");
+			String instructorId = (String) exam.get("instructorId");
 			int numSeats = (int) exam.get("numSeats");
 			String courseId = (String) exam.get("courseId");
 			int duration = (int) exam.get("examLength");
@@ -460,7 +460,7 @@ public class TestingCenter {
 		logger.info("Retrieving all exams for instructor with innstructor ID: " + instructorId);
 		
 		List<Exam> exams = new ArrayList<Exam>();
-		String queryString = String.format("SELECT examId, start, end, examStatus, numSeats, examLength, boolCourseExam, courseId "
+		String queryString = String.format("SELECT examId, start, end, boolCourseExam, examStatus, numSeats, examLength, courseId "
 				+ "FROM exam "
 				+ "WHERE exam.instructorIdA = '%s'",
 				instructorId
