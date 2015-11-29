@@ -98,8 +98,8 @@ public class Administrator {
 		
 	}
 	
-	public void makeAppointment(Exam exam, DateTime time, int seatId, int appointmentId, String netID) {
-		tC.makeAppointment(exam, time, seatId, appointmentId, netID);
+	public void makeAppointment(Exam exam, DateTime time, int seatId, int appointmentId, String netID, DateTime startTime, DateTime endTime) {
+		tC.makeAppointment(exam, time, seatId, appointmentId, netID, startTime, endTime);
 	}
 	
 	public void checkAvailability() {

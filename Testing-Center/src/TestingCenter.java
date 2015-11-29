@@ -27,6 +27,7 @@ import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.Period;
+import org.joda.time.base.BaseDateTime;
 
 /**
  * This class represents all actions of the testing center. Interactions with the database will be made
@@ -132,20 +133,15 @@ public class TestingCenter {
 		DateTime tEnd = exam.getEnd();
 		long start = tStart.getMillis()/1000;
 		long end = tEnd.getMillis()/1000;
-		List<Map<String, Object>> apps = db.query(String.format("SELECT appointmentId from appointments"
-				+ "WHERE studentIdA = '%s'",
-				netId));
-		if(apps.get(0) != null){
-			return null;
-		}
+		
 		long len = 0; //TODO 
 		long search = start;
 		
 		for(long l = start;l<(end-len); l = l+1800){
 			boolean coexist = true;
 			while(coexist) {
-				apps = db.query(String.format("SELECT end from appointments"
-						+ "WHERE studentIdA = '%s' AND start = '%d'",
+				List<Map<String,Object>> apps = db.query(String.format("SELECT end FROM appointment"
+						+ "WHERE studentIdA = '%s' AND startTime = '%d'",
 						netId, search));
 				if(apps.get(0) == null) {
 					coexist = false;
@@ -156,13 +152,13 @@ public class TestingCenter {
 			for(int i = 0;i<numberOfSeats-numberOfSetAside;i++) {
 				boolean clear = true;
 				for(l = search; l<search+len && clear; l=l+1800) {
-					apps = db.query(String.format("SELECT examId from timeSlots"
+					List<Map<String,Object>> apps = db.query(String.format("SELECT examId FROM timeSlots"
 							+ "WHERE dateId = '%d' AND seatId = '%d'",
 							search,i));
 					if(apps.get(0)!= null) {
 						clear = false;
 					} else {
-						apps = db.query(String.format("SELECT seatId from timeSlots"
+						apps = db.query(String.format("SELECT seatId FROM timeSlots"
 								+ "WHERE dateId = '%d' AND examId = '%s'",
 								search,exam.getExamID()));
 						if(apps.contains((i-1))|| apps.contains((i+1))) {
@@ -185,7 +181,7 @@ public class TestingCenter {
 	
 	//make an appointment to take an exam
 	//
-	public synchronized void makeAppointment(Exam exam, DateTime time, int seatId, int appointmentId, String netID) {
+	public synchronized void makeAppointment(Exam exam, DateTime time, int seatId, int appointmentId, String netID, DateTime startTime, DateTime endTime) throws ExistingAppointmentException {
 		logger.info("Creating new Appointment");
 		logger.fine("Exam id: " + exam.getExamID());
 		logger.fine("Student ID: " + netID);
@@ -193,17 +189,74 @@ public class TestingCenter {
 		logger.fine("Seat ID: " + seatId);
 		logger.fine("Appointment ID: " + appointmentId);
 		
+		if (hasAppointment(netID, exam.getExamID())) {
+			logger.warning("Student " + netID + " already has appointment for exam " + exam.getExamID());
+			throw new ExistingAppointmentException("Student " + netID + " already has appointment for exam " + exam.getExamID()); 
+		}
+		
+		if (conflictingAppointment(netID, startTime, endTime)) {
+			logger.warning("Student " + netID + " already has an appointment between " + startTime + " and " + endTime);
+			throw new ConflictingAppointmentException("Student " + netID + " already has an appointment between " + startTime + " and " + endTime);
+		}
+		
+		if (appointmentOutOfExamBounds(exam.getExamID(), startTime, endTime)) {
+			logger.warning("Requested appointment not within bounds of exam " + exam.getExamID() + " start and end times.");
+			throw new OutOfExamBoundsException("Requested appointment not within bounds of exam " + exam.getExamID() + " start and end times.");
+		}
+		
 		String queryString = String.format("INSERT INTO appointment VALUES ("
-				+ "'%s', '%s', %d, %d, %d)", 
+				+ "'%s', '%s', %d, %d, %d, %d, %d)", 
 				exam.getExamID(), 
 				netID, 
 				time.getMillis()/1000,
 				seatId,
-				appointmentId
+				appointmentId,
+				startTime.getMillis()/1000,
+				endTime.getMillis()/1000
 				);
 		db.updateQuery(queryString);
 	}
 	
+	private boolean appointmentOutOfExamBounds(String examID, DateTime startTime, DateTime endTime) {
+		String queryString = String.format("SELECT start, end "
+				+ "FROM exam "
+				+ "WHERE examId = '%s'",
+				examID);
+		List<Map<String, Object>> exams = Database.getDatabase().query(queryString);
+		
+		// We assume that exactly one exam exists with id examID
+		Map<String, Object> exam = exams.get(0);
+		
+		return ((long) exam.get("start") > endTime.getMillis()/1000) || ((long) exam.get("end") < startTime.getMillis()/1000); 
+	}
+
+	private boolean conflictingAppointment(String netID, DateTime startTime, DateTime endTime) {
+		String queryString = String.format("SELECT appointmentId "
+				+ "FROM appointment "
+				+ "WHERE studentIdA = '%s' "
+				+ "AND "
+				+ "(startTime <= '%s' "
+				+ "AND endTime >= '%s')", 
+				netID,
+				endTime.getMillis()/1000 + gap.getMillis()/1000,
+				startTime.getMillis()/1000 - gap.getMillis()/1000);
+		List<Map<String, Object>> appointments = Database.getDatabase().query(queryString);
+		
+		return appointments.size() > 0; 
+	}
+
+	private boolean hasAppointment(String netID, String examID) {
+		String queryString = String.format("SELECT appointmentId "
+				+ "FROM appointment "
+				+ "WHERE examIdA = '%s' "
+				+ "AND studentIdA = '%s'",
+				examID,
+				netID);
+		List<Map<String, Object>> appointments = Database.getDatabase().query(queryString);
+		
+		return appointments.size() > 0;
+	}
+
 	//Allows the user to cancel a student appointment, given the appointment id
 	public synchronized void cancelAppointment(int appID) {
 		logger.info("Cancelling appointment with ID " + appID);
@@ -218,14 +271,20 @@ public class TestingCenter {
 		db.updateQuery(queryString);
 	}
 	
-	//Return a list of all appointments, given a student's netID
-	public List<Appointment> showAppointments(String netID) {
+	//Return a list of all appointments, given a student's netID and the desired term
+	public List<Appointment> showAppointments(String netID, int termId) {
 		logger.info("Retrieving all appointments for student ID " + netID);
 		
 		List<Appointment> appointments = new ArrayList<Appointment>();
 		String queryString = String.format("SELECT * FROM appointment "
-				+ "WHERE studentIdA='%s'",
-				netID
+				+ "LEFT JOIN exam "
+				+ "ON appointment.examIdA = exam.examId "
+				+ "LEFT JOIN course "
+				+ "ON exam.courseId = course.courseTerm "
+				+ "WHERE appointment.studentIdA='%s' "
+				+ "AND course.termId = %d;",
+				netID,
+				termId
 				);
 		List<Map<String,Object>> appts = db.query(queryString);
 		for (Map<String,Object> appt : appts) {
@@ -873,11 +932,11 @@ public class TestingCenter {
 			long start = (long) exam.get("start");
 			long end = (long) exam.get("end");
 			long len = (long)exam.get("examLength");
-			String examId = (String) exam.get("StringIdA");
+			String examId = (String) exam.get("examId");
 			long apStart = end-(len*3600);
 			long apEnd = end;
 
-			List<Map<String, Object>> apps = db.query(String.format("SELECT appointmentId from appointments"
+			List<Map<String, Object>> apps = db.query(String.format("SELECT appointmentId FROM appointment"
 					+ "WHERE examIdA = '%s'",
 					examId));
 			int seatsLeft = (int) exam.get("numSeats") - apps.size();
@@ -932,18 +991,20 @@ public class TestingCenter {
 		return true;
 	}
 	
+
 	private Map<Long, String[]> insertExisting(List<Map<String, Object>> exams) {
 		Map<Long, String[]> seatsAvailable = new HashMap<Long, String[]>();
 		for(Map<String,Object> exam : exams) {
 			String examId = (String) exam.get("StringIdA");
 
-			List<Map<String, Object>> apps = db.query(String.format("SELECT startTime, endTime appointments"
+			List<Map<String, Object>> apps = db.query(String.format("SELECT startTime, endTime, examIdA, seatIdA "
+					+ "FROM appointment"
 					+ "WHERE examIdA = '%s'",
 					examId));
 			
 			for(Map<String,Object> app : apps) {
-				long searchTime = (long)app.get("end");
-				while(searchTime != (long)app.get("start")) {
+				long searchTime = (long)app.get("endTime");
+				while(searchTime != (long)app.get("startStart")) {
 					searchTime = searchTime -1800;
 					if(!seatsAvailable.containsKey(searchTime)){
 						seatsAvailable.put(searchTime, new String[numberOfSeats-numberOfSetAside]);
@@ -957,24 +1018,31 @@ public class TestingCenter {
 	}
 
 	private List<Map<String, Object>> getOverlap(Exam newExam) {
-		Set<Exam> set = new HashSet<Exam>();
-		List<Map<String, Object>>fullList = new ArrayList();
-		getOverlap(set, newExam, fullList);
+		List<Map<String, Object>>fullList = new ArrayList<Map<String,Object>>();
+		List<Map<String,Object>> newExamEntry = db.query(String.format("SELECT examId, start,end,examStatus,numSeats,examLength,boolCourseExam,courseId,instructor.instructorId"
+				+"FROM exam"
+				+"WHERE examId = '%s'"
+				, newExam.getExamID()));
+		fullList.add(newExamEntry.get(0));
+		fullList = getOverlap(newExamEntry.get(0), fullList);
 		return fullList;
 	}
 	
 	
-	private List<Map<String, Object>> getOverlap(Set set, Exam newExam,List fullList) {
-		DateTime start = newExam.getStart();
-		DateTime end = newExam.getEnd();
-		List<Exam> exams = new ArrayList<Exam>();
-		Stack stack = new Stack();
+	private List<Map<String, Object>> getOverlap(Map<String,Object> newExam,List<Map<String,Object>> fullList) {
+		long start = (long) newExam.get("start");
+		long end = (long) newExam.get("end");
+			
 		
+<<<<<<< HEAD
 		set.add(newExam); //each distinct exam
 		
 		fullList.add(newExam); //continually added full list of exam overlaps 
 		
 		String queryString = String.format("SELECT examId, start, end, examStatus, numSeats, examLength, boolCourseExam, courseexam.courseIdCE "
+=======
+		String queryString = String.format("SELECT examId, start, end, examStatus, numSeats, examLength, boolCourseExam,courseId,instructor.instructorId"
+>>>>>>> branch 'master' of https://github.com/WeDontNeedNoDocumentation/Testing-Center.git
 				+ "FROM exam"
 				+ "WHERE (exam.start < '%s' AND exam.end > '%s')"
 				+ "OR (exam.start < '%s' AND exam.end BETWEEN '%s' AND '%s')"
@@ -983,14 +1051,13 @@ public class TestingCenter {
 				);
 		List<Map<String,Object>> examList = db.query(queryString);
 		for (Map<String, Object> exam : examList) {
-			fullList.add(exam);
-			if(!set.contains(exam)){
-				stack.push(exam);
+			
+			if(!fullList.contains(exam)) {
+				fullList.add(exam);
+				fullList = getOverlap(exam,fullList);
 			}
+			
 		};
-		while(!stack.isEmpty()){
-			getOverlap(set,(Exam)stack.pop(), fullList);
-		}
 		
 		return fullList;
 	}
@@ -1436,7 +1503,5 @@ public class TestingCenter {
 		System.out.println(apptsPerTerm);
 		
 		//tc.updateData("user.csv", "instructor.csv", "class.csv", "roster.csv");
-		
-		
 	}
 }

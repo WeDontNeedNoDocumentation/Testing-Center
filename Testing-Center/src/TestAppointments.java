@@ -36,19 +36,22 @@ public class TestAppointments {
 		db.updateQuery("USE Test");
 
 		db.updateQuery("CREATE TABLE student (firstName varchar(45), lastName varchar(45), studentId varchar(45), email varchar(45))");
-		db.updateQuery("CREATE TABLE appointment (examIdA varchar(45), studentIdA varchar(45), dateIdA bigint(20), seatIdA int, appointmentId int)");
+		db.updateQuery("CREATE TABLE appointment (examIdA varchar(45), studentIdA varchar(45), dateIdA bigint(20), seatIdA int(11), appointmentId int(11), starTime bigint(20), endTime bigint(20))");
 		db.updateQuery("CREATE TABLE exam (examId varchar(45), start bigint(20), end bigint(20), boolCourseExam varchar(45), examStatus varchar(45), instructorIdA varchar(45), numSeats int, examLength int, courseId varchar(45))");
 		db.updateQuery("CREATE TABLE instructor (instructorId varchar(45), name varchar(45), email varchar(45))");
 //		db.updateQuery("CREATE TABLE courseexam (examIdCE varchar(45), courseIdCE varchar(45))");
 		db.updateQuery("CREATE TABLE coursestudent (courseIdCS varchar(45), studentIdCS varchar(45))");
-		db.updateQuery("CREATE TABLE course (courseId varchar(45), subject varchar(45), catalogNumber varchar(45), section varchar(45), instructor varchar(45))");
+		db.updateQuery("CREATE TABLE course (courseId varchar(45), subject varchar(45), catalogNumber int(11), section varchar(45), instructorIdB varchar(45), termId int(11), courseTerm varchar(45))");
 		
 		db.updateQuery("INSERT INTO student VALUES ('Dan', 'Harel', 'dharel', 'dan.harel@stonybrook.edu')");
 		db.updateQuery("INSERT INTO instructor VALUES ('SStoller', 'Scott Stoller', 'stoller@cs.stonybrook.edu')");
-		db.updateQuery("INSERT INTO course VALUES ('81468-1158', 'CSE', '308', '01', 'SStoller')");
-		db.updateQuery("INSERT INTO course VALUES ('80450-1158', 'CSE', '373', '01', 'SSkiena')");		
-		db.updateQuery("INSERT INTO exam VALUES ('exam1', 0, 0, '1', 'A', 'SStoller', 64, 60, '81468-1158')");
-		db.updateQuery("INSERT INTO exam VALUES ('exam2', 0, 0, '1', 'A', 'SStoller', 64, 60, '81468-1158')");
+		db.updateQuery("INSERT INTO course VALUES ('81468', 'CSE', 308, '01', 'SStoller', 1158, '81468-1158')");
+		db.updateQuery("INSERT INTO course VALUES ('80450', 'CSE', 373, '01', 'SSkiena', 1158, '80450-1158')");
+		// Sat, 01 Jan 2000 08:00:00 GMT -> Mon, 03 Jan 2000 16:00:00 GMT
+		db.updateQuery("INSERT INTO exam VALUES ('exam1', 946713600, 946915200, '1', 'A', 'SStoller', 64, 60, '81468-1158')");
+		// Wed, 10 May 2000 10:00:00 GMT -> Thu, 11 May 2000 12:00:00 GMT
+		db.updateQuery("INSERT INTO exam VALUES ('exam2', 957952800, 958046400, '1', 'A', 'SStoller', 64, 60, '81468-1158')");
+		// Thu, 01 Jan 1970 00:00:00 GMT -> Thu, 01 Jan 1970 00:00:00 GMT
 		db.updateQuery("INSERT INTO exam VALUES ('exam3', 0, 0, '1', 'A', 'SSkiena', 64, 60, '80450-1158')");
 //		db.updateQuery("INSERT INTO courseexam VALUES ('exam1', '81468-1158')");
 //		db.updateQuery("INSERT INTO courseexam VALUES ('exam2', '81468-1158')");
@@ -62,28 +65,29 @@ public class TestAppointments {
 	public void AtestStudentCreateAppointment() {
 		logger.info("Testing Student's ability to create an appointment.");
 		
-		Exam exam = new Exam("CSE", null, null, "SStoller", null, 64, 60, true);
+		Exam exam = new Exam("exam1", null, null, "SStoller", "81468-1158", 64, 60, true);
 		
 		List<Appointment> appts;
 		
-		appts = st.viewAppointments();
+		appts = st.viewAppointments(1158);
 		int startSize = appts.size();
 		
-		st.makeAppointment(exam, new DateTime(2000,1,1,1,1), 0, 1);
+		// Sat, 01 Jan 2000 10:01:00 GMT -> Sat, 01 Jan 2000 11:01:00 GMT
+		st.makeAppointment(exam, new DateTime(2000,1,1,10,1), 0, 1, new DateTime(2000,1,1,10,1), new DateTime(2000, 1,1,11,1));
 		
-		appts = st.viewAppointments();
+		appts = st.viewAppointments(1158);
 		int endSize = appts.size();
 		
 		assertEquals(1, endSize - startSize);
 	}
 	
-
+/*
 	public void frontAtestStudentCreateAppointment(String examId, String studentIdA, int month, int day, int hour, int seatIdA, int appointmentId, String instructorId ) {
-		Exam exam = new Exam(examId, null, null, instructorId, null, 64, 60, true);
+		Exam exam = new Exam(examId, null, null, instructorId, "80450-1158", 64, 60, true);
 		
 		List<Appointment> appts;
 		
-		appts = st.viewAppointments();
+		appts = st.viewAppointments(1158);
 	//	int startSize = appts.size();
 		
 		DateTime time = new DateTime(2000,month,day,hour,1);
@@ -95,9 +99,10 @@ public class TestAppointments {
 		
 		//assertEquals(1, endSize - startSize);
 	}
+	*/
 	
 	public void frontAtestStudentViewAppointments(){
-		st.viewAppointments();
+		st.viewAppointments(1158);
 	}
 	
 	@Test
@@ -106,12 +111,12 @@ public class TestAppointments {
 		
 		List<Appointment> appts;
 		
-		appts = st.viewAppointments();
+		appts = st.viewAppointments(1158);
 		int startSize = appts.size();
 		
 		st.cancelAppointment(1);
 		
-		appts = st.viewAppointments();
+		appts = st.viewAppointments(1158);
 		int endSize = appts.size();
 		
 		assertEquals(-1, endSize - startSize);
