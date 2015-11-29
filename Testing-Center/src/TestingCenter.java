@@ -489,7 +489,7 @@ public class TestingCenter {
 		logger.info("Retrieving all pending exam reservation requests.");
 		
 		List<Map<String,Object>> exams = db.query(
-				String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, numSeats, courseId, examLength "
+				String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorIdA, numSeats, courseId, examLength "
 				+ "FROM exam "
 				+ "WHERE examStatus = 'P'"
 				));

@@ -74,7 +74,7 @@ public class Exam {
 				+ "instructorId:%s, "
 				+ "courseId:%s"
 				+ "numSeats:%d, "
-				+ "duration:%d minutes, "
+				//+ "duration:%d minutes, "
 				+ "adHocExam:%b}",
 				examID,
 				start.toString(),
