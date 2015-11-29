@@ -543,7 +543,7 @@ public class TestingCenter {
 		
 		return examsList;
 	}
-	
+	//update Table
 	private void updateTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
 		ArrayList<String> lines = new ArrayList<String>();
 		String currentLine;
