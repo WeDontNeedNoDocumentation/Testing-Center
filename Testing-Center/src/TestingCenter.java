@@ -460,7 +460,7 @@ public class TestingCenter {
 		logger.info("Retrieving all exams for instructor with innstructor ID: " + instructorId);
 		
 		List<Exam> exams = new ArrayList<Exam>();
-		String queryString = String.format("SELECT examId, start, end, boolCourseExam, examStatus, numSeats, examLength, courseId "
+		String queryString = String.format("SELECT examId, start, end, boolCourseExam, examStatus, numSeats, courseId, examLength "
 				+ "FROM exam "
 				+ "WHERE exam.instructorIdA = '%s'",
 				instructorId
@@ -502,6 +502,36 @@ public class TestingCenter {
 			String examStatus = (String) exam.get("examStatus");
 			int numSeats = (int) exam.get("numSeats");
 			String instructorId = (String) exam.get("instructorId");
+			String courseId = (String) exam.get("courseId");
+			int duration = (int) exam.get("examLength");
+			boolean adHocExam = ((String) exam.get("boolCourseExam")).equals("0");
+			
+			Exam newExam = new Exam(id, start, end, examStatus, instructorId, courseId, numSeats, duration, adHocExam);
+			
+			examsList.add(newExam);
+		}
+		
+		return examsList;
+	}
+	
+	//retrieve a list of all exams for this term
+	public List<Exam> getTermExams(String term, String instructorId) {
+		logger.info("Retrieving all instructor exams for this term");
+		
+		List<Map<String,Object>> exams = db.query(
+				String.format("SELECT examId, start, end, boolCourseExam, examStatus, numSeats, exam.courseId, examLength, course.termId "
+				+ "FROM exam, course "
+				+ "WHERE instructorIdB = '%s' AND exam.courseId=course.courseId AND course.termId = '%s'",
+				instructorId, term
+				));
+		
+		List<Exam> examsList = new ArrayList<Exam>();
+		for (Map<String,Object> exam : exams) {
+			String id = (String) exam.get("examId");
+			DateTime start= new DateTime((long) exam.get("start")*1000);
+			DateTime end= new DateTime((long) exam.get("end")*1000);
+			String examStatus = (String) exam.get("examStatus");
+			int numSeats = (int) exam.get("numSeats");
 			String courseId = (String) exam.get("courseId");
 			int duration = (int) exam.get("examLength");
 			boolean adHocExam = ((String) exam.get("boolCourseExam")).equals("0");
