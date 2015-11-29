@@ -133,8 +133,17 @@ public class TestingCenter {
 		DateTime tEnd = exam.getEnd();
 		long start = tStart.getMillis()/1000;
 		long end = tEnd.getMillis()/1000;
+
+		long gapTime = (long)gap.getMinutes()*60;
+		long actualLen = gapTime+exam.getLength();  
+		long rem = actualLen%1800;
+		long len =0;
+		if(rem == 0) {
+			len = actualLen/1800;
+		} else {
+			len = actualLen/1800+1;
+		}
 		
-		long len = 0; //TODO 
 		long search = start;
 		
 		for(long l = start;l<(end-len); l = l+1800){
@@ -167,7 +176,6 @@ public class TestingCenter {
 					}
 				}
 				if(clear) {
-					//TODO gaptime?
 					DateTime possible = new DateTime(search*1000);
 					slots.add(possible);
 				}
@@ -925,7 +933,7 @@ public class TestingCenter {
 		long nowUnix = now.getMillis()/1000;
 		
 		List<Map<String, Object>> exams = getOverlap(newExam);
-		
+		//TODO sort
 		Map<Long, String[]> seatsAvailable = insertExisting(exams);
 		
 		for ( Map<String, Object> exam : exams ) {
@@ -933,7 +941,14 @@ public class TestingCenter {
 			long end = (long) exam.get("end");
 			long len = (long)exam.get("examLength");
 			String examId = (String) exam.get("examId");
-			long apStart = end-(len*3600);
+			long gapPlusLen = len+(gap.getMinutes()*60);
+			long rem = gapPlusLen%1800;
+			long apLen = gapPlusLen;
+			if(rem!=0) {
+				long temp = apLen/1800 +1;
+				apLen = temp*1800;
+			}
+			long apStart = end-apLen;
 			long apEnd = end;
 
 			List<Map<String, Object>> apps = db.query(String.format("SELECT appointmentId FROM appointment"

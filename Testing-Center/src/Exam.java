@@ -19,7 +19,7 @@ public class Exam {
 	protected String instructorId;
 	protected String courseId;
 	protected int numSeats;
-	protected int duration;
+	protected long duration;
 	protected boolean adHocExam;
 	
 	public Exam(String examID, DateTime start, DateTime end, String instructorId, String courseId, int seats, int duration, boolean adHocExam) {
@@ -89,7 +89,7 @@ public class Exam {
 		
 	}
 
-	public Object getLength() {
+	public long getLength() {
 		return duration;
 	}
 
