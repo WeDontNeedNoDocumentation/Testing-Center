@@ -36,7 +36,7 @@ public class TestAppointments {
 		db.updateQuery("USE Test");
 
 		db.updateQuery("CREATE TABLE student (firstName varchar(45), lastName varchar(45), studentId varchar(45), email varchar(45))");
-		db.updateQuery("CREATE TABLE appointment (examIdA varchar(45), studentIdA varchar(45), dateIdA bigint(20), seatIdA int(11), appointmentId int(11), starTime bigint(20), endTime bigint(20))");
+		db.updateQuery("CREATE TABLE appointment (examIdA varchar(45), studentIdA varchar(45), dateIdA bigint(20), seatIdA int(11), appointmentId int(11), startTime bigint(20), endTime bigint(20))");
 		db.updateQuery("CREATE TABLE exam (examId varchar(45), start bigint(20), end bigint(20), boolCourseExam varchar(45), examStatus varchar(45), instructorIdA varchar(45), numSeats int, examLength int, courseId varchar(45))");
 		db.updateQuery("CREATE TABLE instructor (instructorId varchar(45), name varchar(45), email varchar(45))");
 //		db.updateQuery("CREATE TABLE courseexam (examIdCE varchar(45), courseIdCE varchar(45))");
@@ -49,6 +49,8 @@ public class TestAppointments {
 		db.updateQuery("INSERT INTO course VALUES ('80450', 'CSE', 373, '01', 'SSkiena', 1158, '80450-1158')");
 		// Sat, 01 Jan 2000 08:00:00 GMT -> Mon, 03 Jan 2000 16:00:00 GMT
 		db.updateQuery("INSERT INTO exam VALUES ('exam1', 946713600, 946915200, '1', 'A', 'SStoller', 64, 60, '81468-1158')");
+		// Sat, 01 Jan 2000 08:00:00 GMT -> Mon, 03 Jan 2000 16:00:00 GMT 
+		db.updateQuery("INSERT INTO exam VALUES ('exam1-copy', 946713600, 946915200, '1', 'A', 'SStoller', 64, 60, '81468-1158')");
 		// Wed, 10 May 2000 10:00:00 GMT -> Thu, 11 May 2000 12:00:00 GMT
 		db.updateQuery("INSERT INTO exam VALUES ('exam2', 957952800, 958046400, '1', 'A', 'SStoller', 64, 60, '81468-1158')");
 		// Thu, 01 Jan 1970 00:00:00 GMT -> Thu, 01 Jan 1970 00:00:00 GMT
@@ -62,7 +64,7 @@ public class TestAppointments {
 	}
 	
 	@Test
-	public void AtestStudentCreateAppointment() {
+	public void AAtestStudentCreateAppointment() {
 		logger.info("Testing Student's ability to create an appointment.");
 		
 		Exam exam = new Exam("exam1", null, null, "SStoller", "81468-1158", 64, 60, true);
@@ -79,6 +81,20 @@ public class TestAppointments {
 		int endSize = appts.size();
 		
 		assertEquals(1, endSize - startSize);
+	}
+	
+	@Test(expected=ExistingAppointmentException.class)
+	public void AtestExistingAppointmentException() {
+		logger.info("Attempted to make appointment for same exam. Should fail due to existing appointment.");
+		Exam exam = new Exam("exam1", null, null, "SStoller", "81468-1158", 64, 60, true);
+		st.makeAppointment(exam, new DateTime(2000,1,1,10,1), 0, 1, new DateTime(2000,1,2,10,1), new DateTime(2000, 1,2,11,1));
+	}
+	
+	@Test(expected=ConflictingAppointmentException.class)
+	public void AtestConflictingAppointmentException() {
+		logger.info("Attempted to make appointment at same time for different exam. Should fail due to conflicting appointment.");
+		Exam exam = new Exam("exam1-copy", null, null, "SStoller", "81468-1158", 64, 60, true);
+		st.makeAppointment(exam, new DateTime(2000,1,1,10,1), 0, 1, new DateTime(2000,1,1,10,1), new DateTime(2000, 1,1,11,1));
 	}
 	
 /*
@@ -196,7 +212,7 @@ public class TestAppointments {
 		
 		List<Exam> exams = st.viewExams();
 		
-		assertEquals(3, exams.size());
+		assertEquals(4, exams.size());
 	}
 	
 	@Test
@@ -208,6 +224,33 @@ public class TestAppointments {
 	public void testCheckIn() {
 		logger.info("Testing ability to check student in.");
 		assertTrue(tc.checkIn("dharel")>0);
+	}
+	
+	@Test
+	public void testAppointmentBounds() {
+		// Sat, 01 Jan 2000 08:00:00 GMT -> Mon, 03 Jan 2000 16:00:00 GMT
+		String examId = "exam1";
+		DateTime startTime, endTime;
+		
+		logger.info("Appointment starts before the exam starts. Should return true.");
+		startTime = new DateTime(1999, 1, 1, 0, 0);
+		endTime = new DateTime(2000, 1, 1, 0, 0);
+		assertTrue(tc.appointmentOutOfExamBounds(examId, startTime, endTime));
+		
+		logger.info("Ends after the exam ends. Should return true.");
+		startTime = new DateTime(2000, 1, 2, 0, 0);;
+		endTime = new DateTime(2001, 1, 1, 0, 0);;
+		assertTrue(tc.appointmentOutOfExamBounds(examId, startTime, endTime));
+		
+		logger.info("Starts after exam starts. Ends before exam ends. Should return false.");
+		startTime = new DateTime(2000, 1, 2, 0, 0);;
+		endTime = new DateTime(2000, 1, 2, 10, 0);;
+		assertFalse(tc.appointmentOutOfExamBounds(examId, startTime, endTime));
+	}
+	
+	@Test
+	public void testConflictingAppointment() {
+		
 	}
 	
 //	@Test

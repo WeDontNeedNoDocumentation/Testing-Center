@@ -225,7 +225,7 @@ public class TestingCenter {
 		db.updateQuery(queryString);
 	}
 	
-	private boolean appointmentOutOfExamBounds(String examID, DateTime startTime, DateTime endTime) {
+	public boolean appointmentOutOfExamBounds(String examID, DateTime startTime, DateTime endTime) {
 		String queryString = String.format("SELECT start, end "
 				+ "FROM exam "
 				+ "WHERE examId = '%s'",
@@ -235,16 +235,21 @@ public class TestingCenter {
 		// We assume that exactly one exam exists with id examID
 		Map<String, Object> exam = exams.get(0);
 		
-		return ((long) exam.get("start") > endTime.getMillis()/1000) || ((long) exam.get("end") < startTime.getMillis()/1000); 
+		System.out.println("Exam starts: " + exam.get("start"));
+		System.out.println("Exam end: " + exam.get("end"));
+		System.out.println("Appointment starts: " + startTime.getMillis()/1000);
+		System.out.println("Appointment ends: " + endTime.getMillis()/1000);
+		
+		return ((long) exam.get("start") > startTime.getMillis()/1000) || ((long) exam.get("end") < endTime.getMillis()/1000); 
 	}
 
-	private boolean conflictingAppointment(String netID, DateTime startTime, DateTime endTime) {
+	public boolean conflictingAppointment(String netID, DateTime startTime, DateTime endTime) {
 		String queryString = String.format("SELECT appointmentId "
 				+ "FROM appointment "
 				+ "WHERE studentIdA = '%s' "
 				+ "AND "
-				+ "(startTime <= '%s' "
-				+ "AND endTime >= '%s')", 
+				+ "(appointment.startTime <= %d "
+				+ "AND appointment.endTime >= %d)", 
 				netID,
 				endTime.getMillis()/1000 + gap.getMillis()/1000,
 				startTime.getMillis()/1000 - gap.getMillis()/1000);
@@ -253,7 +258,7 @@ public class TestingCenter {
 		return appointments.size() > 0; 
 	}
 
-	private boolean hasAppointment(String netID, String examID) {
+	public boolean hasAppointment(String netID, String examID) {
 		String queryString = String.format("SELECT appointmentId "
 				+ "FROM appointment "
 				+ "WHERE examIdA = '%s' "
@@ -330,8 +335,6 @@ public class TestingCenter {
 	//Make a reservation for an exam, given the examID, start time, end time,
 	//whether it is a course exam or an adhoc exam, and the instructor id
 	public synchronized boolean makeReservation(Exam exam, DateTime start, DateTime end, boolean courseExam, String instructorId) {
-		logger.severe("DOES NOT ADD ALL OF THE NECESSARY FIELDS. FIX THIS PLEASE.");
-		
 		logger.info("Creating new reservation request.");
 		logger.fine("Exam ID: " + exam.getExamID());
 		logger.fine("Exam start time: " + start.toString());
