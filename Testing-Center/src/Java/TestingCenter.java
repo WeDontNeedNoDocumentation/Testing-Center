@@ -24,6 +24,7 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
@@ -687,15 +688,15 @@ public class TestingCenter {
 		logger.info("Reading csv files, updating database");
 	
 		try {
-			updateStudentTableFromFile(usersFileName, "student");
+			//updateStudentTableFromFile(usersFileName, "student");
 			
-			updateUsersTableFromFile(usersFileName, "users");
+			//updateUsersTableFromFile(usersFileName, "users");
 			
-			updateUsersTableFromFile(instructorFileName, "users");
+			//updateUsersTableFromFile(instructorFileName, "users");
 			
-			updateInstructorTableFromFile(instructorFileName, "instructor");
+			//updateInstructorTableFromFile(instructorFileName, "instructor");
 			
-			updateClassTableFromFile(coursesFileName, "course");
+			//updateClassTableFromFile(coursesFileName, "course");
 			
 			updateCourseStudentTableFromFile(rostersFileName, "coursestudent");
 			
@@ -1467,6 +1468,107 @@ public class TestingCenter {
 		return dailyCount;
 	}
 	
+	/**
+	 * Returns the a map of a week (represented by the LocalDate corresponding
+	 * to the Monday of that week) to the number of appointments that week.
+	 * Used for report b
+	 * @param term
+	 * @return
+	 */
+	public synchronized Map<LocalDate, Integer> appointmentsPerWeek(int term) {
+		Map<LocalDate, Integer> appts = new HashMap<LocalDate, Integer>();
+		
+		String queryString = String.format("SELECT appointment.startTime "
+				+ "FROM appointment "
+				+ "LEFT JOIN exam "
+				+ "ON appointment.examIdA = exam.examId "
+				+ "INNER JOIN course "
+				+ "ON exam.courseId = course.courseTerm "
+				+ "WHERE course.termId = %d "
+				+ "ORDER BY appointment.startTime",
+				term);
+		List<Map<String, Object>> appointments = Database.getDatabase().query(queryString);
+		
+		LocalDate currMonday= new LocalDate(0);
+		for (Map<String, Object> appointment : appointments) {
+			System.out.println(appointment.get("startTime"));
+			DateTime time = new DateTime( (long) appointment.get("startTime") * 1000 );
+			
+			LocalDate thisMonday = getMonday(time);
+			if (!thisMonday.isEqual(currMonday)) {
+				currMonday = thisMonday;
+			}
+			
+			if (!appts.containsKey(currMonday)) {
+				appts.put(currMonday, 1);
+			} 
+			else {
+				appts.put(currMonday, appts.get(currMonday) + 1);
+			}
+		}
+		
+		return appts;
+	}
+	
+	/**
+	 * Returns the a map of a week (represented by the LocalDate corresponding
+	 * to the Monday of that week) to the set of courseIds of the courses that
+	 * use the TestingCenter that week.
+	 * Used for report b
+	 * @param term
+	 * @return
+	 */
+	public synchronized Map<LocalDate, Set<String>> coursesPerWeek(int term) {
+		Map<LocalDate, Set<String>> coursesPerWeek = new HashMap<LocalDate, Set<String>>();
+		
+		String queryString = String.format("SELECT appointment.startTime, course.courseTerm "
+				+ "FROM appointment "
+				+ "LEFT JOIN exam "
+				+ "ON appointment.examIdA = exam.examId "
+				+ "INNER JOIN course "
+				+ "ON exam.courseId = course.courseTerm "
+				+ "WHERE course.termId = %d "
+				+ "ORDER BY appointment.startTime",
+				term);
+		List<Map<String, Object>> appointments = Database.getDatabase().query(queryString);
+		
+		LocalDate currMonday = null;
+		for (Map<String, Object> appointment : appointments) {
+			System.out.println(appointment.get("startTime"));
+			DateTime time = new DateTime( (long) appointment.get("startTime") * 1000 );
+			LocalDate thisMonday = getMonday(time);
+			if (currMonday == null || !thisMonday.isEqual(currMonday)) {
+				currMonday = thisMonday;
+				coursesPerWeek.put(currMonday, new HashSet<String>());	
+			}
+			
+			String termId = (String) appointment.get("courseTerm");
+			coursesPerWeek.get(currMonday).add(termId);
+		}
+		
+		return coursesPerWeek;
+		
+	}
+	
+	/**
+	 * Determines the Monday of the week of the given DateTime.
+	 * Used for report b.
+	 * @param time
+	 * @return
+	 */
+	private LocalDate getMonday(DateTime time) {
+		int dayOfWeek = time.getDayOfWeek();
+		DateTime monday = time.minusDays(dayOfWeek - 1);
+		return monday.toLocalDate();
+	}
+	
+	/**
+	 * Returns the list of courses that use the Testing Center in the specified
+	 * term.
+	 * Used for report c
+	 * @param term
+	 * @return
+	 */
 	public List<Course> coursesUsed(int term) {
 		List<Course> coursesResult = new ArrayList<Course>();
 		String queryString = String.format("SELECT course.* "
@@ -1494,6 +1596,13 @@ public class TestingCenter {
 		return coursesResult;
 	}
 	
+	/**
+	 * Returns a map of the termId to the number of appointments that term.
+	 * Used for report d
+	 * @param startTerm
+	 * @param endTerm
+	 * @return
+	 */
 	public Map<Integer, Integer> appointmentsPerTerm(int startTerm, int endTerm) {
 		Map<Integer, Integer> apptsPerTerm = new HashMap<Integer, Integer>();
 		
@@ -1583,6 +1692,12 @@ public class TestingCenter {
 		
 		Map<Integer, Integer> apptsPerTerm = tc.appointmentsPerTerm(1150, 1160);
 		System.out.println(apptsPerTerm);
+		
+		Map<LocalDate, Integer> apptsPerWeek = tc.appointmentsPerWeek(1158);
+		System.out.println(apptsPerWeek);
+		
+		Map<LocalDate, Set<String>> coursesPerWeek = tc.coursesPerWeek(1158);
+		System.out.println(coursesPerWeek);
 		
 		//tc.updateData("user.csv", "instructor.csv", "class.csv", "roster.csv");
 	}
