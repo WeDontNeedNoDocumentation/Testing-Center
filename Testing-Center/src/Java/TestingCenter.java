@@ -1471,6 +1471,33 @@ public class TestingCenter {
 		return apptsPerTerm;
 	}
 	
+	public synchronized List<Student> viewAttendanceStats(String examId) {
+		List<Student> studentsList = new ArrayList<Student>();
+		
+		String queryString = String.format("SELECT student.* "
+				+ "FROM student "
+				+ "INNER JOIN appointment "
+				+ "ON student.studentId = appointment.studentIdA "
+				+ "INNER JOIN exam "
+				+ "ON appointment.examIdA = exam.examId "
+				+ "WHERE examId = '%d';",
+				examId);
+		List<Map<String, Object>> students = Database.getDatabase().query(queryString);
+		
+		for (Map<String, Object> student : students) {
+			String firstName = (String) student.get("firstName");
+			String lastName = (String) student.get("lastName");
+			String netID = (String) student.get("netID");
+			String email = (String) student.get("email");
+			String userIdB = (String) student.get("userIdB");
+			
+			Student newStudent = new Student(firstName, lastName, netID, email, userIdB);
+			studentsList.add(newStudent);
+		}
+		
+		return studentsList;
+	}
+	
 /*
 	public static void main(String[] args) {
 		DateTime start = new DateTime(2015, 10, 29, 8, 0);
@@ -1510,4 +1537,5 @@ public class TestingCenter {
 		
 		//tc.updateData("user.csv", "instructor.csv", "class.csv", "roster.csv");
 	}
+
 }

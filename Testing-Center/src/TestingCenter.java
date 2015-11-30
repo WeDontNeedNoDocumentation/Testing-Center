@@ -29,6 +29,9 @@ import org.joda.time.LocalTime;
 import org.joda.time.Period;
 import org.joda.time.base.BaseDateTime;
 
+import Java.Database;
+import Java.Student;
+
 /**
  * This class represents all actions of the testing center. Interactions with the database will be made
  * in this class. Information about the testing center is also stored here. An internal class Notify
