@@ -1129,15 +1129,15 @@ public class TestingCenter {
 //	}
 
 	//retrieve a list of all exams that may be selected by a certain student
-	public List<Exam> viewAvailableExams(Student st) {
-		logger.info("Retrieving all exams currently available to student with ID" + st.getNetID());
+	public List<Exam> viewAvailableExams(Student student) {
+		logger.info("Retrieving all exams currently available to student with ID" + student.getNetID());
 		
 		String queryString = String.format("SELECT exam.examId, start, end, examStatus, numSeats, boolCourseExam, instructorIdA, courseId, examLength "
 				+ "FROM exam "
 				+ "INNER JOIN coursestudent "
 				+ "ON exam.courseId=coursestudent.courseIdCS "
 				+ "WHERE coursestudent.studentIdCS='%s';", 
-				st.getNetID());
+				student.getNetID());
 		Database db = Database.getDatabase();
 		List<Map<String, Object>> exams = db.query(queryString);
 		
@@ -1547,4 +1547,6 @@ public class TestingCenter {
 		
 		//tc.updateData("user.csv", "instructor.csv", "class.csv", "roster.csv");
 	}
+
+	
 }

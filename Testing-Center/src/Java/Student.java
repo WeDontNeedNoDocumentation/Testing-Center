@@ -93,8 +93,8 @@ public class Student {
 	 * This is used to create an exam appointment for a specific exam.
 	 * (NOTE: At this time no checks are made to see if this appointment is in any way valid.)
 	 */
-	public void makeAppointment(Exam exam, DateTime time, int seatId, int appointmentId, DateTime start, DateTime end) {
-		tC.makeAppointment(exam, time, seatId, appointmentId, netID, start, end);
+	public void makeAppointment(Exam exam, DateTime time, int appointmentId, DateTime start, DateTime end) {
+		tC.makeAppointment(exam, time, appointmentId, netID, start, end);
 	}
 	
 	/*
