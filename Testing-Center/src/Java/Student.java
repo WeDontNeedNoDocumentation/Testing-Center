@@ -28,29 +28,37 @@ import org.joda.time.LocalDate;
  */
 public class Student {
 
-	private String name;
+	private String firstName;
+	private String lastName;
 	private String netID;
 	private String email;
-	private List<Appointment> appointments;
-	private TestingCenter tC;
-	/**
-	 * 
-	 */
-	public Student(String name, String netID, String email,
-			List<Appointment> appointments) {
-		this.name = name;
+	private String userIdB;
+	
+	private final TestingCenter tC = TestingCenter.getTestingCenter();
+	
+	public Student(String firstName, String lastName, String netID, String email, String userIdB) {
+		super();
+		this.firstName = firstName;
+		this.lastName = lastName;
 		this.netID = netID;
 		this.email = email;
-		this.appointments = appointments;
-		tC = TestingCenter.getTestingCenter();
+		this.userIdB = userIdB;
 	}
 
-	public String getName() {
-		return name;
+	public String getFirstName() {
+		return firstName;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
 	}
 
 	public String getNetID() {
@@ -69,20 +77,16 @@ public class Student {
 		this.email = email;
 	}
 
-	public List<Appointment> getAppointments() {
-		return appointments;
+	public String getUserIdB() {
+		return userIdB;
 	}
 
-	public void setAppointments(List<Appointment> appointments) {
-		this.appointments = appointments;
+	public void setUserIdB(String userIdB) {
+		this.userIdB = userIdB;
 	}
 
 	public TestingCenter gettC() {
 		return tC;
-	}
-
-	public void settC(TestingCenter tC) {
-		this.tC = tC;
 	}
 
 	/*

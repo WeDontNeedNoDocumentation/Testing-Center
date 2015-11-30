@@ -20,13 +20,6 @@ public class Course {
 	private int termId;
 	private String courseTerm;
 	
-	/**
-	 * 
-	 */
-	public Course() {
-		// TODO Auto-generated constructor stub
-	}
-
 	public Course(String courseID, String subject, int catalogNumber, String section, String instructorId,
 			int termId, String courseTerm) {
 		super();

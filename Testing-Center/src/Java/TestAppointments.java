@@ -31,7 +31,7 @@ public class TestAppointments {
 		tc = TestingCenter.getTestingCenter();
 		
 		inst = new Instructor("Stoller", "stoller@cs.stonybrook.edu", "sstoller");
-		st = new Student("Dan Harel", "dharel", "dan.harel@stonybrook.edu", null);
+		st = new Student("Dan", "Harel", "dharel", "dan.harel@stonybrook.edu", "dharel");
 		
 		db.updateQuery("CREATE DATABASE Test");
 		db.updateQuery("USE Test");

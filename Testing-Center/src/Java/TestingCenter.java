@@ -24,6 +24,7 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
@@ -638,15 +639,15 @@ public class TestingCenter {
 		logger.info("Reading csv files, updating database");
 	
 		try {
-			updateStudentTableFromFile(usersFileName, "student");
+			//updateStudentTableFromFile(usersFileName, "student");
 			
-			updateUsersTableFromFile(usersFileName, "users");
+			//updateUsersTableFromFile(usersFileName, "users");
 			
-			updateUsersTableFromFile(instructorFileName, "users");
+			//updateUsersTableFromFile(instructorFileName, "users");
 			
-			updateInstructorTableFromFile(instructorFileName, "instructor");
+			//updateInstructorTableFromFile(instructorFileName, "instructor");
 			
-			updateClassTableFromFile(coursesFileName, "course");
+			//updateClassTableFromFile(coursesFileName, "course");
 			
 			updateCourseStudentTableFromFile(rostersFileName, "coursestudent");
 			
@@ -1471,6 +1472,106 @@ public class TestingCenter {
 		return apptsPerTerm;
 	}
 	
+	public synchronized Map<LocalDate, Integer> appointmentsPerWeek(int term) {
+		Map<LocalDate, Integer> appts = new HashMap<LocalDate, Integer>();
+		
+		String queryString = String.format("SELECT appointment.startTime "
+				+ "FROM appointment "
+				+ "LEFT JOIN exam "
+				+ "ON appointment.examIdA = exam.examId "
+				+ "INNER JOIN course "
+				+ "ON exam.courseId = course.courseTerm "
+				+ "WHERE course.termId = %d "
+				+ "ORDER BY appointment.startTime",
+				term);
+		List<Map<String, Object>> appointments = Database.getDatabase().query(queryString);
+		
+		LocalDate currMonday= new LocalDate(0);
+		for (Map<String, Object> appointment : appointments) {
+			System.out.println(appointment.get("startTime"));
+			DateTime time = new DateTime( (long) appointment.get("startTime") * 1000 );
+			
+			LocalDate thisMonday = getMonday(time);
+			if (!thisMonday.isEqual(currMonday)) {
+				currMonday = thisMonday;
+			}
+			
+			if (!appts.containsKey(currMonday)) {
+				appts.put(currMonday, 1);
+			} 
+			else {
+				appts.put(currMonday, appts.get(currMonday) + 1);
+			}
+		}
+		
+		return appts;
+	}
+	
+	public synchronized Map<LocalDate, Set<String>> coursesPerWeek(int term) {
+		Map<LocalDate, Set<String>> coursesPerWeek = new HashMap<LocalDate, Set<String>>();
+		
+		String queryString = String.format("SELECT appointment.startTime, course.courseTerm "
+				+ "FROM appointment "
+				+ "LEFT JOIN exam "
+				+ "ON appointment.examIdA = exam.examId "
+				+ "INNER JOIN course "
+				+ "ON exam.courseId = course.courseTerm "
+				+ "WHERE course.termId = %d "
+				+ "ORDER BY appointment.startTime",
+				term);
+		List<Map<String, Object>> appointments = Database.getDatabase().query(queryString);
+		
+		LocalDate currMonday = null;
+		for (Map<String, Object> appointment : appointments) {
+			System.out.println(appointment.get("startTime"));
+			DateTime time = new DateTime( (long) appointment.get("startTime") * 1000 );
+			LocalDate thisMonday = getMonday(time);
+			if (currMonday == null || !thisMonday.isEqual(currMonday)) {
+				currMonday = thisMonday;
+				coursesPerWeek.put(currMonday, new HashSet<String>());	
+			}
+			
+			String termId = (String) appointment.get("courseTerm");
+			coursesPerWeek.get(currMonday).add(termId);
+		}
+		
+		return coursesPerWeek;
+		
+	}
+	
+	private LocalDate getMonday(DateTime time) {
+		int dayOfWeek = time.getDayOfWeek();
+		DateTime monday = time.minusDays(dayOfWeek - 1);
+		return monday.toLocalDate();
+	}
+	
+	public synchronized List<Student> viewAttendanceStats(String examId) {
+		List<Student> studentsList = new ArrayList<Student>();
+		
+		String queryString = String.format("SELECT student.* "
+				+ "FROM student "
+				+ "INNER JOIN appointment "
+				+ "ON student.studentId = appointment.studentIdA "
+				+ "INNER JOIN exam "
+				+ "ON appointment.examIdA = exam.examId "
+				+ "WHERE examId = '%d';",
+				examId);
+		List<Map<String, Object>> students = Database.getDatabase().query(queryString);
+		
+		for (Map<String, Object> student : students) {
+			String firstName = (String) student.get("firstName");
+			String lastName = (String) student.get("lastName");
+			String netID = (String) student.get("netID");
+			String email = (String) student.get("email");
+			String userIdB = (String) student.get("userIdB");
+			
+			Student newStudent = new Student(firstName, lastName, netID, email, userIdB);
+			studentsList.add(newStudent);
+		}
+		
+		return studentsList;
+	}
+	
 /*
 	public static void main(String[] args) {
 		DateTime start = new DateTime(2015, 10, 29, 8, 0);
@@ -1508,6 +1609,13 @@ public class TestingCenter {
 		Map<Integer, Integer> apptsPerTerm = tc.appointmentsPerTerm(1150, 1160);
 		System.out.println(apptsPerTerm);
 		
+		Map<LocalDate, Integer> apptsPerWeek = tc.appointmentsPerWeek(1158);
+		System.out.println(apptsPerWeek);
+		
+		Map<LocalDate, Set<String>> coursesPerWeek = tc.coursesPerWeek(1158);
+		System.out.println(coursesPerWeek);
+		
 		//tc.updateData("user.csv", "instructor.csv", "class.csv", "roster.csv");
 	}
+
 }
