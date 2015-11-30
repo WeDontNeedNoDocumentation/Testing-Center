@@ -192,8 +192,7 @@ public class TestingCenter {
 		
 	}
 	
-	//make an appointment to take an exam
-	//
+	//make an appointment to take an exam 
 	public synchronized void makeAppointment(Exam exam, DateTime time, int seatId, int appointmentId, String netID, DateTime startTime, DateTime endTime) throws ExistingAppointmentException {
 		logger.info("Creating new Appointment");
 		logger.fine("Exam id: " + exam.getExamID());
@@ -230,7 +229,7 @@ public class TestingCenter {
 		db.updateQuery(queryString);
 	}
 	
-	//check if the exam start/end time are out of bounds
+	//check if the exam start/end time are out of bounds 
 	public boolean appointmentOutOfExamBounds(String examID, DateTime startTime, DateTime endTime) {
 		String queryString = String.format("SELECT start, end "
 				+ "FROM exam "
@@ -249,7 +248,7 @@ public class TestingCenter {
 		return ((long) exam.get("start") > startTime.getMillis()/1000) || ((long) exam.get("end") < endTime.getMillis()/1000); 
 	}
 
-	//check if user has booked two appointments that overlap
+	//check if user has booked two appointments that overlap 
 	public boolean conflictingAppointment(String netID, DateTime startTime, DateTime endTime) {
 		String queryString = String.format("SELECT appointmentId "
 				+ "FROM appointment "
@@ -265,7 +264,7 @@ public class TestingCenter {
 		return appointments.size() > 0; 
 	}
 
-	//check if student has an appointment for the input exam
+	//check if student has an appointment for the input exam 
 	public boolean hasAppointment(String netID, String examID) {
 		String queryString = String.format("SELECT appointmentId "
 				+ "FROM appointment "
@@ -278,7 +277,7 @@ public class TestingCenter {
 		return appointments.size() > 0;
 	}
 
-	//Allows the user to cancel a student appointment, given the appointment id
+	//Allows the user to cancel a student appointment, given the appointment  id
 	public synchronized void cancelAppointment(int appID) {
 		logger.info("Cancelling appointment with ID " + appID);
 		
@@ -292,7 +291,7 @@ public class TestingCenter {
 		db.updateQuery(queryString);
 	}
 	
-	//Return a list of all appointments, given a student's netID and the desired term
+	//Return a list of all appointments, given a student's netID and the  desired term
 	public List<Appointment> showAppointments(String netID, int termId) {
 		logger.info("Retrieving all appointments for student ID " + netID);
 		
@@ -320,7 +319,7 @@ public class TestingCenter {
 		return appointments;
 	}
 	
-	//Return a list of all appointments
+	//Return a list of all  appointments
 	public List<Appointment> viewAllAppointments() {
 		logger.info("Retrieving all appointments");
 		
@@ -340,8 +339,8 @@ public class TestingCenter {
 		
 	}
 
-	//Make a reservation for an exam, given the examID, start time, end time,
-	//whether it is a course exam or an adhoc exam, and the instructor id
+	//Make a reservation  for an exam, given the examID, start time, end time,
+	//whether it is a  course exam or an adhoc exam, and the instructor id
 	public synchronized boolean makeReservation(Exam exam, DateTime start, DateTime end, boolean courseExam, String instructorId) {
 		logger.info("Creating new reservation request.");
 		logger.fine("Exam ID: " + exam.getExamID());
@@ -366,25 +365,10 @@ public class TestingCenter {
 				);
 		db.updateQuery(queryString);
 		
-		// No longer needed if exams have a courseId attached.
-		/*
-		if (!exam.isAdHocExam()) {
-			logger.info("Adding entry into courseexam database with course ID: " + exam.getCourseId());
-			
-			queryString = String.format("INSERT INTO courseexam "
-					+ "(courseIdCE, examIdCE) "
-					+ "VALUES ('%s', '%s')", 
-					exam.getCourseId(),
-					exam.getExamID()
-					);
-			db.updateQuery(queryString);
-		}
-		*/
-		
 		return true;
 	}
 
-	//cancel an exam given the particular combination of examId and instructorId
+	// cancel an exam given the particular combination of examId and instructorId
 	public synchronized void cancelExam(String examId, String instructorId){
 		logger.info("Cancelling exam with exam ID: " + examId);
 		String queryString = String.format("DELETE FROM exam"
@@ -396,20 +380,9 @@ public class TestingCenter {
 				examId
 				);
 		db.updateQuery(queryString);
-		
-		// No longer needed, since exams have the courseId as well
-		/*
-		queryString = String.format("DELETE FROM courseexam"
-				+ " WHERE "
-				+ "examIdCE='%s'",
-				instructorId,
-				examId
-				);
-		db.updateQuery(queryString);
-		*/
 	}
 
-	//retrieve a list of all exams
+	// retrieve a list of all exams
 	public List<Exam> getAllExams() {
 		logger.info("Retrieving all exams.");
 		
@@ -466,7 +439,7 @@ public class TestingCenter {
 	}
 	*/
 
-	//retrieve a list of all exams, given a certain instructor id
+	// retrieve a list of all exams, given a certain instructor id
 	public List<Exam> getInstructorExams(String instructorId) {
 		logger.info("Retrieving all exams for instructor with innstructor ID: " + instructorId);
 		
@@ -495,7 +468,7 @@ public class TestingCenter {
 		return exams;
 	}
 
-	//retrieve a list of all exams that are still pending
+	// retrieve a list of all exams that are still pending
 	public List<Exam> getPendingExams() {
 		logger.info("Retrieving all pending exam reservation requests.");
 		
@@ -525,7 +498,7 @@ public class TestingCenter {
 		return examsList;
 	}
 	
-	//retrieve a list of all exams for this term
+	// retrieve a list of all exams for this term
 	public List<Exam> getTermExams(String term, String instructorId) {
 		logger.info("Retrieving all instructor exams for this term");
 		
@@ -554,7 +527,7 @@ public class TestingCenter {
 		
 		return examsList;
 	}
-	//update Table
+	// update Table
 	private void updateTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
 		ArrayList<String> lines = new ArrayList<String>();
 		String currentLine;
@@ -574,7 +547,7 @@ public class TestingCenter {
 		}
 	}
 	
-	//update the users in the database from the csv file
+	// update the users in the database from the csv file
 	private void updateUsersTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
 		ArrayList<String> lines = new ArrayList<String>();
 		String currentLine;
@@ -594,7 +567,7 @@ public class TestingCenter {
 		}
 	}
 	
-	//update classes in the database from the csv file
+	// update classes in the database from the csv file
 	private void updateClassTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
 		ArrayList<String> lines = new ArrayList<String>();
 		String currentLine;
@@ -614,7 +587,7 @@ public class TestingCenter {
 		}
 	}
 	
-	//update instructors in the database from the csv file
+	// update instructors in the database from the csv file
 	private void updateInstructorTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
 		ArrayList<String> lines = new ArrayList<String>();
 		String currentLine;
@@ -634,7 +607,7 @@ public class TestingCenter {
 		}
 	}
 	
-	//update students in the database from the csv file
+	// update students in the database from the csv file
 	private void updateStudentTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
 		ArrayList<String> lines = new ArrayList<String>();
 		String currentLine;
@@ -654,7 +627,7 @@ public class TestingCenter {
 		}
 	}
 	
-	//update the courseStudent table in the database from the csv file
+	// update the courseStudent table in the database from the csv file
 	private void updateCourseStudentTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
 		ArrayList<String> lines = new ArrayList<String>();
 		String currentLine;
@@ -732,7 +705,7 @@ public class TestingCenter {
 		
 	}
 	
-	//retrieve string from the line of information from the student csv file
+	// retrieve string from the line of information from the student csv file
 	private String queryStudentFormat(String line) {
 		String[] wordsFromLine = line.split(",");
 		StringBuilder sb = new StringBuilder("");
@@ -758,7 +731,7 @@ public class TestingCenter {
 		
 	}
 	
-	//retrieve string from the courseStudent csv file
+	// retrieve string from the courseStudent csv file
 	private String queryCourseStudentFormat(String line) {
 		String[] wordsFromLine = line.split(",");
 		StringBuilder sb = new StringBuilder("");
@@ -781,7 +754,7 @@ public class TestingCenter {
 		
 	}
 	
-	//retrieve string from the users csv file
+	// retrieve string from the users csv file
 	private String queryUsersFormat(String line) {
 		String[] wordsFromLine = line.split(",");
 		StringBuilder sb = new StringBuilder("");
@@ -806,7 +779,7 @@ public class TestingCenter {
 		
 	}
 	
-	//retrieve string from the class csv file
+	// retrieve string from the class csv file
 	private String queryClassFormat(String line) {
 		String[] wordsFromLine = line.split("[-,]");
 		StringBuilder sb = new StringBuilder("");
@@ -834,7 +807,7 @@ public class TestingCenter {
 		
 	}
 	
-	//retrieve string from the instructor csv file
+	// retrieve string from the instructor csv file
 	private String queryInstructorFormat(String line) {
 		String[] wordsFromLine = line.split(",");
 		StringBuilder sb = new StringBuilder("");
@@ -860,7 +833,7 @@ public class TestingCenter {
 		
 	}
 
-	//check in a student for a particular exam, given the student's netID
+	// check in a student for a particular exam, given the student's netID
 	public int checkIn(String netID) {
 		DateTime now = DateTime.now();
 		DateTime thirty = new DateTime(0,1,1,0,30);
