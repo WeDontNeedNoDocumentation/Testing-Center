@@ -31,7 +31,7 @@ public class TestAppointments {
 		tc = TestingCenter.getTestingCenter();
 		
 		inst = new Instructor("Stoller", "stoller@cs.stonybrook.edu", "sstoller");
-		st = new Student("Dan Harel", "dharel", "dan.harel@stonybrook.edu", null);
+		st = new Student("Dan", "Harel", "dharel", "dan.harel@stonybrook.edu", "dharel");
 		
 		db.updateQuery("CREATE DATABASE Test");
 		db.updateQuery("USE Test");
@@ -74,7 +74,7 @@ public class TestAppointments {
 		int startSize = appts.size();
 		
 		// Sat, 01 Jan 2000 10:01:00 GMT -> Sat, 01 Jan 2000 11:01:00 GMT
-		st.makeAppointment(exam, new DateTime(2000,1,1,10,1), 0, 1, new DateTime(2000,1,1,10,1), new DateTime(2000, 1,1,11,1));
+		st.makeAppointment(exam, new DateTime(2000,1,1,10,1), 1, new DateTime(2000,1,1,10,1), new DateTime(2000, 1,1,11,1));
 		
 		appts = st.viewAppointments(1158);
 		int endSize = appts.size();
@@ -135,7 +135,7 @@ public class TestAppointments {
 		
 		Exam exam = new Exam("CSE", null, null, null, "sstollerd", "P", 64, 120, true);
 		
-		inst.makeExam(exam, new DateTime(2000,1,1,1,1), new DateTime(2000,1,1,1,2), true);
+		inst.makeExam("CSE", new DateTime(2000,1,1,1,1), new DateTime(2000,1,1,1,2), true, 64, 120, "CSE308");
 		
 		exams = inst.viewExams();
 		int endNumExams = exams.size();

@@ -116,10 +116,10 @@ public class Student {
 	/*
 	 * Displays reservations for all approved exams for courses this student is enrolled in.
 	 */
-	public List<Exam> viewExams() {
-		return tC.viewAvailableExams(this);
-
-	}
+//	public List<Exam> viewExams() {
+//		return tC.viewAvailableExams(this);
+//
+//	}
 	
 	/*
 	public static void main(String args[]) {

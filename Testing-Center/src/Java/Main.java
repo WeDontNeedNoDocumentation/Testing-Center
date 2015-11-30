@@ -87,7 +87,7 @@ public class Main {
 				s = new Scanner(System.in);
 				option = s.nextInt();
 				if(option == 1) {
-				ad.importData("user.csv","instructor.csv","class.csv","roster.csv");
+				//ad.importData("user.csv","instructor.csv","class.csv","roster.csv");
 				} else if (option == 2) {
 					System.out.println(ad.checkInStudent("a"));
 				} else if (option == 3) {

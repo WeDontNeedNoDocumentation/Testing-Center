@@ -64,8 +64,8 @@ public class Administrator {
 	/*
 	 * Gives the testingCenter the command to update the data in the database.
 	 */
-	public void importData(String studentsFileName, String instructorFileName, String coursesFileName, String rostersFileName) {
-		tC.updateData(studentsFileName, instructorFileName, coursesFileName, rostersFileName);
+	public void importData(String studentsFileName, /*String instructorFileName, */String coursesFileName, String rostersFileName) {
+		tC.updateData(studentsFileName, /*instructorFileName, */coursesFileName, rostersFileName);
 	}
 	
 	public void displayUtilization() {
@@ -100,7 +100,7 @@ public class Administrator {
 	}
 	
 	public void makeAppointment(Exam exam, DateTime time, int seatId, int appointmentId, String netID, DateTime startTime, DateTime endTime) {
-		tC.makeAppointment(exam, time, seatId, appointmentId, netID, startTime, endTime);
+		tC.makeAppointment(exam, time, appointmentId, netID, startTime, endTime);
 	}
 	
 	public void checkAvailability() {

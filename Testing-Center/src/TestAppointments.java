@@ -206,14 +206,14 @@ public class TestAppointments {
 		assertEquals(0, endNumExams - startNumExams);
 	}
 	
-	@Test
-	public void GtestStudentAvailableExams() {
-		logger.info("Testing Student's ability to get exams they can make an appointment for.");
-		
-		List<Exam> exams = st.viewExams();
-		
-		assertEquals(4, exams.size());
-	}
+//	@Test
+//	public void GtestStudentAvailableExams() {
+//		logger.info("Testing Student's ability to get exams they can make an appointment for.");
+//		
+//	//	List<Exam> exams = st.viewExams();
+//		
+//		assertEquals(4, exams.size());
+//	}
 	
 	@Test
 	public void testNotifierThread(){
