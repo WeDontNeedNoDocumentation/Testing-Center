@@ -980,7 +980,7 @@ public class TestingCenter {
 	    public int compare(Map<String, Object> m1, Map<String, Object> m2) {
 	        return (int) ((long) m1.get("end")-(long)m2.get("end"));
 	    }
-	}
+	};
 	
 	/*
 	 * 
