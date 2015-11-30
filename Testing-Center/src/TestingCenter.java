@@ -52,7 +52,7 @@ public class TestingCenter {
 	private static final Period DEFAULT_GAP = new Period(1,0,0,0);
 	private static final Period DEFAULT_REMINDER_INTERVAL = new Period(1,0,0,0);
 	
-	private List<Day> days;
+	//private List<Day> days;
 	private int numberOfSeats;
 	private int numberOfSetAside;
 	private LocalTime open;
@@ -68,15 +68,15 @@ public class TestingCenter {
 	 */
 
 	public TestingCenter() {
-		this(new ArrayList<Day>(), DEFAULT_SEATS, DEFAULT_SET_ASIDE,
+		this(DEFAULT_SEATS, DEFAULT_SET_ASIDE,
 				DEFAULT_OPEN, DEFAULT_CLOSE, DEFAULT_GAP, 
 				DEFAULT_REMINDER_INTERVAL);
 	}
 	
-	public TestingCenter(List<Day> days, int numberOfSeats, int numberOfSetAside, LocalTime open, LocalTime close,
+	public TestingCenter(int numberOfSeats, int numberOfSetAside, LocalTime open, LocalTime close,
 			Period gap, Period reminderInt) {
 		super();
-		this.days = days;
+		//this.days = days;
 		this.numberOfSeats = numberOfSeats;
 		this.numberOfSetAside = numberOfSetAside;
 		this.open = open;
@@ -93,7 +93,7 @@ public class TestingCenter {
 			instance = new TestingCenter();
 			
 			logger.info("Instantiating testing center.");
-			logger.fine("Days open: " + instance.days);
+			//logger.fine("Days open: " + instance.days);
 			logger.fine("Number of seats: " + instance.numberOfSeats);
 			logger.fine("Opening time: " + instance.open.toString());
 			logger.fine("Close time: " + instance.close.toString());
@@ -105,15 +105,15 @@ public class TestingCenter {
 	
 	
 	
-	public static TestingCenter getTestingCenter(List<Day> days, int numberOfSeats, int numberOfSetAside, LocalTime open, LocalTime close,
+	public static TestingCenter getTestingCenter(int numberOfSeats, int numberOfSetAside, LocalTime open, LocalTime close,
 			Period gap, Period reminderInt) {
 		if (instance == null) {
-			instance = new TestingCenter(days, numberOfSeats, numberOfSetAside,
+			instance = new TestingCenter(numberOfSeats, numberOfSetAside,
 					open, close, gap, reminderInt
 					);
 			
 			logger.info("Instantiating testing center.");
-			logger.fine("Days open: " + instance.days);
+			//logger.fine("Days open: " + instance.days);
 			logger.fine("Number of seats: " + instance.numberOfSeats);
 			logger.fine("Opening time: " + instance.open.toString());
 			logger.fine("Close time: " + instance.close.toString());
@@ -227,6 +227,7 @@ public class TestingCenter {
 		db.updateQuery(queryString);
 	}
 	
+	//check if the exam start/end time are out of bounds
 	public boolean appointmentOutOfExamBounds(String examID, DateTime startTime, DateTime endTime) {
 		String queryString = String.format("SELECT start, end "
 				+ "FROM exam "
@@ -245,6 +246,7 @@ public class TestingCenter {
 		return ((long) exam.get("start") > startTime.getMillis()/1000) || ((long) exam.get("end") < endTime.getMillis()/1000); 
 	}
 
+	//check if user has booked two appointments that overlap
 	public boolean conflictingAppointment(String netID, DateTime startTime, DateTime endTime) {
 		String queryString = String.format("SELECT appointmentId "
 				+ "FROM appointment "
@@ -260,6 +262,7 @@ public class TestingCenter {
 		return appointments.size() > 0; 
 	}
 
+	//check if student has an appointment for the input exam
 	public boolean hasAppointment(String netID, String examID) {
 		String queryString = String.format("SELECT appointmentId "
 				+ "FROM appointment "
@@ -568,6 +571,7 @@ public class TestingCenter {
 		}
 	}
 	
+	//update the users in the database from the csv file
 	private void updateUsersTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
 		ArrayList<String> lines = new ArrayList<String>();
 		String currentLine;
@@ -587,6 +591,7 @@ public class TestingCenter {
 		}
 	}
 	
+	//update classes in the database from the csv file
 	private void updateClassTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
 		ArrayList<String> lines = new ArrayList<String>();
 		String currentLine;
@@ -606,6 +611,7 @@ public class TestingCenter {
 		}
 	}
 	
+	//update instructors in the database from the csv file
 	private void updateInstructorTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
 		ArrayList<String> lines = new ArrayList<String>();
 		String currentLine;
@@ -625,6 +631,7 @@ public class TestingCenter {
 		}
 	}
 	
+	//update students in the database from the csv file
 	private void updateStudentTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
 		ArrayList<String> lines = new ArrayList<String>();
 		String currentLine;
@@ -644,6 +651,7 @@ public class TestingCenter {
 		}
 	}
 	
+	//update the courseStudent table in the database from the csv file
 	private void updateCourseStudentTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
 		ArrayList<String> lines = new ArrayList<String>();
 		String currentLine;
@@ -721,6 +729,7 @@ public class TestingCenter {
 		
 	}
 	
+	//retrieve string from the line of information from the student csv file
 	private String queryStudentFormat(String line) {
 		String[] wordsFromLine = line.split(",");
 		StringBuilder sb = new StringBuilder("");
@@ -746,6 +755,7 @@ public class TestingCenter {
 		
 	}
 	
+	//retrieve string from the courseStudent csv file
 	private String queryCourseStudentFormat(String line) {
 		String[] wordsFromLine = line.split(",");
 		StringBuilder sb = new StringBuilder("");
@@ -768,6 +778,7 @@ public class TestingCenter {
 		
 	}
 	
+	//retrieve string from the users csv file
 	private String queryUsersFormat(String line) {
 		String[] wordsFromLine = line.split(",");
 		StringBuilder sb = new StringBuilder("");
@@ -792,6 +803,7 @@ public class TestingCenter {
 		
 	}
 	
+	//retrieve string from the class csv file
 	private String queryClassFormat(String line) {
 		String[] wordsFromLine = line.split("[-,]");
 		StringBuilder sb = new StringBuilder("");
@@ -819,6 +831,7 @@ public class TestingCenter {
 		
 	}
 	
+	//retrieve string from the instructor csv file
 	private String queryInstructorFormat(String line) {
 		String[] wordsFromLine = line.split(",");
 		StringBuilder sb = new StringBuilder("");
@@ -959,8 +972,8 @@ public class TestingCenter {
 	}
 	
 	/*
-	 * 
-		This function was not completed due to several errors that appeared in the last few hours.
+	 * Checks if the exam may be scheduled with the given parameters 
+	 *  
 	 */
 	public synchronized boolean isExamSchedulable(Exam newExam) {
 		this.makeReservation(newExam, newExam.getStart(), newExam.getEnd(), !newExam.isAdHocExam(), newExam.getInstructorId());
@@ -1042,6 +1055,7 @@ public class TestingCenter {
 	}
 	
 
+	//internal method for schedulability to place appointments already made
 	private Map<Long, String[]> insertExisting(List<Map<String, Object>> exams) {
 		Map<Long, String[]> seatsAvailable = new HashMap<Long, String[]>();
 		for(Map<String,Object> exam : exams) {
@@ -1067,6 +1081,7 @@ public class TestingCenter {
 		return seatsAvailable;
 	}
 
+	//get exams that overlap with each other, given a single starting exam
 	private List<Map<String, Object>> getOverlap(Exam newExam) {
 		List<Map<String, Object>>fullList = new ArrayList<Map<String,Object>>();
 		List<Map<String,Object>> newExamEntry = db.query(String.format("SELECT examId, start,end,examStatus,numSeats,examLength,boolCourseExam,courseId,instructor.instructorId"
@@ -1078,7 +1093,7 @@ public class TestingCenter {
 		return fullList;
 	}
 	
-	
+	//get exams that overlap with each other, given a single starting exam
 	private List<Map<String, Object>> getOverlap(Map<String,Object> newExam,List<Map<String,Object>> fullList) {
 		long start = (long) newExam.get("start");
 		long end = (long) newExam.get("end");
@@ -1102,28 +1117,6 @@ public class TestingCenter {
 		
 		return fullList;
 	}
-
-	
-//	private List<Map<String, Object>> getOverlap(Exam newExam) {
-//		//Set set = new Set(); //prior to this method
-//		//List numList = new List();
-	
-//		//set.add(newExam)
-//		//SELECT examIds FROM Exam 
-//		//WHERE start < this.start & end > this.end
-//		//OR start < this.start & end > this.start & end < this.end
-//		//OR start > this.start & start < this.end
-//		//
-//		//if(response==null){return;}
-//		//else{ for each overlap, set.add(overlap) ; numList.add(numNewExams) if it is
-//		//a new examId
-//		// Iterator iter = set.iterator(); 
-//		//while (iter.hasNext()){getOverlap(iter.next())}
-//		//}
-//		//after entire method is complete, print the static set & numList
-//		//empty out both 	
-//		return null;
-//	}
 
 	//retrieve a list of all exams that may be selected by a certain student
 	public List<Exam> viewAvailableExams(Student st) {
@@ -1173,7 +1166,7 @@ public class TestingCenter {
 		      start();
 		    }
 		
-		//calls getUpcoming at every half hour mark, and puts the thread to sleep
+		//calls getUpcoming at every half hour mark, and puts the thread to sleep 
 		//until then
 		@Override
 		public void run() {
@@ -1320,7 +1313,7 @@ public class TestingCenter {
 	}
 	
 	/*
-	 * 
+	 * check utilization of the testing center
 	 */
 	public double actualUtilization(LocalDate date) {
 		long dateStartMillis = date.toDateTimeAtStartOfDay().getMillis();
@@ -1347,8 +1340,7 @@ public class TestingCenter {
 		return 1.0*totalDurationOccupied/totalDurationAvailable;
 	}
 
-	// appt.start < tc.close &&
-	// appt.end > tc.open
+	// find the expected utilization of the testing center
 	public double expectedUtilization(LocalDate date) {
 		double expectedUtilization = actualUtilization(date);
 		
@@ -1452,6 +1444,7 @@ public class TestingCenter {
 		return dailyCount;
 	}
 	
+	//find the courses listed for report c
 	public List<Course> coursesUsed(int term) {
 		List<Course> coursesResult = new ArrayList<Course>();
 		String queryString = String.format("SELECT course.* "
@@ -1479,6 +1472,7 @@ public class TestingCenter {
 		return coursesResult;
 	}
 	
+	//find the appointments for the semester
 	public Map<Integer, Integer> appointmentsPerTerm(int startTerm, int endTerm) {
 		Map<Integer, Integer> apptsPerTerm = new HashMap<Integer, Integer>();
 		

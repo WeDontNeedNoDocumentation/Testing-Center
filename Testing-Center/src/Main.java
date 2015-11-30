@@ -63,7 +63,7 @@ public class Main {
 		
 
 		TestingCenter tC = new TestingCenter(
-				null,
+				//null,
 				64,
 				0,
 				new LocalTime(8,0),

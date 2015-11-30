@@ -55,6 +55,7 @@ public class Exam {
 		return instructorId;
 	}
 	
+	//checks if the exam may be scheduled based on seat & timeslot availability
 	public boolean isSchedulable() {
 		TestingCenter tc = TestingCenter.getTestingCenter();
 		return tc.isExamSchedulable(this);

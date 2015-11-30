@@ -19,9 +19,6 @@ public class Course {
 	private int termId;
 	private String courseTerm;
 	
-	/**
-	 * 
-	 */
 	public Course() {
 		// TODO Auto-generated constructor stub
 	}

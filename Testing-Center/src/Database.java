@@ -58,7 +58,7 @@ public class Database {
 
 		}
 		catch (CommunicationsException e) {
-			logger.warning("Connectoin Failed! Could not establish connection with server. Please make sure your internet connection is valid and that the server is active, as well as the output console for any further unformation.");
+			logger.warning("Connection Failed! Could not establish connection with server. Please make sure your internet connection is valid and that the server is active, as well as the output console for any further unformation.");
 			e.printStackTrace();
 			return;
 		}

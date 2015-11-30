@@ -1,4 +1,6 @@
-
+	/**
+	 * This Exception is thrown when a user attempts to book two appointments that overlap
+	 */
 public class ConflictingAppointmentException extends RuntimeException {
 
 	public ConflictingAppointmentException() {
