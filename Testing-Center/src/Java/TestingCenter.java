@@ -28,6 +28,7 @@ import javax.mail.internet.MimeMessage;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeComparator;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.Period;
@@ -1348,6 +1349,18 @@ public class TestingCenter {
 		
 	}
 	
+	public Map<LocalDate, Double> actualUtilizationPerDay(LocalDate start, LocalDate end) {
+		Map<LocalDate,Double> utilMap = new HashMap<LocalDate, Double>();
+		
+		while (DateTimeComparator.getDateOnlyInstance().compare(start,end) <= 0) {
+			double util = actualUtilization(start);
+			utilMap.put(start, util);
+			start.plusDays(1);
+		}
+		
+		return utilMap;
+	}
+	
 	/*
 	 * 
 	 */
@@ -1374,6 +1387,18 @@ public class TestingCenter {
 		int totalDurationAvailable = numberOfSeats * (close.getMillisOfDay() - open.getMillisOfDay()); 
 		
 		return 1.0*totalDurationOccupied/totalDurationAvailable;
+	}
+	
+	public Map<LocalDate, Double> expectedUtilizationPerDay(LocalDate start, LocalDate end) {
+		Map<LocalDate,Double> utilMap = new HashMap<LocalDate, Double>();
+		
+		while (DateTimeComparator.getDateOnlyInstance().compare(start,end) <= 0) {
+			double util = expectedUtilization(start);
+			utilMap.put(start, util);
+			start.plusDays(1);
+		}
+		
+		return utilMap;
 	}
 
 	// appt.start < tc.close &&
