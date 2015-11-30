@@ -135,7 +135,7 @@ public class TestAppointments {
 		
 		Exam exam = new Exam("CSE", null, null, null, "sstollerd", "P", 64, 120, true);
 		
-		inst.makeExam(exam, new DateTime(2000,1,1,1,1), new DateTime(2000,1,1,1,2), true);
+		inst.makeExam("CSE", new DateTime(2000,1,1,1,1), new DateTime(2000,1,1,1,2), true, 64, 120, "CSE308");
 		
 		exams = inst.viewExams();
 		int endNumExams = exams.size();
