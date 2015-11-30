@@ -1,3 +1,4 @@
+package Java;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -102,8 +103,6 @@ public class TestingCenter {
 		}
 		return instance;
 	}
-	
-	
 	
 	public static TestingCenter getTestingCenter(List<Day> days, int numberOfSeats, int numberOfSetAside, LocalTime open, LocalTime close,
 			Period gap, Period reminderInt) {
@@ -227,7 +226,7 @@ public class TestingCenter {
 		db.updateQuery(queryString);
 	}
 	
-	public boolean appointmentOutOfExamBounds(String examID, DateTime startTime, DateTime endTime) {
+	private boolean appointmentOutOfExamBounds(String examID, DateTime startTime, DateTime endTime) {
 		String queryString = String.format("SELECT start, end "
 				+ "FROM exam "
 				+ "WHERE examId = '%s'",
@@ -237,21 +236,16 @@ public class TestingCenter {
 		// We assume that exactly one exam exists with id examID
 		Map<String, Object> exam = exams.get(0);
 		
-		System.out.println("Exam starts: " + exam.get("start"));
-		System.out.println("Exam end: " + exam.get("end"));
-		System.out.println("Appointment starts: " + startTime.getMillis()/1000);
-		System.out.println("Appointment ends: " + endTime.getMillis()/1000);
-		
-		return ((long) exam.get("start") > startTime.getMillis()/1000) || ((long) exam.get("end") < endTime.getMillis()/1000); 
+		return ((long) exam.get("start") > endTime.getMillis()/1000) || ((long) exam.get("end") < startTime.getMillis()/1000); 
 	}
 
-	public boolean conflictingAppointment(String netID, DateTime startTime, DateTime endTime) {
+	private boolean conflictingAppointment(String netID, DateTime startTime, DateTime endTime) {
 		String queryString = String.format("SELECT appointmentId "
 				+ "FROM appointment "
 				+ "WHERE studentIdA = '%s' "
 				+ "AND "
-				+ "(appointment.startTime <= %d "
-				+ "AND appointment.endTime >= %d)", 
+				+ "(startTime <= '%s' "
+				+ "AND endTime >= '%s')", 
 				netID,
 				endTime.getMillis()/1000 + gap.getMillis()/1000,
 				startTime.getMillis()/1000 - gap.getMillis()/1000);
@@ -260,7 +254,7 @@ public class TestingCenter {
 		return appointments.size() > 0; 
 	}
 
-	public boolean hasAppointment(String netID, String examID) {
+	private boolean hasAppointment(String netID, String examID) {
 		String queryString = String.format("SELECT appointmentId "
 				+ "FROM appointment "
 				+ "WHERE examIdA = '%s' "
@@ -337,6 +331,8 @@ public class TestingCenter {
 	//Make a reservation for an exam, given the examID, start time, end time,
 	//whether it is a course exam or an adhoc exam, and the instructor id
 	public synchronized boolean makeReservation(Exam exam, DateTime start, DateTime end, boolean courseExam, String instructorId) {
+		logger.severe("DOES NOT ADD ALL OF THE NECESSARY FIELDS. FIX THIS PLEASE.");
+		
 		logger.info("Creating new reservation request.");
 		logger.fine("Exam ID: " + exam.getExamID());
 		logger.fine("Exam start time: " + start.toString());
@@ -418,7 +414,7 @@ public class TestingCenter {
 			DateTime start = new DateTime((long) exam.get("start")*1000);
 			DateTime end = new DateTime((long) exam.get("end")*1000);
 			String examStatus = (String) exam.get("examStatus");
-			String instructorId = (String) exam.get("instructorIdA");
+			String instructorId = (String) exam.get("instructorId");
 			int numSeats = (int) exam.get("numSeats");
 			String courseId = (String) exam.get("courseId");
 			int duration = (int) exam.get("examLength");
@@ -465,7 +461,7 @@ public class TestingCenter {
 		logger.info("Retrieving all exams for instructor with innstructor ID: " + instructorId);
 		
 		List<Exam> exams = new ArrayList<Exam>();
-		String queryString = String.format("SELECT examId, start, end, boolCourseExam, examStatus, numSeats, courseId, examLength "
+		String queryString = String.format("SELECT examId, start, end, boolCourseExam, examStatus, numSeats, examLength, courseId "
 				+ "FROM exam "
 				+ "WHERE exam.instructorIdA = '%s'",
 				instructorId
@@ -519,36 +515,6 @@ public class TestingCenter {
 		return examsList;
 	}
 	
-	//retrieve a list of all exams for this term
-	public List<Exam> getTermExams(String term, String instructorId) {
-		logger.info("Retrieving all instructor exams for this term");
-		
-		List<Map<String,Object>> exams = db.query(
-				String.format("SELECT examId, start, end, boolCourseExam, examStatus, numSeats, exam.courseId, examLength, course.termId "
-				+ "FROM exam, course "
-				+ "WHERE instructorIdB = '%s' AND exam.courseId=course.courseId AND course.termId = '%s'",
-				instructorId, term
-				));
-		
-		List<Exam> examsList = new ArrayList<Exam>();
-		for (Map<String,Object> exam : exams) {
-			String id = (String) exam.get("examId");
-			DateTime start= new DateTime((long) exam.get("start")*1000);
-			DateTime end= new DateTime((long) exam.get("end")*1000);
-			String examStatus = (String) exam.get("examStatus");
-			int numSeats = (int) exam.get("numSeats");
-			String courseId = (String) exam.get("courseId");
-			int duration = (int) exam.get("examLength");
-			boolean adHocExam = ((String) exam.get("boolCourseExam")).equals("0");
-			
-			Exam newExam = new Exam(id, start, end, examStatus, instructorId, courseId, numSeats, duration, adHocExam);
-			
-			examsList.add(newExam);
-		}
-		
-		return examsList;
-	}
-	//update Table
 	private void updateTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
 		ArrayList<String> lines = new ArrayList<String>();
 		String currentLine;

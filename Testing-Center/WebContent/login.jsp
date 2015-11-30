@@ -1,5 +1,7 @@
 <%@page import="DBWorks.DBConnection"%>
-<jsp:useBean id="b" class="Bean.InstructorBean" scope="application" />
+<%@page import="Java.*" %>
+<%@ page import="java.util.*" %>
+
 <%
 	if ((request.getParameter("action") != null) && (request.getParameter("action").trim().equals("logout"))) 
 	{
@@ -7,53 +9,73 @@
 		response.sendRedirect("index.html");
 	}
 
-	String idNumber = request.getParameter("idNumber");
+	String email = request.getParameter("email");
 	String password = request.getParameter("password");
+	String name;
+	String id;
+	
     String query = null;
+    String queryTwo = null;
 	session.setAttribute("login", "");
 	
-	if ((idNumber != null) && (password != null))
+	TestingCenter tc = TestingCenter.getTestingCenter();
+	session.setAttribute("TC", tc);
+	
+	if ((email != null) && (password != null))
     {
-        if (idNumber.trim().equals("") || password.trim().equals("")) 
+        if (email.trim().equals("") || password.trim().equals("")) 
         {
 		      response.sendRedirect("index.html");
         } 
         else 
         {
             query = "SELECT * FROM administrator WHERE email = '" +
-                            idNumber + "' AND administratorId = '" + password  + "'";
+                            email + "' AND administratorId = '" + password  + "'";
              java.sql.ResultSet rs = DBConnection.ExecQuery(query);
 	        if (rs.next())
 	        {
 	        	
-	        	session.setAttribute("login", idNumber);
+	        	session.setAttribute("login", email);
                 response.sendRedirect("AdminHomepage.jsp");
 	        }
 	        else
 	        {
 	        	query = "SELECT * FROM instructor WHERE email = '" +
-                        idNumber + "' AND instructorId = '" + password  + "'";
+                        email + "' AND instructorId = '" + password  + "'";
          		rs = DBConnection.ExecQuery(query);
 	        	if(rs.next())
 	        	{
-	        		session.setAttribute("login", idNumber);
+	        		id = rs.getString(5);
+	        		email = rs.getString(4);
+	        		name = rs.getString(2);
+	        		
+	        		session.setAttribute("name", name);
+	        		session.setAttribute("login", email);
+	        		session.setAttribute("id", password);
+	        		session.setAttribute("email", email);
+	        		
+	        		Instructor instr = new Instructor(name, email, id);
+	        		
+	        		session.setAttribute("Instructor", instr);
+	        		
 	                response.sendRedirect("InstructorHomepage.jsp");
 	        	}
 	        	else
 	        	{
 	        		query = "SELECT * FROM student WHERE email = '" +
-	                        idNumber + "' AND studentId = '" + password  + "'";
+	                        email + "' AND studentId = '" + password  + "'";
 	         		rs = DBConnection.ExecQuery(query);
 	         		if(rs.next())
 	         		{
-	         			session.setAttribute("login", idNumber);
+	         			session.setAttribute("login", email);
 	                    response.sendRedirect("StudentHomepage.jsp");
 	         		}
 	         		else
 	         		{
-	         			out.print("Email and Password combination is incorrect " + request.getAttribute("stringg"));
-	         			
+	         			out.print("Email and Password combination is incorrect ");
 	                    %>
+	                    
+						
 	                    <br/><% %>
 	                    <a href="index.html"> Back to login page </a>
 	                    <%

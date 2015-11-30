@@ -1,7 +1,5 @@
 <%@page import="DBWorks.DBConnection"%>
-<%@page import="Java.*" %>
-<%@page import="java.util.*" %>
-<%@page import="java.lang.*" %>
+<%@page import="java.util.Date"%>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -14,13 +12,16 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>See Exam Requests Page - Instructor</title>
+    <title>Check-in Students Page - Admin</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom CSS -->
     <link href="css/sb-admin.css" rel="stylesheet">
+
+    <!-- Morris Charts CSS -->
+    <link href="css/plugins/morris.css" rel="stylesheet">
 
     <!-- Custom Fonts -->
     <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
@@ -155,16 +156,42 @@
             <div class="collapse navbar-collapse navbar-ex1-collapse">
                 <ul class="nav navbar-nav side-nav">
                     <li>
-                        <a href="ScheduleExamRequest.jsp"><span class="glyphicon glyphicon-calendar"></span></span></i> Schedule Exam Request</a>
+                        <a href="scheduler.html"><span class="glyphicon glyphicon-calendar"></span></span></i> Scheduler</a>
+                    </li>
+                    <li>
+                        <a href="MakeAppointment.jsp"><i class="fa fa-fw fa-table"></i> Make Appointment</a>
+                    </li>
+                    <li>
+                        <a href="ApproveDenyResv.jsp"><span class="glyphicon glyphicon-ok"></span></span></i> Approve/Reject RSV</a>
                     </li>
                     <li class="active">
-                        <a href="SeeExamRequests.jsp"><i class="fa fa-fw fa-table"></i> See Exam Requests</a>
+                        <a href="StudentCheckinPage.jsp"><span class="glyphicon glyphicon-saved"></span></i> Check-in Student</a>
                     </li>
                     <li>
-                        <a href="ApptAttendanceDetails.jsp"><span class="glyphicon glyphicon-ok"></span></span></i> Appt/Attendance Details</a>
+                        <a href="ViewAppointments.jsp"><span class="glyphicon glyphicon-list"></span></i> View Appointments</a>
                     </li>
                     <li>
-                        <a href="#"><i class="fa fa-fw fa-dashboard"></i> Display Utilization Center</a>
+                        <a href="CancelEditAppointment.jsp"><i class="fa fa-fw fa-wrench"></i> Cancel/Edit Appointments</a>
+                    </li>
+                    <li>
+                        <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i class="fa fa-fw fa-arrows-v"></i> Import <i class="fa fa-fw fa-caret-down"></i></a>
+                        <ul id="demo" class="collapse">
+                            <li>
+                                <a href="#">Import Users</a>
+                            </li>
+                            <li>
+                                <a href="#">Import Class</a>
+                            </li>
+                            <li>
+                                <a href="#">Import Roster</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="index-rtl.html"><i class="fa fa-fw fa-dashboard"></i> Display Utilization Center</a>
+                    </li>
+                    <li>
+                        <a href="blank-page.html"><i class="fa fa-fw fa-file"></i> Generate Report</a>
                     </li>
                 </ul>
             </div>
@@ -176,83 +203,51 @@
             <div class="container-fluid">
 
                 <!-- Page Heading -->
-                <div class="row">
-                    <div class="col-lg-12">
-                        <h1 class="page-header">
-                            See Exam Requests
-                        </h1>
+                <%
+                	String netId = request.getParameter("netId"); 
+                %>
+                <img src="img/studentcheckin.png" alt="missing"> 
+                <!-- /.row -->
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="intro-message">
+                                <h1>Check Student In<%
+                                String query = "SELECT FROM appointment WHERE studentIdA ='"+netId+"'";
+                                java.sql.ResultSet rs = DBConnection.ExecQuery(query);
+                            	if (rs.next()) 
+								{	
+                            		Date now = new Date();
+									%>- Success</h1>
+                            		<h4 style="color:green">Student is checked in at <%out.print(now.toString()); %></h4>
+                            		<%
+								}
+                            	else
+                            	{	
+                            		%>- Failed</h1>
+									<h4 style="color:red">Enter valid ID number</h4>
+									<%
+                            	}
+                            	%>
+                            <h3 style="color:blue">Enter Student's netID</h3>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                
-                <div class="row">
-                <h3>Current Term</h3>
-	                <table class="table table-bordered table-hover">
-	                    <thead>
-	                    <!-- Columns -->
-	                        <tr class="active">
-	                            <th>Course ID</th>
-	                            <th>Duration</th>
-	                            <th>Start Date</th>
-	                            <th>Num Seats</th>
-	                            <th>Status</th>
-	                            <th>Action</th>
-	                        </tr>
-	                    <!-- /Columns -->
-	                    </thead>
-	                    <tbody>
-	                    	
-	                        <tr>
-	                        <!--enter code here for table -->
-	      					<%
-	      						String email = session.getAttribute("email").toString();
-                        		String id = session.getAttribute("id").toString();
-                        		String name = session.getAttribute("name").toString();
-                        		String examId;
-                        		
-      							Instructor instr = new Instructor(name, email, id);
-                               	
-                               	List<Exam> exams = new ArrayList<Exam>();
-                               	exams = instr.viewExams();
-                               	
-                               	for(Exam e : exams)
-                               	{
-                                    String courseId = e.getCourseId();
-                                    String duration = String.valueOf(e.getLength());
-                                    String sDate = e.getStart().toString();
-                                    String numSeats = e.getNumSeats().toString();
-                                    String status = e.getStatus();
-                                    
-                            %> 
-	                        <!-- row entries -->
-	                            <td><%out.print(courseId);%></td>
-	                            <td><%out.print(duration);%></td>
-	                            <td><%out.print(sDate);%></td>
-	                            <td><%out.print(numSeats);%></td>
-	                            <td>
-	                            	<%if(status.equals("P"))
-	                            	{%>
-		                            	<button type="button" class="btn btn-sm btn-info">Pending</button>
-		                           	<%}else if(status.equals("A"))
-		                           	{%>
-		                           		<button type="button" class="btn btn-sm btn-success">Approved</button>
-		                           	<%}else
-		                           	{%>
-		                           		<button type="button" class="btn btn-sm btn-danger">Denied</button>
-		                           	<%}
-		                           	%>
-				                </td>
-	                            <td>
-	                            	<form action="CancelExamRequest.jsp" method="post">
-		                            	<button type="submit" class="btn btn-sm btn-danger" name="examId" value="<%out.print(e.getExamID());%>" formaction="CancelExamRequest.jsp">Cancel</button>
-	                            	</form>
-	                    		</td>
-	                        <!-- /row entries -->    
-	                        </tr>
-	                        <%} %>
-	                    </tbody>
-                </div>
             </div>
-
+            <!-- /.container-fluid -->
+			<div class="container">
+               	<div class="col-sm-4">
+                    <div class="form-group">
+                       <form class="form-signin" action="StudentCheckInConfirmation.jsp" method="post">
+                           <label for="inputId" class="sr-only">ID</label>
+                           <input name="inputId" class="form-control" placeholder="IE: 123456789" required="" autofocus="" type="idnumber">
+                           <!-- enter id here -->
+                           <a href="StudentCheckInConfirmation.jsp"><button class="btn btn-primary btn-block" type="submit">Check In</button></a>
+                       </form>
+                 	</div>
+               	</div>
+            </div>
         </div>
         <!-- /#page-wrapper -->
 
@@ -264,6 +259,19 @@
 
     <!-- Bootstrap Core JavaScript -->
     <script src="js/bootstrap.min.js"></script>
+
+    <!-- Morris Charts JavaScript -->
+    <script src="js/plugins/morris/raphael.min.js"></script>
+    <script src="js/plugins/morris/morris.min.js"></script>
+    <script src="js/plugins/morris/morris-data.js"></script>
+
+    <!-- Flot Charts JavaScript -->
+    <!--[if lte IE 8]><script src="js/excanvas.min.js"></script><![endif]-->
+    <script src="js/plugins/flot/jquery.flot.js"></script>
+    <script src="js/plugins/flot/jquery.flot.tooltip.min.js"></script>
+    <script src="js/plugins/flot/jquery.flot.resize.js"></script>
+    <script src="js/plugins/flot/jquery.flot.pie.js"></script>
+    <script src="js/plugins/flot/flot-data.js"></script>
 
 </body>
 
