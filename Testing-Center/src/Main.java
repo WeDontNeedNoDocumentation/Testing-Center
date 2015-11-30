@@ -27,7 +27,7 @@ public class Main {
 	
 	private static final Logger log = Logger.getLogger(Main.class.getName());
 	
-	/*
+	
 	public static void main(String[] args) throws SecurityException, IOException
 	{
 //		log.info("Logger Name: "+log.getName());
@@ -47,12 +47,12 @@ public class Main {
 //		}
 
 		Database.createDatabase();
-		*/
+
 		
 		/*
 		 * Test that the database actually works
 		 */
-	/*
+
 		Database db = Database.getDatabase();
 		List<Map<String,Object>> results = db.query("SHOW DATABASES");
 		for (Map<String, Object> map : results) {
@@ -80,13 +80,13 @@ public class Main {
 			int option = s.nextInt();
 			Instructor inst = new Instructor("Scott Stoller", "stoller@cs.stonybrook.edu", tC, "sstoller");
 			if(option == 1) {
-				Administrator ad = new Administrator("admin","admin@help.edu",tC);
+				Administrator ad = new Administrator("admin","admin@help.edu");
 				System.out.println("Pick a user type:");
 				System.out.println("1) import 2) checkin");
 				s = new Scanner(System.in);
 				option = s.nextInt();
 				if(option == 1) {
-				ad.importData();
+				ad.importData("user.csv","instructor.csv","class.csv","roster.csv");
 				} else if (option == 2) {
 					System.out.println(ad.checkInStudent("a"));
 				} else if (option == 3) {
@@ -95,16 +95,19 @@ public class Main {
 				}
 				
 			} else if (option == 2) {
-
+				/*
 				Exam exam = new Exam("CSE", null, null, inst.getInstructorId(), 0,2);
 				
 				inst.makeExam(exam, new DateTime(2000,1,1,1,1), new DateTime(2000,1,1,1,2), true);
+				*/
 			} else if (option == 3) {
+				/*
 				Student student = new Student("Anvika .", "a", "a@example.com", null);
 				Exam exam = new Exam("CSE", null, null, inst.getInstructorId(), 0,2);
 
 				
 				student.makeAppointment(exam, new DateTime(2015,10,25,19,0), 7, 1);
+				*/
 			} else if (option == 4) {
 				running = false;
 			}
@@ -112,6 +115,6 @@ public class Main {
 		}
 
 	}
-*/
+
 
 }

@@ -21,10 +21,6 @@
 	TestingCenter tc = TestingCenter.getTestingCenter();
 	session.setAttribute("TC", tc);
 	
-	//MyClass mc = new MyClass("blah");
-	
-	//session.setAttribute("MySessionVariable", param);
-	
 	if ((email != null) && (password != null))
     {
         if (email.trim().equals("") || password.trim().equals("")) 

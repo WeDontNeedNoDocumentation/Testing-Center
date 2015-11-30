@@ -12,22 +12,47 @@ import java.util.List;
 public class Course {
 
 	private String courseID;
-	private List<Exam> exams;
-	private List<Instructor> instructors;
-	private List<Student> students;
+	private String subject;
+	private int catalogNumber;
+	private String section;
+	private String instructorId;
+	private int termId;
+	private String courseTerm;
+	
 	/**
 	 * 
 	 */
 	public Course() {
 		// TODO Auto-generated constructor stub
 	}
-	
-	public Course(String courseID, List<Exam> exams,
-			List<Instructor> instructors, List<Student> students) {
+
+	public Course(String courseID, String subject, int catalogNumber, String section, String instructorId,
+			int termId, String courseTerm) {
+		super();
 		this.courseID = courseID;
-		this.exams = exams;
-		this.instructors = instructors;
-		this.students = students;
+		this.subject = subject;
+		this.catalogNumber = catalogNumber;
+		this.section = section;
+		this.instructorId = instructorId;
+		this.termId = termId;
+		this.courseTerm = courseTerm;
+	}
+	
+	public String toString() {
+		return String.format("{courseId:%s, "
+				+ "subject:%s, "
+				+ "catalogNumber:%d, "
+				+ "section:%s, "
+				+ "instructorId:%s, "
+				+ "termId:%d, "
+				+ "courseTerm:%s}", 
+				courseID,
+				subject,
+				catalogNumber,
+				section,
+				instructorId,
+				termId,
+				courseTerm);
 	}
 
 }

@@ -2,7 +2,7 @@ import java.util.Date;
 import org.joda.time.DateTime;
 
 /**
- * Super class for all exams. Contians basic exam information.
+ * Super class for all exams. Contains basic exam information.
  */
 
 /**
@@ -17,22 +17,26 @@ public class Exam {
 	protected DateTime end;
 	protected String status;
 	protected String instructorId;
+	protected String courseId;
 	protected int numSeats;
-	protected int duration;
+	protected long duration;
+	protected boolean adHocExam;
 	
-	public Exam(String examID, DateTime start, DateTime end, String instructorId, int seats, int duration) {
-		this(examID, start, end, "P", instructorId, seats,duration);
+	public Exam(String examID, DateTime start, DateTime end, String instructorId, String courseId, int seats, int duration, boolean adHocExam) {
+		this(examID, start, end, "P", instructorId, courseId, seats, duration, adHocExam);
 	}
 	
-	public Exam(String examID, DateTime start, DateTime end, String status, String instructorId, int seats, int duration) {
+	public Exam(String examID, DateTime start, DateTime end, String status, String instructorId, String courseId, int seats, int duration, boolean adHocExam) {
 		super();
 		this.examID = examID;
 		this.start = start;
 		this.end = end;
 		this.status = status;
 		this.instructorId = instructorId;
+		this.courseId = courseId;
 		this.numSeats = seats;
 		this.duration = duration;
+		this.adHocExam = adHocExam;
 	}
 
 	public DateTime getStart() {
@@ -68,24 +72,35 @@ public class Exam {
 				+ "endTime:%s, "
 				+ "status:%s, "
 				+ "instructorId:%s, "
-				+ "numSeats:%d",
+				+ "courseId:%s"
+				+ "numSeats:%d, "
+				//+ "duration:%d minutes, "
+				+ "adHocExam:%b}",
 				examID,
 				start.toString(),
 				end.toString(),
 				status,
 				instructorId,
-				numSeats);
-		if (this instanceof CourseExam) {
-			s += ", courseId:" + ((CourseExam) this).getCourseId();
-		}
-		s += "}";
+				courseId,
+				numSeats,
+				adHocExam);
 		
 		return s;
 		
 	}
 
-	public Object getLength() {
+	public long getLength() {
 		return duration;
+	}
+
+	public boolean isAdHocExam() {
+		// TODO Auto-generated method stub
+		return adHocExam;
+	}
+
+	public String getCourseId() {
+		// TODO Auto-generated method stub
+		return courseId;
 	}
 
 }

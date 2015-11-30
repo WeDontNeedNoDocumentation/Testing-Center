@@ -1,6 +1,7 @@
 <%@page import="DBWorks.DBConnection"%>
 <%@page import="Java.*" %>
-<%@ page import="java.util.*" %>
+<%@page import="java.util.*" %>
+<%@page import="java.lang.*" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -192,7 +193,7 @@
 	                            <th>Course ID</th>
 	                            <th>Duration</th>
 	                            <th>Start Date</th>
-	                            <th>End Date</th>
+	                            <th>Num Seats</th>
 	                            <th>Status</th>
 	                            <th>Action</th>
 	                        </tr>
@@ -203,16 +204,10 @@
 	                        <tr>
 	                        <!--enter code here for table -->
 	      					<%
-	    
-                            	/* String query = "SELECT examId, start, end, examStatus, numSeats, examLength, boolCourseExam, courseexam.courseIdCE "
-                        				+ "FROM exam "
-                        				+ "LEFT JOIN courseexam "
-                        				+ "ON exam.examId=courseexam.examIdCE "
-                        				+ "WHERE exam.instructorId = 'sstoller'";
-                               	java.sql.ResultSet rs = DBConnection.ExecQuery(query); */
 	      						String email = session.getAttribute("email").toString();
                         		String id = session.getAttribute("id").toString();
                         		String name = session.getAttribute("name").toString();
+                        		String examId;
                         		
       							Instructor instr = new Instructor(name, email, id);
                                	
@@ -221,20 +216,18 @@
                                	
                                	for(Exam e : exams)
                                	{
-                                    String courseId = e.getExamID();
-                                    String duration = e.getExamID();
-                                    String sDate = e.getExamID();
-                                    String numSeats = e.getExamID();
-                                    //String sTime = rs.getString();
-                                    String eDate = e.getExamID();
-                                    //String eTime = rs.getString();
-                                    String status = e.getExamID();
+                                    String courseId = e.getCourseId();
+                                    String duration = String.valueOf(e.getLength());
+                                    String sDate = e.getStart().toString();
+                                    String numSeats = e.getNumSeats().toString();
+                                    String status = e.getStatus();
+                                    
                             %> 
 	                        <!-- row entries -->
 	                            <td><%out.print(courseId);%></td>
 	                            <td><%out.print(duration);%></td>
 	                            <td><%out.print(sDate);%></td>
-	                            <td><%out.print(eDate);%></td>
+	                            <td><%out.print(numSeats);%></td>
 	                            <td>
 	                            	<%if(status.equals("P"))
 	                            	{%>
@@ -249,54 +242,14 @@
 		                           	%>
 				                </td>
 	                            <td>
-		                            <button type="button" class="btn btn-sm btn-danger">Cancel</button>
+	                            	<form action="CancelExamRequest.jsp" method="post">
+		                            	<button type="submit" class="btn btn-sm btn-danger" name="examId" value="<%out.print(e.getExamID());%>" formaction="CancelExamRequest.jsp">Cancel</button>
+	                            	</form>
 	                    		</td>
 	                        <!-- /row entries -->    
 	                        </tr>
 	                        <%} %>
 	                    </tbody>
-	                </table>
-	                <h3>Future Term</h3>
-	                <table class="table table-bordered table-hover">
-	                    <thead>
-	                    <!-- Columns -->
-	                        <tr class="active">
-	                            <th>Course ID</th>
-	                            <th>Section</th>
-	                            <th>Term</th>
-	                            <th>Duration</th>
-	                            <th>Start Date</th>
-	                            <th>Time</th>
-	                            <th>End Date</th>
-	                            <th>Time</th>
-	                            <th>Status</th>
-	                            <th>Action</th>
-	                        </tr>
-	                    <!-- /Columns -->
-	                    </thead>
-	                    <tbody>
-	                        <tr>
-	                        <!--enter code here for table -->
-	                        <%  %>
-	                        <!-- row entries -->
-	                            <td></td>
-	                            <td></td>
-	                            <td></td>
-	                            <td></td>
-	                            <td></td>
-	                            <td></td>
-	                            <td></td>
-	                            <td></td>
-	                            <td>
-		                            
-				                </td>
-	                            <td>
-		                            
-	                    		</td>
-	                        <!-- /row entries -->    
-	                        </tr>
-	                    </tbody>
-	                </table>
                 </div>
             </div>
 
