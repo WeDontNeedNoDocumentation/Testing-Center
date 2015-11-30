@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -974,17 +976,25 @@ public class TestingCenter {
 		db.updateQuery(queryString);
 	}
 	
+	public Comparator<Map<String, Object>> mapComparator = new Comparator<Map<String, Object>>() {
+	    public int compare(Map<String, Object> m1, Map<String, Object> m2) {
+	        return (int) ((long) m1.get("end")-(long)m2.get("end"));
+	    }
+	}
+	
 	/*
 	 * 
 		This function was not completed due to several errors that appeared in the last few hours.
 	 */
 	public synchronized boolean isExamSchedulable(Exam newExam) {
 		this.makeReservation(newExam, newExam.getStart(), newExam.getEnd(), !newExam.isAdHocExam(), newExam.getInstructorId());
-		DateTime now = DateTime.now();
-		long nowUnix = now.getMillis()/1000;
+		//DateTime now = DateTime.now();
+		//long nowUnix = now.getMillis()/1000;
 		
 		List<Map<String, Object>> exams = getOverlap(newExam);
-		//TODO sort
+		
+
+		Collections.sort(exams, mapComparator);
 		Map<Long, String[]> seatsAvailable = insertExisting(exams);
 		
 		for ( Map<String, Object> exam : exams ) {
