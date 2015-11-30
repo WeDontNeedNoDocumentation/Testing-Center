@@ -1014,10 +1014,7 @@ public class TestingCenter {
 				}
 				
 				
-				/*
-				 * TODO
-				 * This should work in theory I just need to add gap time
-				 */
+				
 				long searchTime = apEnd;
 				ArrayList<String[]> appSeats = new ArrayList<String[]>();
 				int i = 0;
