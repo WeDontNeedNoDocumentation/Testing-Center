@@ -74,7 +74,7 @@ public class TestAppointments {
 		int startSize = appts.size();
 		
 		// Sat, 01 Jan 2000 10:01:00 GMT -> Sat, 01 Jan 2000 11:01:00 GMT
-		st.makeAppointment(exam, new DateTime(2000,1,1,10,1), 0, 1, new DateTime(2000,1,1,10,1), new DateTime(2000, 1,1,11,1));
+		st.makeAppointment(exam, new DateTime(2000,1,1,10,1), 1, new DateTime(2000,1,1,10,1), new DateTime(2000, 1,1,11,1));
 		
 		appts = st.viewAppointments(1158);
 		int endSize = appts.size();
