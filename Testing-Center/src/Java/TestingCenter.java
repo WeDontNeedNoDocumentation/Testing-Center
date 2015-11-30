@@ -141,9 +141,10 @@ public class TestingCenter {
 		long rem = actualLen%1800;
 		long len =0;
 		if(rem == 0) {
-			len = actualLen/1800;
+			len = actualLen;
 		} else {
 			len = actualLen/1800+1;
+			len = len*1800;
 		}
 		
 		long search = start;
@@ -163,15 +164,15 @@ public class TestingCenter {
 			for(int i = 0;i<numberOfSeats-numberOfSetAside;i++) {
 				boolean clear = true;
 				for(l = search; l<search+len && clear; l=l+1800) {
-					List<Map<String,Object>> apps = db.query(String.format("SELECT examId FROM timeSlots"
+					List<Map<String,Object>> apps = db.query(String.format("SELECT examIdT FROM timeSlots"
 							+ "WHERE dateId = '%d' AND seatId = '%d'",
-							search,i));
+							l,i));
 					if(apps.get(0)!= null) {
 						clear = false;
 					} else {
 						apps = db.query(String.format("SELECT seatId FROM timeSlots"
-								+ "WHERE dateId = '%d' AND examId = '%s'",
-								search,exam.getExamID()));
+								+ "WHERE dateId = '%d' AND examIdT = '%s'",
+								l,exam.getExamID()));
 						if(apps.contains((i-1))|| apps.contains((i+1))) {
 							clear = false;
 						}
@@ -191,40 +192,88 @@ public class TestingCenter {
 	
 	//make an appointment to take an exam
 	//
-	public synchronized void makeAppointment(Exam exam, DateTime time, int seatId, int appointmentId, String netID, DateTime startTime, DateTime endTime) throws ExistingAppointmentException {
+	public synchronized boolean makeAppointment(Exam exam, DateTime time, int appointmentId, String netID, DateTime startTime, DateTime endTime) throws ExistingAppointmentException {
 		logger.info("Creating new Appointment");
 		logger.fine("Exam id: " + exam.getExamID());
 		logger.fine("Student ID: " + netID);
 		logger.fine("Appointment start time: " + time.toString());
-		logger.fine("Seat ID: " + seatId);
 		logger.fine("Appointment ID: " + appointmentId);
 		
 		if (hasAppointment(netID, exam.getExamID())) {
 			logger.warning("Student " + netID + " already has appointment for exam " + exam.getExamID());
-			throw new ExistingAppointmentException("Student " + netID + " already has appointment for exam " + exam.getExamID()); 
+			//throw new ExistingAppointmentException("Student " + netID + " already has appointment for exam " + exam.getExamID());
+			return false;
 		}
 		
 		if (conflictingAppointment(netID, startTime, endTime)) {
 			logger.warning("Student " + netID + " already has an appointment between " + startTime + " and " + endTime);
-			throw new ConflictingAppointmentException("Student " + netID + " already has an appointment between " + startTime + " and " + endTime);
+			//throw new ConflictingAppointmentException("Student " + netID + " already has an appointment between " + startTime + " and " + endTime);
+			return false;
 		}
 		
 		if (appointmentOutOfExamBounds(exam.getExamID(), startTime, endTime)) {
 			logger.warning("Requested appointment not within bounds of exam " + exam.getExamID() + " start and end times.");
-			throw new OutOfExamBoundsException("Requested appointment not within bounds of exam " + exam.getExamID() + " start and end times.");
+			//throw new OutOfExamBoundsException("Requested appointment not within bounds of exam " + exam.getExamID() + " start and end times.");
+			return false;
 		}
 		
-		String queryString = String.format("INSERT INTO appointment VALUES ("
-				+ "'%s', '%s', %d, %d, %d, %d, %d)", 
-				exam.getExamID(), 
-				netID, 
-				time.getMillis()/1000,
-				seatId,
-				appointmentId,
-				startTime.getMillis()/1000,
-				endTime.getMillis()/1000
-				);
-		db.updateQuery(queryString);
+
+		boolean avalSeat = false;
+		long start = startTime.getMillis()/1000;
+		long gapTime = (long)gap.getMinutes()*60;
+		long actualLen = gapTime+exam.getLength();  
+		long rem = actualLen%1800;
+		long len =0;
+		if(rem == 0) {
+			len = actualLen;
+		} else {
+			len = actualLen/1800+1;
+			len = len*1800;
+		}
+		for(int i = 0;i<numberOfSeats-numberOfSetAside && !avalSeat;i++) {
+			boolean clear = true;
+			for(long l = start; l<start+len && clear; l=l+1800) {
+				List<Map<String,Object>> apps = db.query(String.format("SELECT examIdT FROM timeSlots"
+						+ "WHERE dateId = '%d' AND seatId = '%d'",
+						l,i));
+				if(apps.get(0)!= null) {
+					clear = false;
+				} else {
+					apps = db.query(String.format("SELECT seatId FROM timeSlots"
+							+ "WHERE dateId = '%d' AND examIdT = '%s'",
+							l,exam.getExamID()));
+					if(apps.contains((i-1))|| apps.contains((i+1))) {
+						clear = false;
+					}
+				}
+				if(clear) {
+					avalSeat = true;
+					for(l = start; l<start+len; l=l+1800) {
+						db.updateQuery(String.format("INSERT INTO timeslots VALUES ("
+								+"'%d','%d','%s','%s'", 
+								start,
+								i,
+								netID,
+								exam.getExamID()));
+					}
+					String queryString = String.format("INSERT INTO appointment VALUES ("
+							+ "'%s', '%s', %d, %d, %d, %d, %d)", 
+							exam.getExamID(), 
+							netID, 
+							time.getMillis()/1000,
+							i,
+							appointmentId,
+							startTime.getMillis()/1000,
+							endTime.getMillis()/1000
+							);
+					db.updateQuery(queryString);
+				}
+			}
+		}
+		if(!avalSeat) {
+			return false;
+		}
+		return true;
 	}
 	
 	private boolean appointmentOutOfExamBounds(String examID, DateTime startTime, DateTime endTime) {
@@ -965,10 +1014,7 @@ public class TestingCenter {
 				}
 				
 				
-				/*
-				 * TODO
-				 * This should work in theory I just need to add gap time
-				 */
+				
 				long searchTime = apEnd;
 				ArrayList<String[]> appSeats = new ArrayList<String[]>();
 				int i = 0;
@@ -1198,15 +1244,15 @@ public class TestingCenter {
 				search = search.plusHours(reminderInt.getHours());
 			}
 			List<Map<String,Object>> appointments = db.query(
-					String.format("SELECT examIdA, studentIdA, dateIdA, seatIdA, appointmentID "
+					String.format("SELECT examIdA, studentIdA, dateId, seatId, appointmentID "
 					+ "FROM appointment "
-					+ "WHERE dateIdA = '%d'",
+					+ "WHERE dateId = '%d'",
 					search.getMillis()/1000
 					));
 			
 			
 			for (Map<String,Object> appointment : appointments) {
-				String queryString = String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, examLength FROM exam, courseId"
+				String queryString = String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, numSeats, examLength, courseId FROM exam"
 						+ "WHERE examID = '%s'",
 						appointment.get("examIdA"));
 				List<Map<String,Object>> exams = db.query(queryString);
