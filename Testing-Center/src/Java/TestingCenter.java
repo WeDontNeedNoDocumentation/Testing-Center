@@ -238,7 +238,7 @@ public class TestingCenter {
 				List<Map<String,Object>> apps = db.query(String.format("SELECT examIdT FROM timeSlots"
 						+ "WHERE dateId = '%d' AND seatId = '%d'",
 						l,i));
-				if(apps.get(0)!= null) {
+				if(apps.size() > 0) {
 					clear = false;
 				} else {
 					apps = db.query(String.format("SELECT seatId FROM timeSlots"
@@ -382,29 +382,34 @@ public class TestingCenter {
 
 	//Make a reservation for an exam, given the examID, start time, end time,
 	//whether it is a course exam or an adhoc exam, and the instructor id
-	public synchronized boolean makeReservation(Exam exam, DateTime start, DateTime end, boolean courseExam, String instructorId) {
+	//examId, start, end, courseExam, instId, numSeats, duration, courseId
+	public synchronized boolean makeReservation(String examId, DateTime start, DateTime end, boolean courseExam, String instructorId, int numSeats, int duration, String courseId) {
 		logger.severe("DOES NOT ADD ALL OF THE NECESSARY FIELDS. FIX THIS PLEASE.");
 		
 		logger.info("Creating new reservation request.");
-		logger.fine("Exam ID: " + exam.getExamID());
+		logger.fine("Exam ID: " + examId);
 		logger.fine("Exam start time: " + start.toString());
 		logger.fine("Exam end time: " + end.toString());
 		logger.fine("Course exam: " + courseExam);
 		logger.fine("Reservation status: " + "P");
 		logger.fine("Instructor ID: " + instructorId);
+		logger.fine("Number of seats: " + numSeats);
+		logger.fine("Duration (minutes): " + duration);
+		logger.fine("Course ID: " + courseId);
+		
 		
 		String queryString = String.format("INSERT INTO exam "
 				+ "(examId, start, end, boolCourseExam, examStatus, instructorIdA, numSeats, examLength, courseId) "
 				+ "VALUES ('%s', %d, %d, '%s', '%s', '%s', %d, %d, '%s')", 
-				exam.getExamID(), 
+				examId, 
 				start.getMillis()/1000,
 				end.getMillis()/1000,
 				courseExam ? 1 : 0,
 				"P",
 				instructorId,
-				exam.getNumSeats(),
-				exam.getLength(),
-				exam.getCourseId()
+				numSeats,
+				duration,
+				courseId
 				);
 		db.updateQuery(queryString);
 		
@@ -686,19 +691,19 @@ public class TestingCenter {
 	 * corresponding tables in our data base.
 	 * (NOTE: At the moment the function will try to add an entry even if the Primary Key already exists.)
 	 */
-	public boolean updateData(String usersFileName, String instructorFileName, String coursesFileName, String rostersFileName) {
+	public boolean updateData(String usersFileName, /*String instructorFileName, */String coursesFileName, String rostersFileName) {
 		logger.info("Reading csv files, updating database");
 	
 		try {
-			//updateStudentTableFromFile(usersFileName, "student");
+			updateStudentTableFromFile(usersFileName, "student");
 			
-			//updateUsersTableFromFile(usersFileName, "users");
+			updateUsersTableFromFile(usersFileName, "users");
 			
 			//updateUsersTableFromFile(instructorFileName, "users");
 			
 			//updateInstructorTableFromFile(instructorFileName, "instructor");
 			
-			//updateClassTableFromFile(coursesFileName, "course");
+			updateClassTableFromFile(coursesFileName, "course");
 			
 			updateCourseStudentTableFromFile(rostersFileName, "coursestudent");
 			
@@ -987,10 +992,11 @@ public class TestingCenter {
 		This function was not completed due to several errors that appeared in the last few hours.
 	 */
 	public synchronized boolean isExamSchedulable(Exam newExam) {
-		this.makeReservation(newExam, newExam.getStart(), newExam.getEnd(), !newExam.isAdHocExam(), newExam.getInstructorId());
-		//DateTime now = DateTime.now();
-		//long nowUnix = now.getMillis()/1000;
-		
+
+		this.makeReservation(newExam.getExamID(), newExam.getStart(), newExam.getEnd(), !newExam.isAdHocExam(), newExam.getInstructorId(), newExam.getNumSeats(), newExam.getLength(), newExam.getCourseId());
+		DateTime now = DateTime.now();
+		long nowUnix = now.getMillis()/1000;
+
 		List<Map<String, Object>> exams = getOverlap(newExam);
 		
 
@@ -1707,6 +1713,8 @@ public class TestingCenter {
 		System.out.println(coursesPerWeek);
 		
 		//tc.updateData("user.csv", "instructor.csv", "class.csv", "roster.csv");
+		
+		tc.updateData("user.csv", "class.csv", "roster.csv");
 	}
 
 }

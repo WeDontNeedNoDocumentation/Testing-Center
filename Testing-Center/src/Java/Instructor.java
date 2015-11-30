@@ -77,8 +77,8 @@ public class Instructor {
 	 * is created and sent.
 	 * (NOTE: This does not yet check for conflicts.)
 	 */
-	public boolean makeExam(Exam exam, DateTime start, DateTime end, boolean courseExam) {
-		return tC.makeReservation(exam, start, end, courseExam, this.instructorId);
+	public boolean makeExam(String examId, DateTime start, DateTime end, boolean courseExam, int numSeats, int duration, String courseId) {
+		return tC.makeReservation(examId, start, end, courseExam, this.instructorId, numSeats, duration, courseId);
 	}
 	
 	public void viewAvailability() {
@@ -116,8 +116,8 @@ public class Instructor {
 				instructorId);
 		Database.getDatabase().updateQuery(queryString);
 		
-		Exam exam = new Exam(examName, start, end, instructorId, examName, students.size(), duration, true);
-		if (makeExam(exam, start, end, false)) {
+		//Exam exam = new Exam(examName, start, end, instructorId, examName, students.size(), duration, true);
+		if (makeExam(examName, start, end, false, students.size(), duration, examName)) {
 			enrollStudents(examName, students);
 			return true;
 		}
@@ -138,6 +138,7 @@ public class Instructor {
 	
 	public static void main(String[] args) {
 		Instructor inst = new Instructor("Meredith Roberts", "Meredith.Roberts@example.com", "MRoberts");
+		Instructor inst2 = new Instructor("Lila Little", "Lila.Little@example.com", "LLittle");
 		
 		List<String> netIds = new ArrayList<String>();
 		netIds.add("a");
@@ -149,5 +150,11 @@ public class Instructor {
 		for (Exam exam : exams) {
 			System.out.println(exam);	
 		}
+		
+		
+		inst.makeExam("test-exam-1", new DateTime(2015, 1, 1, 0, 0), new DateTime(2015, 1,2,0,0), true, 400, 60, "80450-1158");
+		inst.makeExam("test-exam-2", new DateTime(2015, 12, 1, 8, 0), new DateTime(2015, 12, 3, 12, 0), true, 97, 85, "80450-1158");
+		inst2.makeExam("test-exam-3", new DateTime(2015, 12, 7, 1, 0), new DateTime(2015, 12, 8, 3, 0), true, 46, 45, "85023-1158");
+		
 	}
 }
