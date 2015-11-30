@@ -1419,59 +1419,13 @@ public class TestingCenter {
 		return dailyCount;
 	}
 	
-	public List<Course> coursesUsed(int term) {
-		List<Course> coursesResult = new ArrayList<Course>();
-		String queryString = String.format("SELECT course.* "
-				+ "FROM course "
-				+ "INNER JOIN exam "
-				+ "ON course.courseTerm = exam.courseId "
-				+ "WHERE course.termId = %d;",
-				term);
-		List<Map<String, Object>> courses = Database.getDatabase().query(queryString);
-		
-		for (Map<String, Object> course : courses) {
-			String courseId = (String) course.get("courseId");
-			String subject = (String) course.get("subject");
-			int catalogNumber = (int) course.get("catalogNumber");
-			String section = (String) course.get("section");
-			String instructorId = (String) course.get("instructorIdB");
-			int termId = (int) course.get("termId");
-			String courseTerm = (String) course.get("courseTerm");
-			
-			Course newCourse = new Course(courseId, subject, catalogNumber, section, instructorId, termId, courseTerm);
-			
-			coursesResult.add(newCourse);
-		}
-		
-		return coursesResult;
-	}
-	
-	public Map<Integer, Integer> appointmentsPerTerm(int startTerm, int endTerm) {
-		Map<Integer, Integer> apptsPerTerm = new HashMap<Integer, Integer>();
-		
-		String queryString = String.format("SELECT course.termId, COUNT(1) AS numAppointments "
-				+ "FROM appointment "
-				+ "INNER JOIN exam "
-				+ "ON appointment.examIdA = exam.examId "
-				+ "INNER JOIN course "
-				+ "ON exam.courseId = course.courseTerm "
-				+ "WHERE course.termId >= %d "
-				+ "AND course.termID <= %d "
-				+ "GROUP BY termId;",
-				startTerm,
-				endTerm);
-		List<Map<String, Object>> terms = Database.getDatabase().query(queryString);
-		
-		for (Map<String, Object> term : terms) {
-			int termId = (int) term.get("termId");
-			long numAppointments = (long) term.get("numAppointments");
-			
-			apptsPerTerm.put(termId, (int) numAppointments);
-		}
-		
-		return apptsPerTerm;
-	}
-	
+	/**
+	 * Returns the a map of a week (represented by the LocalDate corresponding
+	 * to the Monday of that week) to the number of appointments that week.
+	 * Used for report b
+	 * @param term
+	 * @return
+	 */
 	public synchronized Map<LocalDate, Integer> appointmentsPerWeek(int term) {
 		Map<LocalDate, Integer> appts = new HashMap<LocalDate, Integer>();
 		
@@ -1507,6 +1461,14 @@ public class TestingCenter {
 		return appts;
 	}
 	
+	/**
+	 * Returns the a map of a week (represented by the LocalDate corresponding
+	 * to the Monday of that week) to the set of courseIds of the courses that
+	 * use the TestingCenter that week.
+	 * Used for report b
+	 * @param term
+	 * @return
+	 */
 	public synchronized Map<LocalDate, Set<String>> coursesPerWeek(int term) {
 		Map<LocalDate, Set<String>> coursesPerWeek = new HashMap<LocalDate, Set<String>>();
 		
@@ -1539,10 +1501,83 @@ public class TestingCenter {
 		
 	}
 	
+	/**
+	 * Determines the Monday of the week of the given DateTime.
+	 * Used for report b.
+	 * @param time
+	 * @return
+	 */
 	private LocalDate getMonday(DateTime time) {
 		int dayOfWeek = time.getDayOfWeek();
 		DateTime monday = time.minusDays(dayOfWeek - 1);
 		return monday.toLocalDate();
+	}
+	
+	/**
+	 * Returns the list of courses that use the Testing Center in the specified
+	 * term.
+	 * Used for report c
+	 * @param term
+	 * @return
+	 */
+	public List<Course> coursesUsed(int term) {
+		List<Course> coursesResult = new ArrayList<Course>();
+		String queryString = String.format("SELECT course.* "
+				+ "FROM course "
+				+ "INNER JOIN exam "
+				+ "ON course.courseTerm = exam.courseId "
+				+ "WHERE course.termId = %d;",
+				term);
+		List<Map<String, Object>> courses = Database.getDatabase().query(queryString);
+		
+		for (Map<String, Object> course : courses) {
+			String courseId = (String) course.get("courseId");
+			String subject = (String) course.get("subject");
+			int catalogNumber = (int) course.get("catalogNumber");
+			String section = (String) course.get("section");
+			String instructorId = (String) course.get("instructorIdB");
+			int termId = (int) course.get("termId");
+			String courseTerm = (String) course.get("courseTerm");
+			
+			Course newCourse = new Course(courseId, subject, catalogNumber, section, instructorId, termId, courseTerm);
+			
+			coursesResult.add(newCourse);
+		}
+		
+		return coursesResult;
+	}
+	
+	/**
+	 * Returns a map of the termId to the number of appointments that term.
+	 * Used for report d
+	 * @param startTerm
+	 * @param endTerm
+	 * @return
+	 */
+	public Map<Integer, Integer> appointmentsPerTerm(int startTerm, int endTerm) {
+		Map<Integer, Integer> apptsPerTerm = new HashMap<Integer, Integer>();
+		
+		String queryString = String.format("SELECT course.termId, COUNT(1) AS numAppointments "
+				+ "FROM appointment "
+				+ "INNER JOIN exam "
+				+ "ON appointment.examIdA = exam.examId "
+				+ "INNER JOIN course "
+				+ "ON exam.courseId = course.courseTerm "
+				+ "WHERE course.termId >= %d "
+				+ "AND course.termID <= %d "
+				+ "GROUP BY termId;",
+				startTerm,
+				endTerm);
+		List<Map<String, Object>> terms = Database.getDatabase().query(queryString);
+		
+		for (Map<String, Object> term : terms) {
+			int termId = (int) term.get("termId");
+			long numAppointments = (long) term.get("numAppointments");
+			
+			apptsPerTerm.put(termId, (int) numAppointments);
+		}
+		
+		return apptsPerTerm;
 	}
 	
 	public synchronized List<Student> viewAttendanceStats(String examId) {

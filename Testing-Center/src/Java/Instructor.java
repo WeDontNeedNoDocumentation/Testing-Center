@@ -77,10 +77,8 @@ public class Instructor {
 	 * is created and sent.
 	 * (NOTE: This does not yet check for conflicts.)
 	 */
-	public void makeExam(String examId, DateTime start, DateTime end, String instrId, String courseID, String seats, String duration, boolean courseExam) {
-		
-		Exam exam = new Exam(examId, start, end, instrId, courseID, Integer.parseInt(seats), Integer.parseInt(duration), courseExam);
-		tC.makeReservation(exam, start, end, courseExam, this.instructorId);
+	public boolean makeExam(Exam exam, DateTime start, DateTime end, boolean courseExam) {
+		return tC.makeReservation(exam, start, end, courseExam, this.instructorId);
 	}
 	
 	public void viewAvailability() {
@@ -98,5 +96,58 @@ public class Instructor {
 	public void viewAttendanceStats(String examId) {
 		List<Student> attendence = tC.viewAttendanceStats(examId);
 	}
-
+	
+	/**
+	 * Creates an Ad Hoc Exam
+	 * @param termId	Term in which the exam will take place
+	 * @param examName	Name of the exam. WIll also be the examId
+	 * @param start		Time at which the exam starts
+	 * @param end		Time at which the exam ends
+	 * @param duration	Duration of the exam in minutes
+	 * @param students	List of netIds of the students to take the course 
+	 * @return
+	 */
+	public boolean makeAdHocExam(int termId, String examName, DateTime start, DateTime end, int duration, List<String> students) {
+		String queryString = String.format("INSERT INTO course "
+				+ "(courseTerm, termId, instructorIdB) "
+				+ "VALUES ('%s', %d, '%s')",
+				examName,
+				termId,
+				instructorId);
+		Database.getDatabase().updateQuery(queryString);
+		
+		Exam exam = new Exam(examName, start, end, instructorId, examName, students.size(), duration, true);
+		if (makeExam(exam, start, end, false)) {
+			enrollStudents(examName, students);
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	private void enrollStudents(String courseId, List<String> students) {
+		for (String netId : students) {
+			String queryString = String.format("INSERT INTO coursestudent "
+					+ "(courseIdCS, studentIdCS) "
+					+ "VALUES ('%s', '%s')",
+					courseId, netId);
+			Database.getDatabase().updateQuery(queryString);
+		}
+	}
+	
+	public static void main(String[] args) {
+		Instructor inst = new Instructor("Meredith Roberts", "Meredith.Roberts@example.com", "MRoberts");
+		
+		List<String> netIds = new ArrayList<String>();
+		netIds.add("a");
+		netIds.add("abak");
+		
+		//inst.makeAdHocExam(1158, "test-adhoc-exam", new DateTime(2015, 12, 15, 0, 0), new DateTime(2015, 12, 20, 0, 0), 60, netIds);
+		
+		List<Exam> exams = inst.viewExams();
+		for (Exam exam : exams) {
+			System.out.println(exam);	
+		}
+	}
 }
