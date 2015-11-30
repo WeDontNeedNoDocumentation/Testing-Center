@@ -1244,15 +1244,15 @@ public class TestingCenter {
 				search = search.plusHours(reminderInt.getHours());
 			}
 			List<Map<String,Object>> appointments = db.query(
-					String.format("SELECT examIdA, studentIdA, dateIdA, seatIdA, appointmentID "
+					String.format("SELECT examIdA, studentIdA, dateId, seatId, appointmentID "
 					+ "FROM appointment "
-					+ "WHERE dateIdA = '%d'",
+					+ "WHERE dateId = '%d'",
 					search.getMillis()/1000
 					));
 			
 			
 			for (Map<String,Object> appointment : appointments) {
-				String queryString = String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, examLength FROM exam, courseId"
+				String queryString = String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, numSeats, examLength, courseId FROM exam"
 						+ "WHERE examID = '%s'",
 						appointment.get("examIdA"));
 				List<Map<String,Object>> exams = db.query(queryString);
