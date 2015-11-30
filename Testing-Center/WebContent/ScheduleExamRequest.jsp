@@ -182,29 +182,23 @@
                 <div class="row">
                 	<form role="form">
                 		<div class="col-sm-6re">
+                			<div class="form-group input-group">
+		                        <span class="input-group-addon">Exam ID</span>
+		                        <input type="text" class="form-control" placeholder="IE:Test1">
+		                    </div>
 		                    <div class="form-group input-group">
 		                        <span class="input-group-addon">Course ID</span>
-		                        <input type="text" class="form-control" placeholder="IE:CSE308">
-		                    </div>
-		                    
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Section</span>
-		                        <input type="text" class="form-control" placeholder="Enter Number">
+		                        <input type="text" class="form-control" placeholder="IE:80450-1158">
 		                    </div>
 		
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Term</span>
-		                        <input type="text" class="form-control" placeholder="IE:FALL2015">
-		                    </div>
-		                    
 		                    <div class="form-group input-group">
 		                        <span class="input-group-addon">Start Date</span>
 		                        <input type="text" class="form-control" placeholder="mm/dd/yyyy">
 		                    </div>
 		
 		                    <div class="form-group input-group">
+		                    	<span class="input-group-addon">Minutes</span>
 		                        <input type="text" class="form-control" placeholder="Start Time">
-		                        <span class="input-group-addon">Minutes</span>
 		                    </div>
 		
 		                    <div class="form-group input-group">

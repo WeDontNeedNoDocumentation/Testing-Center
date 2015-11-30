@@ -141,6 +141,22 @@ public class Database {
 		return results;
 	}
 	
+	public ResultSet queryRS(String queryString) {
+		logger.fine("Preparing to execute SQL query to retrieve data.");
+		logger.info("QUERY STRING: " + queryString);
+		ResultSet rs = null;
+		try {
+			Statement statement = conn.createStatement();
+			rs = statement.executeQuery(queryString);
+			logger.info("Query successfully executed.");
+
+		} catch (SQLException e) {
+			logger.warning("Error executing query. Please check query and try again.");
+			e.printStackTrace();
+		}
+		return rs;
+	}
+	
 	/*
 	 * Sends a query to update
 	 */

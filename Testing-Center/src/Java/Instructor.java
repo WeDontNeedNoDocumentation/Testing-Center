@@ -77,7 +77,9 @@ public class Instructor {
 	 * is created and sent.
 	 * (NOTE: This does not yet check for conflicts.)
 	 */
-	public void makeExam(Exam exam, DateTime start, DateTime end, boolean courseExam) {
+	public void makeExam(String examId, DateTime start, DateTime end, String instrId, String courseID, String seats, String duration, boolean courseExam) {
+		
+		Exam exam = new Exam(examId, start, end, instrId, courseID, Integer.parseInt(seats), Integer.parseInt(duration), courseExam);
 		tC.makeReservation(exam, start, end, courseExam, this.instructorId);
 	}
 	

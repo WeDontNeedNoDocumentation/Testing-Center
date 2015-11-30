@@ -18,5 +18,4 @@
 	instr.cancelExam(examId);
 	
 	response.sendRedirect("SeeExamRequests.jsp");
-
 %>
