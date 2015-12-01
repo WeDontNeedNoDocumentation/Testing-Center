@@ -1298,7 +1298,7 @@ public class TestingCenter {
 			
 			
 			for (Map<String,Object> appointment : appointments) {
-				String queryString = String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, numSeats, examLength, courseId FROM exam"
+				String queryString = String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorIdA, numSeats, examLength, courseId FROM exam"
 						+ " WHERE examID = '%s'",
 						appointment.get("examIdA"));
 				List<Map<String,Object>> exams = db.query(queryString);
