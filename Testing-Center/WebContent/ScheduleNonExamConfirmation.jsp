@@ -1,3 +1,9 @@
+<%@page import="DBWorks.DBConnection"%>
+<%@page import="Java.*" %>
+<%@page import="org.joda.time.DateTime" %>
+<%@page import="java.util.*" %>
+<%@page import="java.lang.*" %>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -31,7 +37,43 @@
 </head>
 
 <body>
-
+	<%
+		String email = session.getAttribute("email").toString();
+		String id = session.getAttribute("id").toString();
+		String name = session.getAttribute("name").toString();
+		String termId = request.getParameter("termId");
+		String duration = request.getParameter("duration");
+		String studentList = request.getParameter("stuList");
+		String lName = "";
+		String fName = "";
+		
+		String netId = "";
+		List<String> fullList = new ArrayList<String>(Arrays.asList(studentList.split(":")));
+		List<String> netIdList = new ArrayList<String>();
+		for(String s: fullList)
+		{
+			netIdList.add(s.substring(0,s.indexOf(",")));
+		}
+	
+		Instructor instr = new Instructor(name, email, id);
+		DateTimeUtil dtUtil = new DateTimeUtil();
+		
+		String examId = request.getParameter("examId");
+		
+		String sDate = request.getParameter("sDate");
+		String sTime = request.getParameter("sTime");
+		
+		DateTime stDate = dtUtil.makeDateTime(sDate, sTime);
+		
+		String eDate = request.getParameter("eDate");
+		String eTime = request.getParameter("eTime");
+		
+		DateTime enDate = dtUtil.makeDateTime(sDate, sTime);
+		
+		// makeAdHocExam(int termId, String examName, DateTime start, DateTime end, int duration, List<String> students) {
+		
+		Boolean success = instr.makeAdHocExam(Integer.parseInt(termId), examId, stDate, enDate, Integer.parseInt(duration), netIdList);
+	%>
     <div id="wrapper">
 
         <!-- Navigation -->
@@ -165,58 +207,17 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <h1 class="page-header">
-                            Schedule Exam Request
+                            <%if(success)
+                        	{%>Schedule Exam Confirmed<%}
+                        	else{%>Schedule Exam Failed<%}
+                        	%>
                         </h1>
                     </div>
                 </div>
                 <div class="row">
                 	<form action="ScheduleNonExamConfirmation.jsp" method="post">
                 		<div class="col-sm-6re">
-                			<div class="form-group input-group">
                 			
-		                        <span class="input-group-addon">Exam ID</span>
-		                        <input name="examId" type="text" class="form-control" placeholder="IE:Test1">
-		                    </div>
-							
-							<div class="form-group input-group">
-		                        <span class="input-group-addon">Term</span>
-		                        <input name="termId" type="text" class="form-control" placeholder="IE:1158">
-		                    </div>
-							
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Start Date</span>
-		                        <input name="sDate" type="text" class="form-control" placeholder="mm/dd/yyyy">
-		                    </div>
-		
-		                    <div class="form-group input-group">
-		                    	<span class="input-group-addon">Start Time</span>
-		                        <input name="sTime" type="text" class="form-control" placeholder="10:00am">
-		                    </div>
-		
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">End Date</span>
-		                        <input name="eDate" type="text" class="form-control" placeholder="mm/dd/yyyy">
-		                    </div>
-		                    
-		                    <div class="form-group input-group">
-		                    	<span class="input-group-addon">End Time</span>
-		                        <input name="eTime" type="text" class="form-control" placeholder="12:00pm">
-		                    </div>
-		                    
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Duration</span>
-		                        <input name="duration" type="text" class="form-control" placeholder="IE:120">
-		                    </div>
-		                    
-		                    <div class="form-group input-group">
-		                    	<span class="input-group-addon">Add Students</span>
-		                        <input name="stuList" type="text" class="form-control" placeholder="netId1,fName,lName:netId2,fName,lName ...">
-		                    </div>
-		                    
-		                    <button type="submit" value="submit">Submit</button>
-			                
-			                <div class="container">
-			                
 						</div>
 					</form>
                 </div>
