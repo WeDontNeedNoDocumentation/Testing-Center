@@ -353,24 +353,24 @@ public class TestingCenter {
 		return cancelled > 0;
 	}
 	
-	//edit an exam
-	//should be used by an administrator/student
+	// edit an exam
+	// should be used by an administrator/student
+	
 	public synchronized void editAppointment(String examIdA, String studentIdA,
-				DateTime dateId, int seatId, int appointmentId, DateTime startTime,
-				DateTime endTime){
-		logger.info("Editing exam with exam ID: " + examId +"& instructorId: "+ instructorIdA);
-		String queryString = String.format("UPDATE exam"
-				+" SET start='%d', end='%d', boolCourseExam='%d', numSeats='%d',"
-				+ " examLength='%d'+ courseId='%d'"
+				int appointmentId, DateTime startTime, DateTime endTime){
+		logger.info("Editing appointment with appointment ID: " + appointmentId +"& studentId: "+ studentIdA);
+		String queryString = String.format("UPDATE appointment"
+				+" SET startTime='%d', endTime='%d'"
 				+ " WHERE "
-				+ "instructorIdA='%s'"
+				+ "studentIdA='%s'"
 				+ " AND "
-				+ "examId='%s'",
-				start, end, boolCourseExam, numSeats, examLength, courseId,
-				instructorIdA,
-				examId
+				+ "appointmentId='%s'",
+				startTime, endTime,
+				studentIdA,
+				appointmentId
 				);
 		db.updateQuery(queryString);
+		
 	}
 	
 	public synchronized boolean canAppointmentBeCancelled(int appId) {
