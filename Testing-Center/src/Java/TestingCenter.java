@@ -26,7 +26,6 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
 import org.joda.time.LocalDate;
@@ -190,12 +189,12 @@ public class TestingCenter {
 	}
 	
 	//make an appointment to take an exam
-	public synchronized boolean makeAppointment(String examId, DateTime time, int appointmentId, String netID, DateTime startTime, DateTime endTime, int duration) throws ExistingAppointmentException {
+	public synchronized boolean makeAppointment(String examId, DateTime time, String netID, DateTime startTime, DateTime endTime, int duration) throws ExistingAppointmentException {
 		logger.info("Creating new Appointment");
 		logger.fine("Exam id: " + examId);
 		logger.fine("Student ID: " + netID);
 		logger.fine("Appointment start time: " + time.toString());
-		logger.fine("Appointment ID: " + appointmentId);
+		//logger.fine("Appointment ID: " + appointmentId);
 		
 		if (hasAppointment(netID, examId)) {
 			logger.warning("Student " + netID + " already has appointment for exam " + examId);
@@ -254,13 +253,13 @@ public class TestingCenter {
 								netID,
 								examId));
 					}
-					String queryString = String.format("INSERT INTO appointment VALUES ("
-							+ "'%s', '%s', %d, %d, %d, %d, %d)", 
+					String queryString = String.format("INSERT INTO appointment "
+							+ "(examIdA, studentIdA, dateId, seatId, startTime, endTime) "
+							+ "VALUES ('%s', '%s', %d, %d, %d, %d)", 
 							examId, 
 							netID, 
 							time.getMillis()/1000,
 							i,
-							appointmentId,
 							startTime.getMillis()/1000,
 							endTime.getMillis()/1000
 							);
@@ -350,10 +349,13 @@ public class TestingCenter {
 		for (Map<String,Object> appt : appts) {
 			String examId = (String) appt.get("examId");
 			String netId = (String) appt.get("studentIdA");
-			DateTime time = new DateTime((long) appt.get("dateIdA")*1000);
+			DateTime start = new DateTime((long) appt.get("startTime")*1000);
+			DateTime end = new DateTime((long) appt.get("endTime")*1000);
 			
-			Appointment newAppointment = new Appointment(examId, netId, time);
+			Appointment newAppointment = new Appointment(examId, netId, start, end);
 			appointments.add(newAppointment);
+			
+			System.out.println(newAppointment);
 		}
 		
 		return appointments;
@@ -369,9 +371,10 @@ public class TestingCenter {
 		for (Map<String,Object> appt : appts) {
 			String examId = (String) appt.get("examId");
 			String netId = (String) appt.get("studentIdA");
-			DateTime time = new DateTime((long) appt.get("dateIdA")*1000);
+			DateTime start = new DateTime((long) appt.get("startTime")*1000);
+			DateTime end = new DateTime((long) appt.get("endTime")*1000);
 			
-			Appointment newAppointment = new Appointment(examId, netId, time);
+			Appointment newAppointment = new Appointment(examId, netId, start, end);
 			appointments.add(newAppointment);
 		}
 		
@@ -488,13 +491,17 @@ public class TestingCenter {
 	}
 
 	//retrieve a list of all exams that are still pending
-	public List<Exam> getPendingExams() {
+	public List<Exam> getPendingExams(int term) {
 		logger.info("Retrieving all pending exam reservation requests.");
 		
 		List<Map<String,Object>> exams = db.query(
 				String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorIdA, numSeats, courseId, examLength "
 				+ "FROM exam "
-				+ "WHERE examStatus = 'P'"
+				+ "LEFT JOIN course "
+				+ "ON exam.courseId = course.courseTerm"
+				+ "WHERE examStatus = 'P' "
+				+ "AND course.termId = %d",
+				term
 				));
 		
 		List<Exam> examsList = new ArrayList<Exam>();
@@ -837,9 +844,9 @@ public class TestingCenter {
 			search = search.withMinuteOfHour(30);
 		}
 		List<Map<String,Object>> appointments = db.query(
-				String.format("SELECT examIdA, studentIdA, dateIdA, seatIdA, appointmentID "
+				String.format("SELECT examIdA, studentIdA, startTime, seatId, appointmentID "
 				+ "FROM appointment "
-				+ "WHERE studentIdA = '%s' AND dateIdA = %d",
+				+ "WHERE studentIdA = '%s' AND startTime = %d",
 				netID,
 				search.getMillis()/1000
 				));
@@ -946,11 +953,7 @@ public class TestingCenter {
 		db.updateQuery(queryString);
 	}
 	
-	public Comparator<Map<String, Object>> mapComparator = new Comparator<Map<String, Object>>() {
-	    public int compare(Map<String, Object> m1, Map<String, Object> m2) {
-	        return (int) ((long) m1.get("end")-(long)m2.get("end"));
-	    }
-	};
+	
 	
 	/*
 	 * checks if exam may be scheduled given the exam parameters	
@@ -963,6 +966,11 @@ public class TestingCenter {
 
 		List<Map<String, Object>> exams = getOverlap(newExam);
 		
+		 Comparator<Map<String, Object>> mapComparator = new Comparator<Map<String, Object>>() {
+			    public int compare(Map<String, Object> m1, Map<String, Object> m2) {
+			        return (int) ((long) m1.get("end")-(long)m2.get("end"));
+			    }
+			};
 
 		Collections.sort(exams, mapComparator);
 		Map<Long, String[]> seatsAvailable = insertExisting(exams);
@@ -1421,7 +1429,7 @@ public class TestingCenter {
 	 * @param term	Integer code for the specified term
 	 * @return
 	 */
-	public Map<LocalDate, Integer> appointmentsPerDay(int term) {
+	public synchronized Map<LocalDate, Integer> appointmentsPerDay(int term) {
 		Map<LocalDate, Integer> dailyCount = new HashMap<LocalDate, Integer>();
 		
 		String queryString = String.format("SELECT appointment.startTime "
@@ -1550,7 +1558,7 @@ public class TestingCenter {
 	 * @param term
 	 * @return
 	 */
-	public List<Course> coursesUsed(int term) {
+	public synchronized List<Course> coursesUsed(int term) {
 		List<Course> coursesResult = new ArrayList<Course>();
 		String queryString = String.format("SELECT course.* "
 				+ "FROM course "
@@ -1564,7 +1572,7 @@ public class TestingCenter {
 		for (Map<String, Object> course : courses) {
 			String courseId = (String) course.get("courseId");
 			String subject = (String) course.get("subject");
-			int catalogNumber = course.get("catalogNumber") == null ? null : (int) course.get("catalogNumber");
+			int catalogNumber = course.get("catalogNumber") == null ? 0 : (int) course.get("catalogNumber");
 			String section = (String) course.get("section");
 			String instructorId = (String) course.get("instructorIdB");
 			int termId = (int) course.get("termId");
@@ -1585,7 +1593,7 @@ public class TestingCenter {
 	 * @param endTerm
 	 * @return
 	 */
-	public Map<Integer, Integer> appointmentsPerTerm(int startTerm, int endTerm) {
+	public synchronized Map<Integer, Integer> appointmentsPerTerm(int startTerm, int endTerm) {
 		Map<Integer, Integer> apptsPerTerm = new HashMap<Integer, Integer>();
 		
 		String queryString = String.format("SELECT course.termId, COUNT(1) AS numAppointments "
@@ -1667,7 +1675,10 @@ public class TestingCenter {
 		
 		//tc.updateData("user.csv", "instructor.csv", "class.csv", "roster.csv");
 		
-		tc.updateData("user.csv", "class.csv", "roster.csv");
+		//tc.updateData("user.csv", "class.csv", "roster.csv");
+		
+		tc.makeAppointment("test-exam-1", DateTime.now(), "a", new DateTime(2015, 1, 1, 12, 0), new DateTime(2015, 1, 1, 13, 0), 60);
+		tc.makeAppointment("test-exam-1", DateTime.now(), "abinning", new DateTime(2015, 1, 1, 12, 0), new DateTime(2015, 1, 1, 13, 0), 60);
 	}
 
 }
