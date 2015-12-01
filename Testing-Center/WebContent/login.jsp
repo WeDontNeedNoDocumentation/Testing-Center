@@ -34,8 +34,19 @@
              java.sql.ResultSet rs = DBConnection.ExecQuery(query);
 	        if (rs.next())
 	        {
-	        	
-	        	session.setAttribute("login", email);
+	        	id = rs.getString(5);
+        		email = rs.getString(4);
+        		name = rs.getString(2);
+        		
+        		session.setAttribute("name", name);
+        		session.setAttribute("login", email);
+        		session.setAttribute("id", password);
+        		session.setAttribute("email", email);
+        		
+        		Administrator admin = new Administrator(name, email);
+        		
+        		
+        		session.setAttribute("Administrator", admin);
                 response.sendRedirect("AdminHomepage.jsp");
 	        }
 	        else
@@ -73,6 +84,8 @@
 		        		String lname = rs.getString(2);
 		        		
 		        		session.setAttribute("name", fname);
+		        		session.setAttribute("fname", fname);
+		        		session.setAttribute("lname", lname);
 		        		session.setAttribute("login", email);
 		        		session.setAttribute("id", password);
 		        		session.setAttribute("email", email);

@@ -92,7 +92,7 @@
 		//int intDuration = Integer.parseInt(duration);
 		
 		//Exam e = new Exam(examId, stDate, enDate, instrId, courseId, Integer.parseInt(request.getParameter("seats")), Integer.parseInt(request.getParameter("duration")), false);
-		instr.makeExam(examId, stDate, enDate, true, Integer.parseInt(seats), Integer.parseInt(duration), courseId);
+		Boolean success = instr.makeExam(examId, stDate, enDate, true, Integer.parseInt(seats), Integer.parseInt(duration), courseId);
 	%>
     <div id="wrapper">
 
@@ -227,7 +227,11 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <h1 class="page-header">
-                            Schedule Exam Confirmed
+                        	<%if(success)
+                        	{%>Schedule Exam Confirmed<%}
+                        	else{%>Schedule Exam Failed<%}
+                        	%>
+                        	
                         </h1>
                     </div>
                 </div>

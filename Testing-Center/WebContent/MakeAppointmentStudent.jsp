@@ -170,48 +170,50 @@
                     </div>
                 </div>
                 
-                <!-- Exam exam, DateTime time, int seatId, int appointmentId, String netID -->
-
                 <div class="row">
-	                <table class="table table-bordered table-hover">
-	                    <thead>
-	                    <!-- Columns -->
-	                        <tr class="active">
-	                            <th>Exam</th>
-	                            <th>Time</th>
-	                            <th>Seat ID</th>
-	                            <th>Net ID</th>
-	                        </tr>
-	                    <!-- /Columns -->
-	                    </thead>
-	                    <tbody>
-	                        <tr>
-	                        <!--enter code here for table -->
-	                        <% 
-		                        String email = session.getAttribute("email").toString();
-		                		String id = session.getAttribute("id").toString();
-		                		String name = session.getAttribute("name").toString();
-		                		
-		                		session.getAttribute("name", fname);
-				        		session.getAttribute("login", email);
-				        		session.getAttribute("id", password);
-				        		session.getAttribute("email", email);
-				        		
-				        		Student student = new Student(fname, lname, id, email,id);
-		                	
-		                		Student Student = new Instructor(name, email, id);
-		                        Exam e = new Exam(examId, stDate, enDate, instrId, courseId, Integer.parseInt(request.getParameter("seats")), Integer.parseInt(request.getParameter("duration")), false);
-		                		instr.makeExam(e, stDate, enDate, true, instrId);
-	                        %>
-	                        <!-- row entries -->
-	                            <td>Sample exam</td>
-	                            <td>S11:30AM</td>
-	                            <td>D8</td>
-	                            <td>123456789</td>
-	                        <!-- /row entries -->    
-	                        </tr>
-	                    </tbody>
-	                </table>
+                	<form action="MakeAppointmentConfirmation.jsp" method="post">
+                		<div class="col-sm-6re">
+                			<div class="form-group input-group">
+                			
+		                        <span class="input-group-addon">Exam ID</span>
+		                        <input name="examId" type="text" class="form-control" placeholder="IE:Test1">
+		                    </div>
+		                    
+		                    <div class="form-group input-group">
+		                    	<span class="input-group-addon">Appointment Id</span>
+		                        <input name="apptId" type="text" class="form-control" placeholder="123456">
+		                    </div>
+		
+		                    <div class="form-group input-group">
+		                        <span class="input-group-addon">Start Date</span>
+		                        <input name="sDate" type="text" class="form-control" placeholder="mm/dd/yyyy">
+		                    </div>
+		
+		                    <div class="form-group input-group">
+		                    	<span class="input-group-addon">Start Time</span>
+		                        <input name="sTime" type="text" class="form-control" placeholder="10:00am">
+		                    </div>
+		
+		                    <div class="form-group input-group">
+		                        <span class="input-group-addon">End Date</span>
+		                        <input name="eDate" type="text" class="form-control" placeholder="mm/dd/yyyy">
+		                    </div>
+		                    
+		                    <div class="form-group input-group">
+		                    	<span class="input-group-addon">End Time</span>
+		                        <input name="eTime" type="text" class="form-control" placeholder="12:00pm">
+		                    </div>
+		                    
+		                    <div class="form-group input-group">
+		                        <span class="input-group-addon">Duration</span>
+		                        <input name="courseId" type="text" class="form-control" placeholder="IE:120">
+		                    </div>
+		                    
+		                    <button type="submit" value="submit">Submit</button>
+			                
+			                <div class="container">
+						</div>
+					</form>
                 </div>
             </div>
             <!-- /.container-fluid -->
