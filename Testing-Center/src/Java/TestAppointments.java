@@ -3,6 +3,7 @@ import static org.junit.Assert.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -145,6 +146,20 @@ public class TestAppointments {
 		
 		for (Course course : courses) {
 			assertTrue( course.getCourseTerm().equals("81468-1158") || course.getCourseTerm().equals("80450-1158"));
+		}
+	}
+	
+	@Test
+	public void testAppointmentsPerTerm() {
+		Map<Integer, Integer> apptsPerTerm = tc.appointmentsPerTerm(1150, 1160);
+		
+		for (Entry<Integer, Integer> entry : apptsPerTerm.entrySet()) {
+			if (entry.getKey() == 1158) {
+				assertEquals((int) entry.getValue(), 1);
+			}
+			else {
+				assertEquals((int) entry.getValue(), 0);
+			}
 		}
 	}
 	
