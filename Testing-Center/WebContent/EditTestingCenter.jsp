@@ -199,13 +199,13 @@
                 	<form action="EditTestingCenterFields.jsp" method="post">
                 		<div class="col-sm-6re">
                 			<div class="form-group input-group">
-		                        <span class="input-group-addon">Exam ID</span>
-		                        <input name="examId" type="text" class="form-control" placeholder="IE:Test1">
+		                        <span class="input-group-addon">Num of Seats</span>
+		                        <input name="examId" type="text" class="form-control" placeholder="64">
 		                    </div>
 		
 		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Start Date</span>
-		                        <input name="sDate" type="text" class="form-control" placeholder="mm/dd/yyyy">
+		                        <span class="input-group-addon">Num of Set-Aside Seats</span>
+		                        <input name="sDate" type="text" class="form-control" placeholder="5">
 		                    </div>
 		
 		                    <div class="form-group input-group">
