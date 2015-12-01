@@ -1281,6 +1281,7 @@ public class TestingCenter {
 		
 	}
 	
+	//returns the actual utilization of the testingcenter
 	public Map<LocalDate, Double> actualUtilizationPerDay(LocalDate start, LocalDate end) {
 		Map<LocalDate,Double> utilMap = new HashMap<LocalDate, Double>();
 		
@@ -1294,7 +1295,7 @@ public class TestingCenter {
 	}
 	
 	/*
-	 * 
+	 * returns the actual utilization of the testingCenter
 	 */
 	public double actualUtilization(LocalDate date) {
 		long dateStartMillis = date.toDateTimeAtStartOfDay().getMillis();
@@ -1333,7 +1334,7 @@ public class TestingCenter {
 		return utilMap;
 	}
 
-	//checks expected utilization of the testingcenter
+	//checks expected utilization of the testingcenter for a given date
 	
 	public double expectedUtilization(LocalDate date) {
 		double expectedUtilization = actualUtilization(date);
@@ -1600,6 +1601,11 @@ public class TestingCenter {
 		return apptsPerTerm;
 	}
 	
+	/**
+	 * Takes the examId and outputs a list of students who attended this exam
+	 * @param examId
+	 * @return List<Student> corresponding to the results of the query
+	*/
 	public synchronized List<Student> viewAttendanceStats(String examId) {
 		List<Student> studentsList = new ArrayList<Student>();
 		
