@@ -64,7 +64,6 @@ public class Main {
 		
 
 		TestingCenter tC = new TestingCenter(
-				null,
 				64,
 				0,
 				new LocalTime(8,0),

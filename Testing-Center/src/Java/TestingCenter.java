@@ -984,11 +984,7 @@ public class TestingCenter {
 		db.updateQuery(queryString);
 	}
 	
-	public Comparator<Map<String, Object>> mapComparator = new Comparator<Map<String, Object>>() {
-	    public int compare(Map<String, Object> m1, Map<String, Object> m2) {
-	        return (int) ((long) m1.get("end")-(long)m2.get("end"));
-	    }
-	};
+	
 	
 	/*
 	 * 
@@ -1002,6 +998,11 @@ public class TestingCenter {
 
 		List<Map<String, Object>> exams = getOverlap(newExam);
 		
+		 Comparator<Map<String, Object>> mapComparator = new Comparator<Map<String, Object>>() {
+			    public int compare(Map<String, Object> m1, Map<String, Object> m2) {
+			        return (int) ((long) m1.get("end")-(long)m2.get("end"));
+			    }
+			};
 
 		Collections.sort(exams, mapComparator);
 		Map<Long, String[]> seatsAvailable = insertExisting(exams);
