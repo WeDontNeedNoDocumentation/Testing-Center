@@ -1054,7 +1054,11 @@ public class TestingCenter {
 	 */
 	public synchronized boolean isExamSchedulable(Exam newExam) {
 
-		this.makeReservation(newExam.getExamID(), newExam.getStart(), newExam.getEnd(), !newExam.isAdHocExam(), newExam.getInstructorId(), newExam.getNumSeats(), newExam.getLength(), newExam.getCourseId());
+		boolean worked = this.makeReservation(newExam.getExamID(), newExam.getStart(), newExam.getEnd(), !newExam.isAdHocExam(), newExam.getInstructorId(), newExam.getNumSeats(), newExam.getLength(), newExam.getCourseId());
+		if (!worked) {
+			return false;
+		}
+		
 		DateTime now = DateTime.now();
 		long nowUnix = now.getMillis()/1000;
 
@@ -1785,6 +1789,20 @@ public class TestingCenter {
 		}
 		
 		return studentsList;
+	}
+	
+	public int getExamDuration(String examId) {
+		String queryString = String.format("SELECT examLength "
+				+ "FROM exam "
+				+ "WHERE examId = '%s'",
+				examId);
+		List<Map<String, Object>> exams = Database.getDatabase().query(queryString);
+		
+		int duration = -1;
+		for (Map<String, Object> exam : exams) {
+			duration = (int) exam.get("examLength");
+		}
+		return duration;
 	}
 	
 	public static void main(String[] args) {
