@@ -1,3 +1,11 @@
+<%@page import="DBWorks.DBConnection"%>
+<%@page import="Java.*" %>
+<%@page import="org.joda.time.DateTime" %>
+<%@page import="org.joda.time.LocalDate" %>
+<%@page import="org.joda.time.Duration" %>
+<%@page import="java.util.*" %>
+<%@page import="java.lang.*" %>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -9,7 +17,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Schedule Course Exam Request Page - Instructor</title>
+    <title>Schedule Course Exam Confirmation - Instructor</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -26,12 +34,48 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
-    <link href="css/addboxes.css" rel="stylesheet">
+
 
 </head>
 
 <body>
+	<%
+	String email = session.getAttribute("email").toString();
+	String id = session.getAttribute("id").toString();
+	String name = session.getAttribute("name").toString();
+	String termId = request.getParameter("termId");
+	String duration = request.getParameter("duration");
+	String studentList = request.getParameter("stuList");
+	String lName = "";
+	String fName = "";
+	
+	String netId = "";
+	List<String> fullList = new ArrayList<String>(Arrays.asList(studentList.split(":")));
+	List<String> netIdList = new ArrayList<String>();
+	for(String s: fullList)
+	{
+		netIdList.add(s.substring(0,s.indexOf(",")));
+	}
 
+	Instructor instr = new Instructor(name, email, id);
+	DateTimeUtil dtUtil = new DateTimeUtil();
+	
+	String examId = request.getParameter("examId");
+	
+	String sDate = request.getParameter("sDate");
+	String sTime = request.getParameter("sTime");
+	
+	DateTime stDate = dtUtil.makeDateTime(sDate, sTime);
+	
+	String eDate = request.getParameter("eDate");
+	String eTime = request.getParameter("eTime");
+	
+	DateTime enDate = dtUtil.makeDateTime(eDate, eTime);
+	
+	// makeAdHocExam(int termId, String examName, DateTime start, DateTime end, int duration, List<String> students) {
+	
+	//Boolean success = instr.makeAdHocExam(Integer.parseInt(termId), examId, stDate, enDate, Integer.parseInt(duration), netIdList);
+	%>
     <div id="wrapper">
 
         <!-- Navigation -->
@@ -164,66 +208,43 @@
                 <!-- Page Heading -->
                 <div class="row">
                     <div class="col-lg-12">
-                        <h1 class="page-header">
-                            Schedule Exam Request
-                        </h1>
+                    	<%  
+                    	long durationMinutes = new Duration(stDate, enDate).getStandardMinutes();
+                		
+                		Map<LocalDate, Double> utilWithoutExam = instr.expectedUtilizationPerDay(stDate.toLocalDate(), enDate.toLocalDate());
+                		Map<LocalDate, Double> utilWithExam = instr.expectedUtilizationPerDayWithExam(stDate.toLocalDate(), enDate.toLocalDate(), (int) durationMinutes, netIdList.size());
+                		
+                		Exam exam = new Exam(examId, stDate, enDate, null, null, netIdList.size(), Integer.parseInt(duration), true);
+                		boolean schedulable = TestingCenter.getTestingCenter().isExamSchedulable(exam);
+                    	//<!--  Display the utilization here -->
+                    	if (schedulable) {
+	                    	for(Double util : utilWithExam.values()) {
+	                    		out.print("Util with exam: ");
+	                    		out.print(util);
+	                    	}
+	                    	out.print("memes");
+	                    	for(Double util : utilWithoutExam.values()) {
+	                    		out.print("Util without exam: ");
+	                    		out.print(util); 
+	                    	}
+	                    	%>
+	                    	<form action="ScheduleNonExamConfirmation.jsp" method="post">
+                    			<button type="submit" value="submit">Submit</button>
+                    		</form>
+                    		<form action="InstructorHomepage.jsp" method="post">
+                    			<button type="submit" value="submit">Cancel</button>
+                    		</form>
+                    	<%} 
+                    	else {
+                    		out.print("Not schedulable");
+                    	}
+                    	%>
+                    	
+                    	
                     </div>
                 </div>
                 <div class="row">
-                	<form action="ShowUtilizationCourseExam.jsp" method="post">
-                		<div class="col-sm-6re">
-                			<div class="form-group input-group">
-		                        <span class="input-group-addon">Exam ID</span>
-		                        <input name="examId" type="text" class="form-control" placeholder="IE:Test1">
-		                    </div>
-		
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Start Date</span>
-		                        <input name="sDate" type="text" class="form-control" placeholder="mm/dd/yyyy">
-		                    </div>
-		
-		                    <div class="form-group input-group">
-		                    	<span class="input-group-addon">Start Time</span>
-		                        <input name="sTime" type="text" class="form-control" placeholder="10:00am">
-		                    </div>
-		
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">End Date</span>
-		                        <input name="eDate" type="text" class="form-control" placeholder="mm/dd/yyyy">
-		                    </div>
-		                    
-		                    <div class="form-group input-group">
-		                    	<span class="input-group-addon">End Time</span>
-		                        <input name="eTime" type="text" class="form-control" placeholder="12:00pm">
-		                    </div>
-		                    
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Instructor ID</span>
-		                        <input name="instrId" type="text" class="form-control" placeholder="IE:jsmith">
-		                    </div>
-		                    
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Course ID</span>
-		                        <input name="courseId" type="text" class="form-control" placeholder="IE:80450-1158">
-		                    </div>
-		                    
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Number of Seats</span>
-		                        <input name="seats" type="text" class="form-control" placeholder="IE:64">
-		                    </div>
-		                    
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Duration</span>
-		                        <input name="duration" type="text" class="form-control" placeholder="IE:120">
-		                    </div>
-		                    
-		                    
-		                    <button type="submit" value="submit">Submit</button>
-			                
-			                <div class="container">
-			                
-						</div>
-					</form>
+                	
                 </div>
             </div>
             <!-- /.container-fluid -->

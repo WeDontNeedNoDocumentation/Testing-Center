@@ -1054,7 +1054,7 @@ public class TestingCenter {
 		for ( Map<String, Object> exam : exams ) {
 			long start = (long) exam.get("start");
 			long end = (long) exam.get("end");
-			long len = (long)exam.get("examLength");
+			int len = (int) exam.get("examLength");
 			String examId = (String) exam.get("examId");
 			long gapPlusLen = len+(gap.getMinutes()*60);
 			long rem = gapPlusLen%1800;
@@ -1066,7 +1066,7 @@ public class TestingCenter {
 			long apStart = end-apLen;
 			long apEnd = end;
 
-			List<Map<String, Object>> apps = db.query(String.format("SELECT appointmentId FROM appointment"
+			List<Map<String, Object>> apps = db.query(String.format("SELECT appointmentId FROM appointment "
 					+ "WHERE examIdA = '%s'",
 					examId));
 			int seatsLeft = (int) exam.get("numSeats") - apps.size();
@@ -1124,8 +1124,8 @@ public class TestingCenter {
 		for(Map<String,Object> exam : exams) {
 			String examId = (String) exam.get("StringIdA");
 
-			List<Map<String, Object>> apps = db.query(String.format("SELECT startTime, endTime, examIdA, seatIdA "
-					+ "FROM appointment"
+			List<Map<String, Object>> apps = db.query(String.format("SELECT startTime, endTime, examIdA, seatId "
+					+ "FROM appointment "
 					+ "WHERE examIdA = '%s'",
 					examId));
 			
@@ -1147,8 +1147,8 @@ public class TestingCenter {
 	//checks to see which exams overlap in timeslot with the current exam
 	private List<Map<String, Object>> getOverlap(Exam newExam) {
 		List<Map<String, Object>>fullList = new ArrayList<Map<String,Object>>();
-		List<Map<String,Object>> newExamEntry = db.query(String.format("SELECT examId, start,end,examStatus,numSeats,examLength,boolCourseExam,courseId,instructor.instructorId"
-				+"FROM exam"
+		List<Map<String,Object>> newExamEntry = db.query(String.format("SELECT examId, start,end,examStatus,numSeats,examLength,boolCourseExam,courseId,instructorIdA "
+				+"FROM exam "
 				+"WHERE examId = '%s'"
 				, newExam.getExamID()));
 		fullList.add(newExamEntry.get(0));
@@ -1161,11 +1161,11 @@ public class TestingCenter {
 		long start = (long) newExam.get("start");
 		long end = (long) newExam.get("end");
 			
-		String queryString = String.format("SELECT examId, start, end, examStatus, numSeats, examLength, boolCourseExam,courseId,instructor.instructorId"
-				+ "FROM exam"
-				+ "WHERE (exam.start < '%s' AND exam.end > '%s')"
-				+ "OR (exam.start < '%s' AND exam.end BETWEEN '%s' AND '%s')"
-				+ "OR (exam.start > '%s' AND exam.start < '%s')",
+		String queryString = String.format("SELECT examId, start, end, examStatus, numSeats, examLength, boolCourseExam,courseId,instructorIdA "
+				+ "FROM exam "
+				+ "WHERE (exam.start < '%s' AND exam.end > '%s') "
+				+ "OR (exam.start < '%s' AND exam.end BETWEEN '%s' AND '%s') "
+				+ "OR (exam.start > '%s' AND exam.start < '%s') ",
 				start, end, start, end, end, start, end
 				);
 		List<Map<String,Object>> examList = db.query(queryString);
@@ -1379,10 +1379,11 @@ public class TestingCenter {
 	public Map<LocalDate, Double> actualUtilizationPerDay(LocalDate start, LocalDate end) {
 		Map<LocalDate,Double> utilMap = new HashMap<LocalDate, Double>();
 		
-		while (DateTimeComparator.getDateOnlyInstance().compare(start,end) <= 0) {
+		while (DateTimeComparator.getDateOnlyInstance().compare(start.toDateTimeAtCurrentTime(),end.toDateTimeAtCurrentTime()) <= 0) {
+		//while (start.getLocalMillis() <= end.getLocalMillis())
 			double util = actualUtilization(start);
 			utilMap.put(start, util);
-			start.plusDays(1);
+			start = start.plusDays(1);
 		}
 		
 		return utilMap;
@@ -1393,10 +1394,10 @@ public class TestingCenter {
 	 */
 	public double actualUtilization(LocalDate date) {
 		long dateStartMillis = date.toDateTimeAtStartOfDay().getMillis();
-		String queryString = String.format("SELECT startA, startB "
+		String queryString = String.format("SELECT startTime "
 				+ "AS numAppointments "
 				+ "FROM appointment "
-				+ "WHERE startA BETWEEN %d AND %d",
+				+ "WHERE startTime BETWEEN %d AND %d",
 				dateStartMillis + open.getMillisOfDay()/1000,
 				dateStartMillis + close.getMillisOfDay()/1000
 				);
@@ -1417,6 +1418,8 @@ public class TestingCenter {
 	}
 	
 	public Map<LocalDate, Double> expectedUtilizationPerDayWithExam(LocalDate start, LocalDate end, int duration, int numSeats) {
+		System.out.println(start);
+		System.out.println(end);
 		Map<LocalDate, Double> expectedUtil = expectedUtilizationPerDay(start, end);
 		
 		double timeOccupied = 1.0*duration * 60 * 1000 + gap.getMillis();
@@ -1424,7 +1427,9 @@ public class TestingCenter {
 		
 		for (LocalDate date : expectedUtil.keySet()) {
 			double util = expectedUtil.get(date);
+			System.out.println(util);
 			util += timeOccupied*numSeats/daysSpanned;
+			System.out.println("Days spanned: " + daysSpanned);
 			expectedUtil.put(date, util);
 		}
 		
@@ -1434,10 +1439,12 @@ public class TestingCenter {
 	public Map<LocalDate, Double> expectedUtilizationPerDay(LocalDate start, LocalDate end) {
 		Map<LocalDate,Double> utilMap = new HashMap<LocalDate, Double>();
 		
-		while (DateTimeComparator.getDateOnlyInstance().compare(start,end) <= 0) {
+		//while (DateTimeComparator.getDateOnlyInstance().compare(start,end) <= 0) {
+		while (DateTimeComparator.getDateOnlyInstance().compare(start.toDateTimeAtCurrentTime(),end.toDateTimeAtCurrentTime()) <= 0) {
+			System.out.println(start);
 			double util = expectedUtilization(start);
 			utilMap.put(start, util);
-			start.plusDays(1);
+			start = start.plusDays(1);
 		}
 		
 		return utilMap;
@@ -1477,7 +1484,19 @@ public class TestingCenter {
 			int studentsRemaining = numSeats - numAppointments;
 			int daysSpanned = (int) millisSpanned/(1000*60*60*24);
 			
+			System.out.println("Time occupied by exam in millis: " + timeOccupied);
+			System.out.println("Gap time in millis: " + gap.getMillis());
+			System.out.println("Students remaining: " + studentsRemaining);
+			System.out.println("Days spanned: " + daysSpanned);
+			System.out.println("Time spanned in milliseconds: " + millisSpanned);
+			
 			expectedUtilization += 1.0*timeOccupied*studentsRemaining/daysSpanned;
+		}
+		
+		System.out.println("Number of exams: " + exams.size());
+		
+		if (exams.size() == 0) {
+			return 0;
 		}
 		
 		return expectedUtilization;
@@ -1768,8 +1787,11 @@ public class TestingCenter {
 		
 		//tc.updateData("user.csv", "class.csv", "roster.csv");
 		
-		tc.makeAppointment("test-exam-1", DateTime.now(), "a", new DateTime(2015, 1, 1, 12, 0), new DateTime(2015, 1, 1, 13, 0));
-		tc.makeAppointment("test-exam-1", DateTime.now(), "abinning", new DateTime(2015, 1, 1, 12, 0), new DateTime(2015, 1, 1, 13, 0));
+		//tc.makeAppointment("test-exam-1", DateTime.now(), "a", new DateTime(2015, 1, 1, 12, 0), new DateTime(2015, 1, 1, 13, 0));
+		//tc.makeAppointment("test-exam-1", DateTime.now(), "abinning", new DateTime(2015, 1, 1, 12, 0), new DateTime(2015, 1, 1, 13, 0));
+		
+		System.out.println(tc.expectedUtilization(LocalDate.now()));
+		System.out.println(tc.expectedUtilizationPerDayWithExam(LocalDate.now(), LocalDate.now().plusDays(3), 120, 64));
 	}
 
 }
