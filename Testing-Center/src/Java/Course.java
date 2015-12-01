@@ -50,7 +50,6 @@ public class Course {
 	}
 
 	public String getCourseTerm() {
-		// TODO Auto-generated method stub
 		return courseTerm;
 	}
 

@@ -99,12 +99,10 @@ public class Exam {
 	}
 
 	public boolean isAdHocExam() {
-		// TODO Auto-generated method stub
 		return adHocExam;
 	}
 
 	public String getCourseId() {
-		// TODO Auto-generated method stub
 		return courseId;
 	}
 
