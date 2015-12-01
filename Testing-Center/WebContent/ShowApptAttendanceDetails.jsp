@@ -197,6 +197,8 @@
 	                    		String id = session.getAttribute("id").toString();
 	                    		String name = session.getAttribute("name").toString();
 	                    		String examId = request.getParameter("examId").toString();
+	                    		
+	                    		System.out.println(examId);
 	  							Instructor instr = new Instructor(name, email, id);
 	                           	
 	                           	List<Attendance> students = new ArrayList<Attendance>();
@@ -211,6 +213,7 @@
     	                    		String startTime = s.getAppointmentTime().toString();
     	                    		String endTime = s.getAppointmentTime().toString();
     	                    		String seatId = String.valueOf(s.getSeatId());
+    	                    		Boolean attend = s.isAttended();
 	                           		
                                     String studentName = s.getStudent();
 	                        %>
@@ -221,10 +224,22 @@
 	                            <td><%out.print(seatId); %></td>
 	                            
 	                            <%
+	                            	if(attend)
+	                            	{
+	                            		%>
+		                            		<td>
+				                            	<button type="button" class="btn btn-xs btn-success">Attended</button>
+				                            </td> 
+	                            		<%
+	                            	}else
+	                            	{
+	                            		%>
+	                            			<td>
+				                            	<button type="button" class="btn btn-xs btn-danger">No Show</button>
+				                            </td>
+	                            		<%
+	                            	}
 	                            %>
-	                            <td>
-	                            	<button type="button" class="btn btn-xs btn-success">Attended</button>
-	                            </td> 
 	                        </tr>
 	                        <%} %>
 	                    </tbody>

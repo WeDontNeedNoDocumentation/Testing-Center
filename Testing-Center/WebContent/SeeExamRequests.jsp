@@ -208,7 +208,7 @@
                                     String courseId = e.getCourseId();
                                     String duration = String.valueOf(e.getLength());
                                     String sDate = e.getStart().toString();
-                                    String numSeats = e.getNumSeats().toString();
+                                    String numSeats = String.valueOf(e.getNumSeats());
                                     String status = e.getStatus();
                                     
                             %> 

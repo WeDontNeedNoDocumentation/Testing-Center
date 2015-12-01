@@ -57,7 +57,11 @@
 		String amPm = sTime.substring(5,7);
 		
 		if(amPm.equals("PM")||amPm.equals("pm")||amPm.equals("Pm"))
+		{
 			hour+= 12;
+			if(hour == 24)
+				hour = 0;
+		}
 		
 		DateTime stDate = new DateTime(year, month, day, hour, minute, 0, 0);
 		
@@ -72,7 +76,11 @@
 		amPm = eTime.substring(5,7);
 		
 		if(amPm.equals("PM")||amPm.equals("pm")||amPm.equals("Pm"))
+		{
 			hour+=12;
+			if(hour == 24)
+			hour = 0;
+		}
 		
 		DateTime enDate = new DateTime(year, month, day, hour, minute, 0, 0);
 		
@@ -83,8 +91,8 @@
 		String duration = request.getParameter("duration");
 		//int intDuration = Integer.parseInt(duration);
 		
-		Exam e = new Exam(examId, stDate, enDate, instrId, courseId, Integer.parseInt(request.getParameter("seats")), Integer.parseInt(request.getParameter("duration")), false);
-		instr.makeExam(e, stDate, enDate, true, instrId);
+		//Exam e = new Exam(examId, stDate, enDate, instrId, courseId, Integer.parseInt(request.getParameter("seats")), Integer.parseInt(request.getParameter("duration")), false);
+		instr.makeExam(examId, stDate, enDate, true, Integer.parseInt(seats), Integer.parseInt(duration), courseId);
 	%>
     <div id="wrapper">
 
