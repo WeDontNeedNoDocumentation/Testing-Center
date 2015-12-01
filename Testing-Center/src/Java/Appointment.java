@@ -45,4 +45,8 @@ public class Appointment
 	public int getAppointmentId() {
 		return appointmentId;
 	}
+	
+	public void cancelAppointment() {
+		TestingCenter.getTestingCenter().cancelAppointment(appointmentId);
+	}
 }
