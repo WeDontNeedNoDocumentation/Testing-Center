@@ -1323,7 +1323,7 @@ public class TestingCenter {
 			
 			
 			for (Map<String,Object> appointment : appointments) {
-				String queryString = String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, numSeats, examLength, courseId FROM exam"
+				String queryString = String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorIdA, numSeats, examLength, courseId FROM exam"
 						+ " WHERE examID = '%s'",
 						appointment.get("examIdA"));
 				List<Map<String,Object>> exams = db.query(queryString);
@@ -1334,10 +1334,10 @@ public class TestingCenter {
 				
 				Map<String,Object>exam = exams.get(0);
 				String examId = (String) exam.get("examId");
-				DateTime start = new DateTime((long) exam.get("start")*1000);
-				DateTime end = new DateTime((long) exam.get("end")*1000);
+				DateTime start = new DateTime(((long) exam.get("start"))*1000);
+				DateTime end = new DateTime(((long) exam.get("end"))*1000);
 				String status = (String) exam.get("status");
-				String instructorId = (String) exam.get("instructorId");
+				String instructorId = (String) exam.get("instructorIdA");
 				String courseId = (String) exam.get("courseId");
 				int numSeats = (int) exam.get("numSeats");
 				int duration = (int) exam.get("examLength");
@@ -1777,7 +1777,7 @@ public class TestingCenter {
 			String netID = (String) student.get("netID");
 			DateTime start = new DateTime( (long) student.get("startTime"));
 			int seatId = (int) student.get("seatId");
-			boolean checkedIn = (int) student.get("checkedIn") == 1;
+			boolean checkedIn = ((String) student.get("checkedIn")).equals("1");
 
 			Attendance att = new Attendance(netID, start, seatId, checkedIn);
 			

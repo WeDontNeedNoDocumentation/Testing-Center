@@ -65,11 +65,11 @@
         <!-- Projects Row -->
         <div class="row">
             <div class="col-md-3 portfolio-item">
-                <a href="#">
+                <a href="EditTestingCenter.jsp">
                     <img class="img-responsive" src="img/scheduleappt.png" alt="">
                 </a>
                 <h3>
-                    <a href="#">Make Changes to Scheduler</a>
+                    <a href="#">Edit Testing Center Information</a>
                 </h3>
             </div>
             <div class="col-md-3 portfolio-item">

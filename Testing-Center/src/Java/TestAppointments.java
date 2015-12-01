@@ -328,6 +328,20 @@ public class TestAppointments {
 //		assertEquals();
 //	}
 	
+	@Test
+	public void testSetExamStatus(){
+		logger.info("Testing ability to set exam status");
+		//select exam1
+		//update acceptedStatus
+		//select exam1
+	}
+	
+	@Test
+	public void testGetOverlap(){
+		logger.info("Testing ability to get overlap of the current exam");
+		//
+	}
+	
 	@AfterClass
 	public static void afterClass() {
 		logger.info("Testing complete.");
