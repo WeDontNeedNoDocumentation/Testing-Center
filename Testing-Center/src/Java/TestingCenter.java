@@ -887,7 +887,7 @@ public class TestingCenter {
 		List<Map<String,Object>> appointments = db.query(
 				String.format("SELECT examIdA, studentIdA, dateIdA, seatIdA, appointmentID "
 				+ "FROM appointment "
-				+ "WHERE studentIDA = '%s' AND dateIdA = '%d'",
+				+ "WHERE studentIdA = '%s' AND dateIdA = %d",
 				netID,
 				search.getMillis()/1000
 				));
@@ -895,6 +895,16 @@ public class TestingCenter {
 		for (Map<String,Object> appointment : appointments) {	
 		
 			seat =  (int)appointment.get("seatIdA");
+		}
+		
+		if (seat != -1) {
+			db.query(
+					String.format("UPDATE appointment "
+					+ "SET checkedIn = 'T' "
+					+ "WHERE studentIdA = '%s' AND dateIdA = '%d", 
+					netID,
+					search.getMillis()/1000
+					));
 		}
 		
 		return seat;
