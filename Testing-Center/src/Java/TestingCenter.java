@@ -380,29 +380,33 @@ public class TestingCenter {
 
 	//Make a reservation for an exam, given the examID, start time, end time,
 	//whether it is a course exam or an adhoc exam, and the instructor id
-	public synchronized boolean makeReservation(Exam exam, DateTime start, DateTime end, boolean courseExam, String instructorId) {
+	public synchronized boolean makeReservation(String examId, DateTime start, DateTime end, boolean courseExam, String instructorId, int numSeats, int duration, String courseId) {
 		logger.severe("DOES NOT ADD ALL OF THE NECESSARY FIELDS. FIX THIS PLEASE.");
 		
 		logger.info("Creating new reservation request.");
-		logger.fine("Exam ID: " + exam.getExamID());
+		logger.fine("Exam ID: " + examId);
 		logger.fine("Exam start time: " + start.toString());
 		logger.fine("Exam end time: " + end.toString());
 		logger.fine("Course exam: " + courseExam);
 		logger.fine("Reservation status: " + "P");
 		logger.fine("Instructor ID: " + instructorId);
+		logger.fine("Number of seats: " + numSeats);
+		logger.fine("Duration (minutes): " + duration);
+		logger.fine("Course ID: " + courseId);
+		
 		
 		String queryString = String.format("INSERT INTO exam "
 				+ "(examId, start, end, boolCourseExam, examStatus, instructorIdA, numSeats, examLength, courseId) "
 				+ "VALUES ('%s', %d, %d, '%s', '%s', '%s', %d, %d, '%s')", 
-				exam.getExamID(), 
+				examId, 
 				start.getMillis()/1000,
 				end.getMillis()/1000,
 				courseExam ? 1 : 0,
 				"P",
 				instructorId,
-				exam.getNumSeats(),
-				exam.getLength(),
-				exam.getCourseId()
+				numSeats,
+				duration,
+				courseId
 				);
 		db.updateQuery(queryString);
 		
@@ -1626,31 +1630,31 @@ public class TestingCenter {
 		return apptsPerTerm;
 	}
 	
-	public synchronized List<Student> viewAttendanceStats(String examId) {
-		List<Student> studentsList = new ArrayList<Student>();
-		
-		String queryString = String.format("SELECT student.* "
-				+ "FROM student "
-				+ "INNER JOIN appointment "
-				+ "ON student.studentId = appointment.studentIdA "
-				+ "INNER JOIN exam "
-				+ "ON appointment.examIdA = exam.examId "
-				+ "WHERE examId = '%d';",
-				examId);
-		List<Map<String, Object>> students = Database.getDatabase().query(queryString);
-		
-		for (Map<String, Object> student : students) {
-			String firstName = (String) student.get("firstName");
-			String lastName = (String) student.get("lastName");
-			String netID = (String) student.get("netID");
-			String email = (String) student.get("email");
-			String userIdB = (String) student.get("userIdB");
-			
-			Student newStudent = new Student(firstName, lastName, netID, email, userIdB);
-			studentsList.add(newStudent);
-		}
-		
-		return studentsList;
+	public synchronized List<Attendance> viewAttendanceStats(String examId) {
+        List<Attendance> studentsList = new ArrayList<Attendance>();
+       
+        String queryString = String.format("SELECT student.netId, appointment.seatId, appointment.startTime, appointment.checkedIn "
+                        + "FROM student "
+                        + "INNER JOIN appointment "
+                        + "ON student.studentId = appointment.studentIdA "
+                        + "INNER JOIN exam "
+                        + "ON appointment.examIdA = exam.examId "
+                        + "WHERE examId = '%d';",
+                        examId);
+        List<Map<String, Object>> students = Database.getDatabase().query(queryString);
+       
+        for (Map<String, Object> student : students) {
+                String netID = (String) student.get("netID");
+                DateTime start = new DateTime( (long) student.get("startTime"));
+                int seatId = (int) student.get("seatId");
+                boolean checkedIn = ((String) student.get("checkedIn")).equals("T");
+
+                Attendance att = new Attendance(netID, start, seatId, checkedIn);
+               
+                studentsList.add(att);
+        }
+       
+        return studentsList;
 	}
 	
 /*

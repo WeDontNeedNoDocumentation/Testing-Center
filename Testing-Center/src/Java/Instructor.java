@@ -77,8 +77,8 @@ public class Instructor {
 	 * is created and sent.
 	 * (NOTE: This does not yet check for conflicts.)
 	 */
-	public boolean makeExam(Exam exam, DateTime start, DateTime end, boolean courseExam) {
-		return tC.makeReservation(exam, start, end, courseExam, this.instructorId);
+	public boolean makeExam(Exam exam, DateTime start, DateTime end, boolean courseExam, String instructorId) {
+		return tC.makeReservation(exam, start, end, courseExam, instructorId);
 	}
 	
 	public void viewAvailability() {
@@ -93,7 +93,7 @@ public class Instructor {
 		tC.cancelExam(examId, this.instructorId);
 	}
 	
-	public List<Student> viewAttendanceStats(String examId) {
+	public List<Attendance> viewAttendanceStats(String examId) {
 		return tC.viewAttendanceStats(examId);
 	}
 	
@@ -117,7 +117,7 @@ public class Instructor {
 		Database.getDatabase().updateQuery(queryString);
 		
 		Exam exam = new Exam(examName, start, end, instructorId, examName, students.size(), duration, true);
-		if (makeExam(exam, start, end, false)) {
+		if (makeExam(exam, start, end, false, instructorId)) {
 			enrollStudents(examName, students);
 			return true;
 		}
@@ -136,18 +136,18 @@ public class Instructor {
 		}
 	}
 	
-	public static void main(String[] args) {
-		Instructor inst = new Instructor("Meredith Roberts", "Meredith.Roberts@example.com", "MRoberts");
-		
-		List<String> netIds = new ArrayList<String>();
-		netIds.add("a");
-		netIds.add("abak");
-		
-		//inst.makeAdHocExam(1158, "test-adhoc-exam", new DateTime(2015, 12, 15, 0, 0), new DateTime(2015, 12, 20, 0, 0), 60, netIds);
-		
-		List<Exam> exams = inst.viewExams();
-		for (Exam exam : exams) {
-			System.out.println(exam);	
-		}
-	}
+//	public static void main(String[] args) {
+//		Instructor inst = new Instructor("Meredith Roberts", "Meredith.Roberts@example.com", "MRoberts");
+//		
+//		List<String> netIds = new ArrayList<String>();
+//		netIds.add("a");
+//		netIds.add("abak");
+//		
+//		//inst.makeAdHocExam(1158, "test-adhoc-exam", new DateTime(2015, 12, 15, 0, 0), new DateTime(2015, 12, 20, 0, 0), 60, netIds);
+//		
+//		List<Exam> exams = inst.viewExams();
+//		for (Exam exam : exams) {
+//			System.out.println(exam);	
+//		}
+//	}
 }

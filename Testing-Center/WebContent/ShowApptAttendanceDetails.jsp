@@ -199,35 +199,24 @@
 	                    		String examId = request.getParameter("examId").toString();
 	  							Instructor instr = new Instructor(name, email, id);
 	                           	
-	                           	List<Student> students = new ArrayList<Student>();
+	                           	List<Attendance> students = new ArrayList<Attendance>();
 	                           	students = instr.viewAttendanceStats(examId);
 	                           	
-	                           	for(Student s : students)
+	                           	for(Attendance s : students)
                                	{
-	                           		String query ="";
-		                    		String apptId ="";
-		                    		String startTime ="";
-		                    		String endTime = "";
-		                    		String seatId ="";
-		                    		String dateId = "";
+	                           		/* query = "SELECT appointment.* FROM appointment WHERE examIdA ='"+examId+"' AND studentIdA ='"+s.getUserIdB()+"'"; */
 	                           		
-	                           		query = "SELECT appointment.* FROM appointment WHERE examIdA ='"+examId+"' AND studentIdA ='"+s.getUserIdB()+"'";
+	                           		/* java.sql.ResultSet rs = DBConnection.ExecQuery(query); */
+                    	        	String apptTime = s.getAppointmentTime().toString();
+    	                    		String startTime = s.getAppointmentTime().toString();
+    	                    		String endTime = s.getAppointmentTime().toString();
+    	                    		String seatId = String.valueOf(s.getSeatId());
 	                           		
-	                           		java.sql.ResultSet rs = DBConnection.ExecQuery(query);
-	                    	        if (rs.next())
-	                    	        {
-	                    	        	apptId = rs.getString(5);
-	    	                    		startTime = rs.getString(6);
-	    	                    		endTime = rs.getString(7);
-	    	                    		seatId = rs.getString(4);
-	    	                    		dateId = rs.getString(3);
-	                    	        }
-	                           		
-                                    String studentName = s.getFirstName()+" "+s.getLastName();
+                                    String studentName = s.getStudent();
 	                        %>
 	                        <!-- row entries -->
 	                            <td><%out.print(studentName); %></td>
-	                            <td><%out.print(dateId); %></td>
+	                            <td><%out.print(apptTime); %></td>
 	                            <td><%out.print(startTime); %></td>
 	                            <td><%out.print(seatId); %></td>
 	                            
