@@ -1429,7 +1429,7 @@ public class TestingCenter {
 	 * @param term	Integer code for the specified term
 	 * @return
 	 */
-	public Map<LocalDate, Integer> appointmentsPerDay(int term) {
+	public synchronized Map<LocalDate, Integer> appointmentsPerDay(int term) {
 		Map<LocalDate, Integer> dailyCount = new HashMap<LocalDate, Integer>();
 		
 		String queryString = String.format("SELECT appointment.startTime "
@@ -1558,7 +1558,7 @@ public class TestingCenter {
 	 * @param term
 	 * @return
 	 */
-	public List<Course> coursesUsed(int term) {
+	public synchronized List<Course> coursesUsed(int term) {
 		List<Course> coursesResult = new ArrayList<Course>();
 		String queryString = String.format("SELECT course.* "
 				+ "FROM course "
@@ -1593,7 +1593,7 @@ public class TestingCenter {
 	 * @param endTerm
 	 * @return
 	 */
-	public Map<Integer, Integer> appointmentsPerTerm(int startTerm, int endTerm) {
+	public synchronized Map<Integer, Integer> appointmentsPerTerm(int startTerm, int endTerm) {
 		Map<Integer, Integer> apptsPerTerm = new HashMap<Integer, Integer>();
 		
 		String queryString = String.format("SELECT course.termId, COUNT(1) AS numAppointments "

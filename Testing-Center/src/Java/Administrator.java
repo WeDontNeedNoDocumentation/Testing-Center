@@ -1,6 +1,7 @@
 package Java;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.joda.time.DateTime;
@@ -205,4 +206,58 @@ public class Administrator {
 	public int checkInStudent(String netID) {
 		return tC.checkIn(netID);
 	}
+	
+	/**
+	 * Information needed for report A
+	 * @param term	Term ID
+	 * @return		Map of the each day in the specified term to the number of
+	 * 					appointments that day.
+	 */
+	public Map<LocalDate, Integer> appointmentsPerDay(int term) {
+		return tC.appointmentsPerDay(term);
+	}
+	
+	/**
+	 * Information needed for report B (part one)
+	 * @param term	Term ID
+	 * @return		Map of each week in the specified term to the number of
+	 * 					appointments that week. A week is represented by the
+	 * 					LocalDate representing the Monday of that week.
+	 */
+	public Map<LocalDate, Integer> appointmentsPerWeek(int term) {
+		return tC.appointmentsPerWeek(term);
+	}
+	
+	/**
+	 * Information needed for report B (part two)
+	 * @param term	Term ID
+	 * @return		Map of each week in the specified term to the list of
+	 * 					courses that week. A week is represented by the
+	 * 					LocalDate representing the Monday of that week.
+	 */
+	public Map<LocalDate, Set<String>> coursesPerWeek(int term) {
+		return tC.coursesPerWeek(term);
+	}
+	
+	/**
+	 * Information needed for report C
+	 * @param term	Term ID
+	 * @return		List of Courses that use the Testing Center in the
+	 * 					specified term.
+	 */
+	public List<Course> coursesUsed(int term) {
+		return tC.coursesUsed(term);
+	}
+	
+	/**
+	 * Information needed for report D
+	 * @param startTerm
+	 * @param endTerm
+	 * @return		Map of each term in the range to the number of
+	 * 					appointments made for that term.
+	 */
+	public Map<Integer, Integer> appointmentsPerTerm(int startTerm, int endTerm) {
+		return tC.appointmentsPerTerm(startTerm, endTerm);
+	}
+	
 }
