@@ -1274,7 +1274,7 @@ public class TestingCenter {
 			List<Map<String,Object>> appointments = db.query(
 					String.format("SELECT examIdA, studentIdA, dateId, seatId, appointmentID "
 					+ "FROM appointment "
-					+ "WHERE dateId = '%d'",
+					+ "WHERE startTime = '%d'",
 					search.getMillis()/1000
 					));
 			
