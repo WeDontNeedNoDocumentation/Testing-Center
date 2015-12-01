@@ -54,8 +54,8 @@ public class TestingCenter {
 	private static final int DEFAULT_SEATS = 64;
 	private static final int DEFAULT_SET_ASIDE = 0;
 	private static final LocalTime DEFAULT_OPEN = new LocalTime(8,0);
-	private static final LocalTime DEFAULT_CLOSE = new LocalTime(8,0);
-	private static final Period DEFAULT_GAP = new Period(1,0,0,0);
+	private static final LocalTime DEFAULT_CLOSE = new LocalTime(18,0);
+	private static final Period DEFAULT_GAP = new Period(0,30,0,0);
 	private static final Period DEFAULT_REMINDER_INTERVAL = new Period(1,0,0,0);
 	
 	//private List<Day> days;
@@ -137,7 +137,7 @@ public class TestingCenter {
 		long end = tEnd.getMillis()/1000;
 
 		long gapTime = (long)gap.getMinutes()*60;
-		long actualLen = gapTime+exam.getLength();  
+		long actualLen = gapTime+exam.getLength()*60;  
 		long rem = actualLen%1800;
 		long len =0;
 		if(rem == 0) {
@@ -986,7 +986,7 @@ public class TestingCenter {
 		int seat = -1;
 		for (Map<String,Object> appointment : appointments) {	
 		
-			seat =  (int)appointment.get("seatIdA");
+			seat =  (int)appointment.get("seatId");
 		}
 		
 		if (seat != -1) {
@@ -1100,8 +1100,9 @@ public class TestingCenter {
 		
 		DateTime now = DateTime.now();
 		long nowUnix = now.getMillis()/1000;
-
+		System.out.println("trying overlap");
 		List<Map<String, Object>> exams = getOverlap(newExam);
+		System.out.println("overlap done");
 		
 		 Comparator<Map<String, Object>> mapComparator = new Comparator<Map<String, Object>>() {
 			    public int compare(Map<String, Object> m1, Map<String, Object> m2) {
@@ -1111,11 +1112,12 @@ public class TestingCenter {
 
 		Collections.sort(exams, mapComparator);
 		Map<Long, String[]> seatsAvailable = insertExisting(exams);
+		System.out.println("existing done");
 		
 		for ( Map<String, Object> exam : exams ) {
 			long start = (long) exam.get("start");
 			long end = (long) exam.get("end");
-			int len = (int) exam.get("examLength");
+			int len = (int) exam.get("examLength")*60;
 			String examId = (String) exam.get("examId");
 			long gapPlusLen = len+(gap.getMinutes()*60);
 			long rem = gapPlusLen%1800;
@@ -1126,15 +1128,20 @@ public class TestingCenter {
 			}
 			long apStart = end-apLen;
 			long apEnd = end;
+			
 
 			List<Map<String, Object>> apps = db.query(String.format("SELECT appointmentId FROM appointment "
 					+ "WHERE examIdA = '%s'",
 					examId));
 			int seatsLeft = (int) exam.get("numSeats") - apps.size();
-			
+
 			while(seatsLeft != 0) {
+				System.out.println(seatsLeft);
+				System.out.println(new DateTime(start*1000));
+				System.out.println(new DateTime(apStart*1000));
 				if(apStart<start){
 					this.cancelExam(newExam.getExamID(), newExam.getInstructorId());
+					System.out.println("out of seats");
 					return false;
 				}
 				
@@ -1149,9 +1156,10 @@ public class TestingCenter {
 						seatsAvailable.put(searchTime, new String[numberOfSeats-numberOfSetAside]);
 					}
 					appSeats.add(i, seatsAvailable.get(searchTime));
+					i++;
 				}
 				
-				for(int j = 0; j <numberOfSeats-numberOfSetAside;j++){
+				for(int j = 0; j <numberOfSeats-numberOfSetAside && seatsLeft>0;j++){
 					searchTime = apEnd;
 					boolean aval = true;
 					for(String[] slot : appSeats) {
@@ -1482,14 +1490,21 @@ public class TestingCenter {
 			totalDurationOccupied += (end - start) + gap.getMillis();
 		}
 		
-		int totalDurationAvailable = numberOfSeats * (close.getMillisOfDay() - open.getMillisOfDay()); 
+		long totalDurationAvailable = numberOfSeats * (close.getMillisOfDay() - open.getMillisOfDay()); 
+		System.out.println(totalDurationAvailable);
+		System.out.println(numberOfSeats);
+		System.out.println(close.getMillisOfDay());
+		System.out.println(open.getMillisOfDay());
 		
-		return 1.0*totalDurationOccupied/totalDurationAvailable;
+		double actualUtil = 1.0*totalDurationOccupied/totalDurationAvailable;
+		System.out.println("Actual util: " + actualUtil);
+		
+		return actualUtil;
 	}
 	
 	public Map<LocalDate, Double> expectedUtilizationPerDayWithExam(LocalDate start, LocalDate end, int duration, int numSeats) {
-		System.out.println(start);
-		System.out.println(end);
+		//System.out.println(start);
+		//System.out.println(end);
 		Map<LocalDate, Double> expectedUtil = expectedUtilizationPerDay(start, end);
 		
 		double timeOccupied = 1.0*duration * 60 * 1000 + gap.getMillis();
@@ -1498,7 +1513,7 @@ public class TestingCenter {
 		for (LocalDate date : expectedUtil.keySet()) {
 			double util = expectedUtil.get(date);
 			System.out.println(util);
-			util += timeOccupied*numSeats/daysSpanned;
+			util += timeOccupied/numSeats/daysSpanned/numberOfSeats/(close.getMillisOfDay() - open.getMillisOfDay());
 			System.out.println("Days spanned: " + daysSpanned);
 			expectedUtil.put(date, util);
 		}
@@ -1512,18 +1527,16 @@ public class TestingCenter {
 		//while (DateTimeComparator.getDateOnlyInstance().compare(start,end) <= 0) {
 		while (DateTimeComparator.getDateOnlyInstance().compare(start.toDateTimeAtCurrentTime(),end.toDateTimeAtCurrentTime()) <= 0) {
 			System.out.println(start);
-			double util = expectedUtilization(start);
+			double util = actualUtilization(start);
 			utilMap.put(start, util);
 			start = start.plusDays(1);
 		}
 		
 		return utilMap;
 	}
-
-	//checks expected utilization of the testingcenter for a given date
 	
-	public double expectedUtilization(LocalDate date) {
-		double expectedUtilization = actualUtilization(date);
+	public double expectedAppointmentsDuration(LocalDate date) {
+		double duration = 0;
 		
 		long dateStartMillis = date.toDateTimeAtStartOfDay().getMillis();
 		String queryString = String.format("SELECT exam.examId, exam.start, exam.end, exam.numSeats, exam.examLength, COUNT(appointmentId) AS numAppointments "
@@ -1552,7 +1565,7 @@ public class TestingCenter {
 			
 			long timeOccupied = durationMillis + gap.getMillis();
 			int studentsRemaining = numSeats - numAppointments;
-			int daysSpanned = (int) millisSpanned/(1000*60*60*24);
+			int daysSpanned = Days.daysBetween(startDate, endDate).getDays() + 1;
 			
 			System.out.println("Time occupied by exam in millis: " + timeOccupied);
 			System.out.println("Gap time in millis: " + gap.getMillis());
@@ -1560,14 +1573,22 @@ public class TestingCenter {
 			System.out.println("Days spanned: " + daysSpanned);
 			System.out.println("Time spanned in milliseconds: " + millisSpanned);
 			
-			expectedUtilization += 1.0*timeOccupied*studentsRemaining/daysSpanned;
+			if (daysSpanned == 0)
+				logger.severe("Days spanned == 0. Please check to make sure calculation is correct and date range is correct.");
+			
+			duration += 1.0*timeOccupied*studentsRemaining/daysSpanned;
 		}
 		
-		System.out.println("Number of exams: " + exams.size());
-		
-		if (exams.size() == 0) {
-			return 0;
-		}
+		return duration;
+	}
+
+	//checks expected utilization of the testingcenter for a given date
+	
+	public double expectedUtilization(LocalDate date) {
+		double expectedUtilization = actualUtilization(date);
+		expectedUtilization += expectedAppointmentsDuration(date);
+		expectedUtilization /= numberOfSeats;
+		expectedUtilization /= close.getMillisOfDay() - open.getMillisOfDay();
 		
 		return expectedUtilization;
 	}
