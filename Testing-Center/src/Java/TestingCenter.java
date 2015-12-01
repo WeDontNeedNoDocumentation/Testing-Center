@@ -353,6 +353,24 @@ public class TestingCenter {
 		return cancelled > 0;
 	}
 	
+	public synchronized boolean canAppointmentBeCancelled(int appId) {
+		String queryString = String.format("SELECT startTime "
+				+ "FROM appointment "
+				+ "WHERE appointmentId=%d", appId);
+		List<Map<String, Object>> appts = db.query(queryString);
+		
+		if (appts.size() == 0)
+			return false;
+		
+		Map<String, Object> appt = appts.get(0);
+
+		DateTime now = DateTime.now();
+		DateTime start = new DateTime((long) appt.get("startTime") * 1000);
+		start = start.minusHours(24);
+		
+		return now.getMillis() < start.getMillis();
+	}
+	
 	//Return a list of all appointments, given a student's netID and the desired term
 	public List<Appointment> showAppointments(String netID, int termId) {
 		logger.info("Retrieving all appointments for student ID " + netID);

@@ -65,4 +65,8 @@ public class Appointment
 	public boolean cancelAppointment() {
 		return TestingCenter.getTestingCenter().cancelAppointment(appointmentId);
 	}
+	
+	public boolean canBeCancelled() {
+		return TestingCenter.getTestingCenter().canAppointmentBeCancelled(appointmentId);
+	}
 }
