@@ -370,7 +370,6 @@ public class TestingCenter {
 				appointmentId
 				);
 		db.updateQuery(queryString);
-		
 	}
 	
 	public synchronized boolean canAppointmentBeCancelled(int appId) {
