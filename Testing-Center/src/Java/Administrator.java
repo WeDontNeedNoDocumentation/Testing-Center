@@ -173,8 +173,8 @@ public class Administrator {
 	 * @param endTime	Time at which the appointment ends
 	 * @param duration	Duration of the appointment
 	 */
-	public void makeAppointment(String examId, DateTime time, String netID, DateTime startTime, DateTime endTime, int duration) {
-		tC.makeAppointment(examId, time, netID, startTime, endTime, duration);
+	public boolean makeAppointment(String examId, DateTime time, String netID, DateTime startTime, DateTime endTime, int duration) {
+		return tC.makeAppointment(examId, time, netID, startTime, endTime, duration);
 	}
 	
 	public void checkAvailability() {
