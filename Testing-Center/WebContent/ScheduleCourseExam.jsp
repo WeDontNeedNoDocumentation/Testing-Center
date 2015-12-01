@@ -132,7 +132,7 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> ${sessionScope.name} <b class="caret"></b></a>
                     <ul class="dropdown-menu">
                         <li>
-                            <a href="#"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
+                            <a href=index.html"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
                         </li>
                     </ul>
                 </li>
@@ -170,7 +170,7 @@
                     </div>
                 </div>
                 <div class="row">
-                	<form action="ShowUtilizationCourseExam.jsp" method="post">
+                	<form action="ScheduleExamConfirmation.jsp" method="post">
                 		<div class="col-sm-6re">
                 			<div class="form-group input-group">
 		                        <span class="input-group-addon">Exam ID</span>

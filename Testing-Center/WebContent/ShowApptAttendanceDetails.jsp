@@ -136,7 +136,7 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> ${sessionScope.name} <b class="caret"></b></a>
                     <ul class="dropdown-menu">
                         <li>
-                            <a href="#"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
+                            <a href="index.html"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
                         </li>
                     </ul>
                 </li>
@@ -206,9 +206,6 @@
 	                           	
 	                           	for(Attendance s : students)
                                	{
-	                           		/* query = "SELECT appointment.* FROM appointment WHERE examIdA ='"+examId+"' AND studentIdA ='"+s.getUserIdB()+"'"; */
-	                           		
-	                           		/* java.sql.ResultSet rs = DBConnection.ExecQuery(query); */
                     	        	String apptTime = s.getAppointmentTime().toString();
     	                    		String startTime = s.getAppointmentTime().toString();
     	                    		String endTime = s.getAppointmentTime().toString();
@@ -223,23 +220,18 @@
 	                            <td><%out.print(startTime); %></td>
 	                            <td><%out.print(seatId); %></td>
 	                            
-	                            <%
-	                            	if(attend)
-	                            	{
-	                            		%>
-		                            		<td>
-				                            	<button type="button" class="btn btn-xs btn-success">Attended</button>
-				                            </td> 
-	                            		<%
+	                            <%if(attend)
+	                            	{%>
+		                            	<td>
+				                        	<button type="button" class="btn btn-xs btn-success">Attended</button>
+				                        </td> 
+	                            	<%
 	                            	}else
-	                            	{
-	                            		%>
-	                            			<td>
-				                            	<button type="button" class="btn btn-xs btn-danger">No Show</button>
-				                            </td>
-	                            		<%
-	                            	}
-	                            %>
+	                            	{%>
+	                            		<td>
+				                            <button type="button" class="btn btn-xs btn-danger">No Show</button>
+				                        </td>
+                            		<%}%>
 	                        </tr>
 	                        <%} %>
 	                    </tbody>
