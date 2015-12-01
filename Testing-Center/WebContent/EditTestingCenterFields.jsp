@@ -3,18 +3,24 @@
 <%@ page import="java.util.*" %>
 
 <%
-	String examId = request.getParameter("examId");
-	
 	String email = session.getAttribute("email").toString();
-	String id = session.getAttribute("id").toString();
 	String name = session.getAttribute("name").toString();
 	
-	TestingCenter tc = TestingCenter.getTestingCenter();
-	System.out.print(id);
-	System.out.print(name);
-	System.out.print(email);
+	Administrator admin = new Administrator(name, email);
 	
-	/* tc.setNumberofSeats(n) */
+	String numSeats = request.getParameter("numSeats");
+	String numSASeats = request.getParameter("numSASeats");
+	String gapTime = request.getParameter("gapTime");
+	String reminderInt = request.getParameter("reminderInt");
+	
+	if(!(numSeats.equals("")))
+		admin.editNumberSeats(Integer.parseInt(numSeats));
+	if(!(numSASeats.equals("")))
+		admin.editSetAside(Integer.parseInt(numSASeats));
+	if(!(gapTime.equals("")))
+		admin.editGapTime(Integer.parseInt(gapTime),0);
+	if(!(reminderInt.equals("")))
+		admin.editReminder(Integer.parseInt(reminderInt));
 	
 	response.sendRedirect("EditTestingCenter.jsp");
 %>

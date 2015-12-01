@@ -1,3 +1,9 @@
+<%@page import="DBWorks.DBConnection"%>
+<%@page import="Java.*" %>
+<%@page import="org.joda.time.DateTime" %>
+<%@page import="java.util.*" %>
+<%@page import="java.lang.*" %>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -198,51 +204,54 @@
                 <div class="row">
                 	<form action="EditTestingCenterFields.jsp" method="post">
                 		<div class="col-sm-6re">
+               
+		               <%
+							String email = session.getAttribute("email").toString();
+							String name = session.getAttribute("name").toString();
+						
+							Administrator admin = new Administrator(name, email);
+							DateTimeUtil dtUtil = new DateTimeUtil();
+						%>
+                		
+                		
                 			<div class="form-group input-group">
-		                        <span class="input-group-addon">Exam ID</span>
-		                        <input name="examId" type="text" class="form-control" placeholder="IE:Test1">
+		                        <span class="input-group-addon">Edit Number of Seats:</span>
+		                        <input name="numSeats" type="text" class="form-control" placeholder="<%out.print(admin.viewNumberSeats()); %>">
+		                        <span class="input-group-addon">Seats</span>
 		                    </div>
 		
 		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Start Date</span>
-		                        <input name="sDate" type="text" class="form-control" placeholder="mm/dd/yyyy">
+		                        <span class="input-group-addon">Edit Number of Set-Aside Seats:</span>
+		                        <input name="numSASeats" type="text" class="form-control" placeholder="<%out.print(admin.viewSetAside()); %>">
+		                        <span class="input-group-addon">Seats</span>
+		                    </div>
+		
+		                    <!-- <div class="form-group input-group">
+		                    	<span class="input-group-addon">Edit Testing Hours</span>
+		                        <input name="testingHours" type="text" class="form-control" placeholder="10:00am">
 		                    </div>
 		
 		                    <div class="form-group input-group">
-		                    	<span class="input-group-addon">Start Time</span>
-		                        <input name="sTime" type="text" class="form-control" placeholder="10:00am">
-		                    </div>
-		
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">End Date</span>
+		                        <span class="input-group-addon">Closed Days</span>
 		                        <input name="eDate" type="text" class="form-control" placeholder="mm/dd/yyyy">
 		                    </div>
 		                    
 		                    <div class="form-group input-group">
-		                    	<span class="input-group-addon">End Time</span>
-		                        <input name="eTime" type="text" class="form-control" placeholder="12:00pm">
+		                    	<span class="input-group-addon">Reserved Periods</span>
+		                        <input name="reserved" type="text" class="form-control" placeholder="12:00pm">
+		                    </div> -->
+		                    
+		                    <div class="form-group input-group">
+		                        <span class="input-group-addon">Edit Gap Time:</span>
+		                        <input name="gapTime" type="text" class="form-control" placeholder="<%out.print(admin.viewGapTime()); %>">
+		                        <span class="input-group-addon">Minutes</span>
 		                    </div>
 		                    
 		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Instructor ID</span>
-		                        <input name="instrId" type="text" class="form-control" placeholder="IE:jsmith">
+		                        <span class="input-group-addon">Reminder Interval:</span>
+		                        <input name="reminderInt" type="text" class="form-control" placeholder="<%out.print(admin.viewReminder()); %>">
+		                        <span class="input-group-addon">Minutes</span>
 		                    </div>
-		                    
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Course ID</span>
-		                        <input name="courseId" type="text" class="form-control" placeholder="IE:80450-1158">
-		                    </div>
-		                    
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Number of Seats</span>
-		                        <input name="seats" type="text" class="form-control" placeholder="IE:64">
-		                    </div>
-		                    
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Duration</span>
-		                        <input name="duration" type="text" class="form-control" placeholder="IE:120">
-		                    </div>
-		                    
 		                    
 		                    <button type="submit" value="submit">Submit</button>
 			                

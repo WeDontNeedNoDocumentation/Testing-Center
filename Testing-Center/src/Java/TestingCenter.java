@@ -407,13 +407,13 @@ public class TestingCenter {
 				);
 		List<Map<String,Object>> appts = db.query(queryString);
 		for (Map<String,Object> appt : appts) {
-			String examId = (String) appt.get("examId");
+			String examId = (String) appt.get("examIdA");
 			String netId = (String) appt.get("studentIdA");
-			DateTime start = new DateTime((long) appt.get("startTime")*1000);
-			DateTime end = new DateTime((long) appt.get("endTime")*1000);
-			int appointmentId = (int) appt.get("appointmentId");
+			DateTime start = new DateTime((long) (appt.get("startTime"))*1000);
+			DateTime end = new DateTime((long) (appt.get("endTime"))*1000);
+			int appointmentId = appt.get("appointmentId") == null ? 0 : (int) appt.get("appointmentId");
 			int seatNumber = (int) appt.get("seatId");
-			boolean checkedIn = ((String) appt.get("checkedIn")).equals("1");
+			boolean checkedIn = appt.get("checkedIn") == null ? false : ((String) appt.get("checkedIn")).equals("1");
 			
 			Appointment newAppointment = new Appointment(examId, netId, start, end, appointmentId, seatNumber, checkedIn);
 			appointments.add(newAppointment);
