@@ -55,7 +55,7 @@ public class TestingCenter {
 	private static final int DEFAULT_SET_ASIDE = 0;
 	private static final LocalTime DEFAULT_OPEN = new LocalTime(8,0);
 	private static final LocalTime DEFAULT_CLOSE = new LocalTime(18,0);
-	private static final Period DEFAULT_GAP = new Period(1,0,0,0);
+	private static final Period DEFAULT_GAP = new Period(0,30,0,0);
 	private static final Period DEFAULT_REMINDER_INTERVAL = new Period(1,0,0,0);
 	
 	//private List<Day> days;
@@ -137,7 +137,7 @@ public class TestingCenter {
 		long end = tEnd.getMillis()/1000;
 
 		long gapTime = (long)gap.getMinutes()*60;
-		long actualLen = gapTime+exam.getLength();  
+		long actualLen = gapTime+exam.getLength()*60;  
 		long rem = actualLen%1800;
 		long len =0;
 		if(rem == 0) {
@@ -1100,8 +1100,9 @@ public class TestingCenter {
 		
 		DateTime now = DateTime.now();
 		long nowUnix = now.getMillis()/1000;
-
+		System.out.println("trying overlap");
 		List<Map<String, Object>> exams = getOverlap(newExam);
+		System.out.println("overlap done");
 		
 		 Comparator<Map<String, Object>> mapComparator = new Comparator<Map<String, Object>>() {
 			    public int compare(Map<String, Object> m1, Map<String, Object> m2) {
@@ -1111,11 +1112,12 @@ public class TestingCenter {
 
 		Collections.sort(exams, mapComparator);
 		Map<Long, String[]> seatsAvailable = insertExisting(exams);
+		System.out.println("existing done");
 		
 		for ( Map<String, Object> exam : exams ) {
 			long start = (long) exam.get("start");
 			long end = (long) exam.get("end");
-			int len = (int) exam.get("examLength");
+			int len = (int) exam.get("examLength")*60;
 			String examId = (String) exam.get("examId");
 			long gapPlusLen = len+(gap.getMinutes()*60);
 			long rem = gapPlusLen%1800;
@@ -1126,15 +1128,20 @@ public class TestingCenter {
 			}
 			long apStart = end-apLen;
 			long apEnd = end;
+			
 
 			List<Map<String, Object>> apps = db.query(String.format("SELECT appointmentId FROM appointment "
 					+ "WHERE examIdA = '%s'",
 					examId));
 			int seatsLeft = (int) exam.get("numSeats") - apps.size();
-			
+
 			while(seatsLeft != 0) {
+				System.out.println(seatsLeft);
+				System.out.println(new DateTime(start*1000));
+				System.out.println(new DateTime(apStart*1000));
 				if(apStart<start){
 					this.cancelExam(newExam.getExamID(), newExam.getInstructorId());
+					System.out.println("out of seats");
 					return false;
 				}
 				
@@ -1149,9 +1156,10 @@ public class TestingCenter {
 						seatsAvailable.put(searchTime, new String[numberOfSeats-numberOfSetAside]);
 					}
 					appSeats.add(i, seatsAvailable.get(searchTime));
+					i++;
 				}
 				
-				for(int j = 0; j <numberOfSeats-numberOfSetAside;j++){
+				for(int j = 0; j <numberOfSeats-numberOfSetAside && seatsLeft>0;j++){
 					searchTime = apEnd;
 					boolean aval = true;
 					for(String[] slot : appSeats) {
