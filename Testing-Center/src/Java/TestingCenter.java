@@ -201,9 +201,17 @@ public class TestingCenter {
 		logger.fine("Appointment start time: " + time.toString());
 		//logger.fine("Appointment ID: " + appointmentId);
 		
-		if(startTime.isAfter(endTime))
+		if(startTime.isAfter(endTime)){
 			return false;
+		}
 		
+		String qString = String.format("SELECT firstName FROM student WHERE "
+				+ "studentId='%s'", netID);
+		List<Map<String, Object>> response = Database.getDatabase().query(qString);
+
+		if(response.isEmpty())
+			return false;
+			
 		if (hasAppointment(netID, examId)) {
 			logger.warning("Student " + netID + " already has appointment for exam " + examId);
 			//throw new ExistingAppointmentException("Student " + netID + " already has appointment for exam " + exam.getExamID());
@@ -295,6 +303,9 @@ public class TestingCenter {
 		return ((long) exam.get("start") > endTime.getMillis()/1000) || ((long) exam.get("end") < startTime.getMillis()/1000); 
 	}
 
+	//check to see whether this student is attempting to make another appointment which overlaps
+	//an existing appointment
+	//test exists
 	private boolean conflictingAppointment(String netID, DateTime startTime, DateTime endTime) {
 		String queryString = String.format("SELECT appointmentId "
 				+ "FROM appointment "
@@ -310,6 +321,7 @@ public class TestingCenter {
 		return appointments.size() > 0; 
 	}
 
+	//return whether the student currently has an appointment for this exam
 	private boolean hasAppointment(String netID, String examID) {
 		String queryString = String.format("SELECT appointmentId "
 				+ "FROM appointment "
@@ -323,6 +335,7 @@ public class TestingCenter {
 	}
 
 	//Allows the user to cancel a student appointment, given the appointment id
+	//test exists
 	public synchronized boolean cancelAppointment(int appID) {
 		logger.info("Cancelling appointment with ID " + appID);
 		
@@ -393,9 +406,13 @@ public class TestingCenter {
 	//Make a reservation for an exam, given the examID, start time, end time,
 	//whether it is a course exam or an adhoc exam, and the instructor id
 	//examId, start, end, courseExam, instId, numSeats, duration, courseId
+	//test exists
+	//start<end
+	//courseExam == true || courseExam == false
+	//instructorId must exist in the table
+	//numSeats > 0 && duration > 0
+	//courseId must exist in the table 
 	public synchronized boolean makeReservation(String examId, DateTime start, DateTime end, boolean courseExam, String instructorId, int numSeats, int duration, String courseId) {
-		logger.severe("DOES NOT ADD ALL OF THE NECESSARY FIELDS. FIX THIS PLEASE.");
-		
 		logger.info("Creating new reservation request.");
 		logger.fine("Exam ID: " + examId);
 		logger.fine("Exam start time: " + start.toString());
@@ -407,6 +424,37 @@ public class TestingCenter {
 		logger.fine("Duration (minutes): " + duration);
 		logger.fine("Course ID: " + courseId);
 		
+		if(start.isAfter(end)){
+			return false;
+		}
+		
+		if(numSeats<=0 || duration<=0){
+			return false;
+		}
+		
+		String qString = String.format("SELECT courseId FROM exam WHERE "
+				+ "examId='%s'", examId);
+		List<Map<String, Object>> response = Database.getDatabase().query(qString);
+
+		if(response.isEmpty()){
+			return false;
+		}
+		
+		String rString = String.format("SELECT firstName FROM instructor WHERE "
+				+ "instructorId='%s'", instructorId);
+		response = Database.getDatabase().query(rString);
+
+		if(response.isEmpty()){
+			return false;
+		}
+		
+		String sString = String.format("SELECT termId FROM course WHERE "
+				+ "courseTerm='%s'", courseId);
+		response = Database.getDatabase().query(sString);
+
+		if(response.isEmpty()){
+			return false;
+		}
 		
 		String queryString = String.format("INSERT INTO exam "
 				+ "(examId, start, end, boolCourseExam, examStatus, instructorIdA, numSeats, examLength, courseId) "
