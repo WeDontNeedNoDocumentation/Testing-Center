@@ -57,7 +57,7 @@ public class TestingCenter {
 	private static final Period DEFAULT_GAP = new Period(1,0,0,0);
 	private static final Period DEFAULT_REMINDER_INTERVAL = new Period(1,0,0,0);
 	
-	private List<Day> days;
+	//private List<Day> days;
 	private int numberOfSeats;
 	private int numberOfSetAside;
 	private LocalTime open;
@@ -73,15 +73,15 @@ public class TestingCenter {
 	 */
 
 	public TestingCenter() {
-		this(new ArrayList<Day>(), DEFAULT_SEATS, DEFAULT_SET_ASIDE,
+		this(DEFAULT_SEATS, DEFAULT_SET_ASIDE,
 				DEFAULT_OPEN, DEFAULT_CLOSE, DEFAULT_GAP, 
 				DEFAULT_REMINDER_INTERVAL);
 	}
 	
-	public TestingCenter(List<Day> days, int numberOfSeats, int numberOfSetAside, LocalTime open, LocalTime close,
+	public TestingCenter(int numberOfSeats, int numberOfSetAside, LocalTime open, LocalTime close,
 			Period gap, Period reminderInt) {
 		super();
-		this.days = days;
+		//this.days = days;
 		this.numberOfSeats = numberOfSeats;
 		this.numberOfSetAside = numberOfSetAside;
 		this.open = open;
@@ -98,7 +98,7 @@ public class TestingCenter {
 			instance = new TestingCenter();
 			
 			logger.info("Instantiating testing center.");
-			logger.fine("Days open: " + instance.days);
+			//logger.fine("Days open: " + instance.days);
 			logger.fine("Number of seats: " + instance.numberOfSeats);
 			logger.fine("Opening time: " + instance.open.toString());
 			logger.fine("Close time: " + instance.close.toString());
@@ -108,15 +108,15 @@ public class TestingCenter {
 		return instance;
 	}
 	
-	public static TestingCenter getTestingCenter(List<Day> days, int numberOfSeats, int numberOfSetAside, LocalTime open, LocalTime close,
+	public static TestingCenter getTestingCenter(int numberOfSeats, int numberOfSetAside, LocalTime open, LocalTime close,
 			Period gap, Period reminderInt) {
 		if (instance == null) {
-			instance = new TestingCenter(days, numberOfSeats, numberOfSetAside,
+			instance = new TestingCenter(numberOfSeats, numberOfSetAside,
 					open, close, gap, reminderInt
 					);
 			
 			logger.info("Instantiating testing center.");
-			logger.fine("Days open: " + instance.days);
+			//logger.fine("Days open: " + instance.days);
 			logger.fine("Number of seats: " + instance.numberOfSeats);
 			logger.fine("Opening time: " + instance.open.toString());
 			logger.fine("Close time: " + instance.close.toString());
