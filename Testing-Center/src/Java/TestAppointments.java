@@ -41,7 +41,7 @@ public class TestAppointments {
 		db.updateQuery("USE Test");
 
 		db.updateQuery("CREATE TABLE student (firstName varchar(45), lastName varchar(45), studentId varchar(45), email varchar(45))");
-		db.updateQuery("CREATE TABLE appointment (examIdA varchar(45), studentIdA varchar(45), dateId bigint(20), seatId int(11), appointmentId int(11), startTime bigint(20), endTime bigint(20))");
+		db.updateQuery("CREATE TABLE appointment (examIdA varchar(45), studentIdA varchar(45), dateId bigint(20), seatId int(11), appointmentId int(11), startTime bigint(20), endTime bigint(20), checkedIn tinyint(1))");
 		db.updateQuery("CREATE TABLE exam (examId varchar(45), start bigint(20), end bigint(20), boolCourseExam varchar(45), examStatus varchar(45), instructorIdA varchar(45), numSeats int, examLength int, courseId varchar(45))");
 		db.updateQuery("CREATE TABLE instructor (instructorId varchar(45), name varchar(45), email varchar(45))");
 //		db.updateQuery("CREATE TABLE courseexam (examIdCE varchar(45), courseIdCE varchar(45))");

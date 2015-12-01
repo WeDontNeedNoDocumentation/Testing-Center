@@ -860,7 +860,7 @@ public class TestingCenter {
 		if (seat != -1) {
 			db.query(
 					String.format("UPDATE appointment "
-					+ "SET checkedIn = 'T' "
+					+ "SET checkedIn = 1 "
 					+ "WHERE studentIdA = '%s' AND dateIdA = %d", 
 					netID,
 					search.getMillis()/1000
@@ -1656,7 +1656,7 @@ public class TestingCenter {
 			String netID = (String) student.get("netID");
 			DateTime start = new DateTime( (long) student.get("startTime"));
 			int seatId = (int) student.get("seatId");
-			boolean checkedIn = ((String) student.get("checkedIn")).equals("T");
+			boolean checkedIn = (int) student.get("checkedIn") == 1;
 
 			Attendance att = new Attendance(netID, start, seatId, checkedIn);
 			
