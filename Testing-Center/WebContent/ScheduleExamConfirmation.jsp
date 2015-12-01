@@ -41,23 +41,23 @@
 		String email = session.getAttribute("email").toString();
 		String id = session.getAttribute("id").toString();
 		String name = session.getAttribute("name").toString();
-		String instrId = request.getParameter("instrId");
-		String courseId = request.getParameter("courseId");
-		String seats = request.getParameter("seats");
-		String duration = request.getParameter("duration");
+		String instrId = session.getAttribute("instrId").toString();
+		String courseId = session.getAttribute("courseId").toString();
+		String seats = session.getAttribute("seats").toString();
+		String duration = session.getAttribute("duration").toString();
 	
 		Instructor instr = new Instructor(name, email, id);
 		DateTimeUtil dtUtil = new DateTimeUtil();
 		
-		String examId = request.getParameter("examId");
+		String examId = session.getAttribute("examId").toString();
 		
-		String sDate = request.getParameter("sDate");
-		String sTime = request.getParameter("sTime");
+		String sDate = session.getAttribute("sDate").toString();
+		String sTime = session.getAttribute("sTime").toString();
 		
 		DateTime stDate = dtUtil.makeDateTime(sDate, sTime);
 		
-		String eDate = request.getParameter("eDate");
-		String eTime = request.getParameter("eTime");
+		String eDate = session.getAttribute("eDate").toString();
+		String eTime = session.getAttribute("eTime").toString();
 		
 		DateTime enDate = dtUtil.makeDateTime(sDate, sTime);
 		
