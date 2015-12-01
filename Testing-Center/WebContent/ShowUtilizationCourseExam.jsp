@@ -63,7 +63,15 @@
 		
 		DateTime enDate = dtUtil.makeDateTime(eDate, eTime);
 		
-		
+		session.setAttribute("instrId", instrId);
+		session.setAttribute("courseId", courseId);
+		session.setAttribute("seats", seats);
+		session.setAttribute("duration", duration);
+		session.setAttribute("examId", examId);
+		session.setAttribute("sDate", sDate);
+		session.setAttribute("sTime", sTime);
+		session.setAttribute("eDate", eDate);
+		session.setAttribute("eTime", eTime);
 		
 		//Boolean success = instr.makeExam(examId, stDate, enDate, true, Integer.parseInt(seats), Integer.parseInt(duration), courseId);
 	%>
@@ -209,19 +217,32 @@
                 		boolean schedulable = TestingCenter.getTestingCenter().isExamSchedulable(exam);
                     	//<!--  Display the utilization here -->
                     	if (schedulable) {
-	                    	for(Double util : utilWithExam.values()) {
-	                    		out.print("Util with exam: ");
-	                    		out.print(util);
-	                    	}
-	                    	out.print("memes");
-	                    	for(Double util : utilWithoutExam.values()) {
-	                    		out.print("Util without exam: ");
-	                    		out.print(util); 
-	                    	}
-	                    	%>
+                    		%>
+                    		<div class="table-responsive">
+                                <table class="table table-bordered table-hover">
+                                    <thead>
+                                    <!-- Columns -->
+                                        <tr class="active">
+                                            <th>Date</th>
+                                            <th>Utilization with Exam</th>
+                                            <th>Utilization without Exam</th>
+                                        </tr>
+                                    <!-- /Columns -->
+                                    </thead>
+                                    <tbody>
+	                    	<% for(LocalDate date : utilWithExam.keySet()) { %>
+	                    		<tr>
+	                    		<td><%out.print(date.toString()); %></td>
+	                    		<td><%out.print(utilWithExam.get(date));%></td>
+	                    		<td><%out.print(utilWithoutExam.get(date));%></td>
+	                    		</tr>
+	                    	<%}%>
+	                    	</tbody>
+	                    	</table>
+	                    	</div>
 	                    	<form action="ScheduleExamConfirmation.jsp" method="post">
-                    		<button type="submit" value="submit">Submit</button>
-                    	</form>
+                    			<button type="submit" value="submit">Submit</button>
+                    		</form>
                     	<form action="InstructorHomepage.jsp" method="post">
                     		<button type="submit" value="submit">Cancel</button>
                     	</form>

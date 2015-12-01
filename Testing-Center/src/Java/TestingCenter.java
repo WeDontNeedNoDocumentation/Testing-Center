@@ -54,7 +54,7 @@ public class TestingCenter {
 	private static final int DEFAULT_SEATS = 64;
 	private static final int DEFAULT_SET_ASIDE = 0;
 	private static final LocalTime DEFAULT_OPEN = new LocalTime(8,0);
-	private static final LocalTime DEFAULT_CLOSE = new LocalTime(8,0);
+	private static final LocalTime DEFAULT_CLOSE = new LocalTime(18,0);
 	private static final Period DEFAULT_GAP = new Period(1,0,0,0);
 	private static final Period DEFAULT_REMINDER_INTERVAL = new Period(1,0,0,0);
 	
@@ -1482,14 +1482,21 @@ public class TestingCenter {
 			totalDurationOccupied += (end - start) + gap.getMillis();
 		}
 		
-		int totalDurationAvailable = numberOfSeats * (close.getMillisOfDay() - open.getMillisOfDay()); 
+		long totalDurationAvailable = numberOfSeats * (close.getMillisOfDay() - open.getMillisOfDay()); 
+		System.out.println(totalDurationAvailable);
+		System.out.println(numberOfSeats);
+		System.out.println(close.getMillisOfDay());
+		System.out.println(open.getMillisOfDay());
 		
-		return 1.0*totalDurationOccupied/totalDurationAvailable;
+		double actualUtil = 1.0*totalDurationOccupied/totalDurationAvailable;
+		System.out.println("Actual util: " + actualUtil);
+		
+		return actualUtil;
 	}
 	
 	public Map<LocalDate, Double> expectedUtilizationPerDayWithExam(LocalDate start, LocalDate end, int duration, int numSeats) {
-		System.out.println(start);
-		System.out.println(end);
+		//System.out.println(start);
+		//System.out.println(end);
 		Map<LocalDate, Double> expectedUtil = expectedUtilizationPerDay(start, end);
 		
 		double timeOccupied = 1.0*duration * 60 * 1000 + gap.getMillis();
@@ -1498,7 +1505,7 @@ public class TestingCenter {
 		for (LocalDate date : expectedUtil.keySet()) {
 			double util = expectedUtil.get(date);
 			System.out.println(util);
-			util += timeOccupied*numSeats/daysSpanned;
+			util += timeOccupied/numSeats/daysSpanned/numberOfSeats/(close.getMillisOfDay() - open.getMillisOfDay());
 			System.out.println("Days spanned: " + daysSpanned);
 			expectedUtil.put(date, util);
 		}
@@ -1512,18 +1519,16 @@ public class TestingCenter {
 		//while (DateTimeComparator.getDateOnlyInstance().compare(start,end) <= 0) {
 		while (DateTimeComparator.getDateOnlyInstance().compare(start.toDateTimeAtCurrentTime(),end.toDateTimeAtCurrentTime()) <= 0) {
 			System.out.println(start);
-			double util = expectedUtilization(start);
+			double util = actualUtilization(start);
 			utilMap.put(start, util);
 			start = start.plusDays(1);
 		}
 		
 		return utilMap;
 	}
-
-	//checks expected utilization of the testingcenter for a given date
 	
-	public double expectedUtilization(LocalDate date) {
-		double expectedUtilization = actualUtilization(date);
+	public double expectedAppointmentsDuration(LocalDate date) {
+		double duration = 0;
 		
 		long dateStartMillis = date.toDateTimeAtStartOfDay().getMillis();
 		String queryString = String.format("SELECT exam.examId, exam.start, exam.end, exam.numSeats, exam.examLength, COUNT(appointmentId) AS numAppointments "
@@ -1552,7 +1557,7 @@ public class TestingCenter {
 			
 			long timeOccupied = durationMillis + gap.getMillis();
 			int studentsRemaining = numSeats - numAppointments;
-			int daysSpanned = (int) millisSpanned/(1000*60*60*24);
+			int daysSpanned = Days.daysBetween(startDate, endDate).getDays() + 1;
 			
 			System.out.println("Time occupied by exam in millis: " + timeOccupied);
 			System.out.println("Gap time in millis: " + gap.getMillis());
@@ -1560,14 +1565,22 @@ public class TestingCenter {
 			System.out.println("Days spanned: " + daysSpanned);
 			System.out.println("Time spanned in milliseconds: " + millisSpanned);
 			
-			expectedUtilization += 1.0*timeOccupied*studentsRemaining/daysSpanned;
+			if (daysSpanned == 0)
+				logger.severe("Days spanned == 0. Please check to make sure calculation is correct and date range is correct.");
+			
+			duration += 1.0*timeOccupied*studentsRemaining/daysSpanned;
 		}
 		
-		System.out.println("Number of exams: " + exams.size());
-		
-		if (exams.size() == 0) {
-			return 0;
-		}
+		return duration;
+	}
+
+	//checks expected utilization of the testingcenter for a given date
+	
+	public double expectedUtilization(LocalDate date) {
+		double expectedUtilization = actualUtilization(date);
+		expectedUtilization += expectedAppointmentsDuration(date);
+		expectedUtilization /= numberOfSeats;
+		expectedUtilization /= close.getMillisOfDay() - open.getMillisOfDay();
 		
 		return expectedUtilization;
 	}
