@@ -190,12 +190,19 @@ public class TestingCenter {
 	}
 	
 	//make an appointment to take an exam
+	//test exists
+	//none of these fields may be null
+	//netId must exist in the student table
+	//startTime<endTime
 	public synchronized boolean makeAppointment(String examId, DateTime time, String netID, DateTime startTime, DateTime endTime, int duration) throws ExistingAppointmentException {
 		logger.info("Creating new Appointment");
 		logger.fine("Exam id: " + examId);
 		logger.fine("Student ID: " + netID);
 		logger.fine("Appointment start time: " + time.toString());
 		//logger.fine("Appointment ID: " + appointmentId);
+		
+		if(startTime.isAfter(endTime))
+			return false;
 		
 		if (hasAppointment(netID, examId)) {
 			logger.warning("Student " + netID + " already has appointment for exam " + examId);

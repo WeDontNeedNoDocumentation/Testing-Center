@@ -68,6 +68,7 @@ public class TestAppointments {
 	}
 	
 	@Test
+	//check to see that given the necessary parameters, an exam is made within the database
 	public void AAtestStudentCreateAppointment() {
 		logger.info("Testing Student's ability to create an appointment.");
 		
