@@ -36,22 +36,6 @@
     </head>
 
     <body>
-		<% 
-            String email = session.getAttribute("email").toString();
-      		String id = session.getAttribute("id").toString();
-      		String name = session.getAttribute("name").toString();
-      		
-			String fname = session.getAttribute("fname").toString();
-			String lname = session.getAttribute("lname").toString();
-			int termId = Integer.parseInt(session.getAttribute("termId").toString());
-			
-			Student student = new Student(fname, lname, id, email,id);
-      		
-      		DateTimeUtil dtUtil = new DateTimeUtil();
-      		List<Appointment> appts = new ArrayList<Appointment>();
-      		
-      		appts = student.viewAppointments(termId);
-    	%>
         <div id="wrapper">
 
             <!-- Navigation -->
@@ -177,48 +161,29 @@
             </nav>
 
             <div id="page-wrapper">
-
+				
                 <div class="container-fluid">
                 	<img src="img/viewappointmentsimg.png" alt="missing">
                     <div class="row">
-                        <div class="col-lg-6">
-                        <!-- View appointments. The system displays all appointments and the number of available seats at the current time or a specified other time. -->
-                            
-                            <div class="table-responsive">
-                            	<h3>Appointments</h3>
-                                <table class="table table-bordered table-hover">
-                                    <thead>
-                                    <!-- Columns -->
-                                        <tr class="active">
-                                            <th>Appointment</th>
-                                            <th>Time</th>
-                                            <th>Available Seats</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    <!-- /Columns -->
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                        <% 
-                                        	for(Appointment a: appts)
-                                        	{
-                                        	
-                                        %>
-                                        <!-- row entries -->
-                                            <td>Sample appointment</td>
-                                            <td>S10:00AM</td>
-                                            <td>39</td>
-                                            <td>
-                                            	<button type="button" class="btn btn-sm btn-danger">Cancel</button>
-                                            </td>
-                                        <!-- /row entries -->    
-                                        </tr>
-                                        	<%}%>
-                                    </tbody>
-                                </table>
-                            </div>
-                    <!-- /.row -->
-                        </div>
+	                    <div class="col-lg-12">
+	                        <h1 class="page-header">
+	                            See Appointment List
+	                        </h1>
+	                    </div>
+	                </div>
+	                <div class="row">
+                        <form action="SeeAppointmentList.jsp" method="post">
+	                		<div class="col-sm-6re">
+	                			
+	                			<div class="form-group input-group">
+			                        <span class="input-group-addon">Term ID</span>
+			                        <input name="termId" type="text" class="form-control" placeholder="IE:1158">
+			                    </div>
+			                    
+			                    <button type="submit" value="submit">Submit</button>
+				                
+							</div>
+						</form>
                     </div>
                 </div>
             </div>

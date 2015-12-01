@@ -1,5 +1,6 @@
 <%@page import="DBWorks.DBConnection"%>
 <%@page import="Java.*" %>
+<%@page import="org.joda.time.DateTime" %>
 <%@page import="java.util.*" %>
 <%@page import="java.lang.*" %>
 
@@ -13,7 +14,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Make Appointments Page - Student</title>
+    <title>Make Appointment Confirmation Page - Student</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -34,7 +35,38 @@
 </head>
 
 <body>
+	<% 
+            String email = session.getAttribute("email").toString();
+      		String id = session.getAttribute("id").toString();
+      		String name = session.getAttribute("name").toString();
+      		
+			String fname = session.getAttribute("fname").toString();
+			String lname = session.getAttribute("lname").toString();
+			
+			Student student = new Student(fname, lname, id, email,id);
 
+      		
+      		String examId = request.getParameter("examId");
+      		
+      		DateTimeUtil dtUtil = new DateTimeUtil();
+      		
+      		String sDate = request.getParameter("sDate");
+      		String sTime = request.getParameter("sTime");
+      		
+      		DateTime stDate = dtUtil.makeDateTime(sDate, sTime);
+      		
+      		String eDate = request.getParameter("eDate");
+      		String eTime = request.getParameter("eTime");
+      		
+      		DateTime enDate = dtUtil.makeDateTime(sDate, sTime);
+      		
+      		String apptId = request.getParameter("apptId");
+      		int duration = (enDate.getHourOfDay()+enDate.getMinuteOfDay())-(stDate.getHourOfDay()+stDate.getMinuteOfDay());
+      		System.out.println(duration);
+      		
+      		
+      		Boolean success = student.makeAppointment(examId, stDate, stDate, enDate, duration);
+    %>
     <div id="wrapper">
 
         <!-- Navigation -->
@@ -165,45 +197,15 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <h1 class="page-header">
-                            Make Appointment
+                            <%if(success)
+                        	{%>Make Appointment Confirmed<%}
+                        	else{%>Make Appointment Failed<%}
+                        	%>
                         </h1>
                     </div>
                 </div>
-                
                 <div class="row">
-                	<form action="MakeAppointmentConfirmation.jsp" method="post">
-                		<div class="col-sm-6re">
-                			<div class="form-group input-group">
-                			
-		                        <span class="input-group-addon">Exam ID</span>
-		                        <input name="examId" type="text" class="form-control" placeholder="IE:Test1">
-		                    </div>
-		
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Start Date</span>
-		                        <input name="sDate" type="text" class="form-control" placeholder="mm/dd/yyyy">
-		                    </div>
-		
-		                    <div class="form-group input-group">
-		                    	<span class="input-group-addon">Start Time</span>
-		                        <input name="sTime" type="text" class="form-control" placeholder="10:00am">
-		                    </div>
-		
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">End Date</span>
-		                        <input name="eDate" type="text" class="form-control" placeholder="mm/dd/yyyy">
-		                    </div>
-		                    
-		                    <div class="form-group input-group">
-		                    	<span class="input-group-addon">End Time</span>
-		                        <input name="eTime" type="text" class="form-control" placeholder="12:00pm">
-		                    </div>
-		                    
-		                    <button type="submit" value="submit">Submit</button>
-			                
-			                <div class="container">
-						</div>
-					</form>
+                	
                 </div>
             </div>
             <!-- /.container-fluid -->
