@@ -260,4 +260,27 @@ public class Administrator {
 		return tC.appointmentsPerTerm(startTerm, endTerm);
 	}
 	
+	/**
+	 * Current expected utilization of the TestingCenter for a range of dates
+	 * @param start		Start of the utilization range
+	 * @param end		End of the utilization range
+	 * @return
+	 */
+	public Map<LocalDate, Double> expectedUtilizationPerDay(LocalDate start, LocalDate end) {
+		return tC.expectedUtilizationPerDay(start, end);
+	}
+	
+	/**
+	 * Expected utilization of the TestingCenter for a range of dates if a
+	 * 		particular exam were scheduled.
+	 * @param start		Start of the utilization range
+	 * @param end		End of the utilization request range
+	 * @param duration	Duration of the exam being scheduled
+	 * @param numSeats	Number of seats requested for the exam
+	 * @return
+	 */
+	public Map<LocalDate, Double> expectedUtilizationPerDayWithExam(LocalDate start, LocalDate end, int duration, int numSeats) {
+		return tC.expectedUtilizationPerDayWithExam(start, end, duration, numSeats);
+	}
+	
 }

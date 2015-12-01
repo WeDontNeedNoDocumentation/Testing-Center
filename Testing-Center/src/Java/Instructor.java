@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 
 /**
  * This class represents and Instructor user and provides functionality for the instructor to interact
@@ -154,5 +155,28 @@ public class Instructor {
 		inst.makeExam("test-exam-2", new DateTime(2015, 12, 1, 8, 0), new DateTime(2015, 12, 3, 12, 0), true, 97, 85, "80450-1158");
 		inst2.makeExam("test-exam-3", new DateTime(2015, 12, 7, 1, 0), new DateTime(2015, 12, 8, 3, 0), true, 46, 45, "85023-1158");
 		
+	}
+	
+	/**
+	 * Current expected utilization of the TestingCenter for a range of dates
+	 * @param start		Start of the utilization range
+	 * @param end		End of the utilization range
+	 * @return
+	 */
+	public Map<LocalDate, Double> expectedUtilizationPerDay(LocalDate start, LocalDate end) {
+		return tC.expectedUtilizationPerDay(start, end);
+	}
+	
+	/**
+	 * Expected utilization of the TestingCenter for a range of dates if a
+	 * 		particular exam were scheduled.
+	 * @param start		Start of the utilization range
+	 * @param end		End of the utilization request range
+	 * @param duration	Duration of the exam being scheduled
+	 * @param numSeats	Number of seats requested for the exam
+	 * @return
+	 */
+	public Map<LocalDate, Double> expectedUtilizationPerDayWithExam(LocalDate start, LocalDate end, int duration, int numSeats) {
+		return tC.expectedUtilizationPerDayWithExam(start, end, duration, numSeats);
 	}
 }

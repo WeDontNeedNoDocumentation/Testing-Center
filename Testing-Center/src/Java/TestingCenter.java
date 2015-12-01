@@ -28,6 +28,7 @@ import javax.mail.internet.MimeMessage;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
+import org.joda.time.Days;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.Period;
@@ -1340,6 +1341,21 @@ public class TestingCenter {
 		return 1.0*totalDurationOccupied/totalDurationAvailable;
 	}
 	
+	public Map<LocalDate, Double> expectedUtilizationPerDayWithExam(LocalDate start, LocalDate end, int duration, int numSeats) {
+		Map<LocalDate, Double> expectedUtil = expectedUtilizationPerDay(start, end);
+		
+		double timeOccupied = 1.0*duration * 60 * 1000 + gap.getMillis();
+		int daysSpanned = Days.daysBetween(start, end).getDays();
+		
+		for (LocalDate date : expectedUtil.keySet()) {
+			double util = expectedUtil.get(date);
+			util += timeOccupied*numSeats/daysSpanned;
+			expectedUtil.put(date, util);
+		}
+		
+		return expectedUtil;
+	}
+	
 	public Map<LocalDate, Double> expectedUtilizationPerDay(LocalDate start, LocalDate end) {
 		Map<LocalDate,Double> utilMap = new HashMap<LocalDate, Double>();
 		
@@ -1372,7 +1388,7 @@ public class TestingCenter {
 		for (Map<String, Object> exam : exams) {
 			// Here I'm assuming that the duration of the exam will be in
 			// seconds, just like the start and end times.
-			int durationMillis = (int) exam.get("examLength") * 1000;
+			long durationMillis = (long) exam.get("examLength") * 60 * 1000;
 			int numSeats = (int) exam.get("numSeats");
 			int numAppointments = (int) exam.get("numAppointments");
 			long startMillis = (long) exam.get("start") * 1000;
@@ -1382,7 +1398,7 @@ public class TestingCenter {
 			LocalDate endDate = new LocalDate(endMillis);
 			long millisSpanned = endDate.toDateTimeAtStartOfDay().getMillis() - startDate.toDateTimeAtStartOfDay().getMillis();
 			
-			int timeOccupied = durationMillis + gap.getMillis();
+			long timeOccupied = durationMillis + gap.getMillis();
 			int studentsRemaining = numSeats - numAppointments;
 			int daysSpanned = (int) millisSpanned/(1000*60*60*24);
 			
