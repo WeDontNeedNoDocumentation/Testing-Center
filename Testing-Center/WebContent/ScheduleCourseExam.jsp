@@ -170,7 +170,7 @@
                     </div>
                 </div>
                 <div class="row">
-                	<form action="ScheduleExamConfirmation.jsp" method="post">
+                	<form action="ShowUtilizationCourseExam.jsp" method="post">
                 		<div class="col-sm-6re">
                 			<div class="form-group input-group">
 		                        <span class="input-group-addon">Exam ID</span>
