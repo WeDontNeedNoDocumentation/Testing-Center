@@ -353,6 +353,26 @@ public class TestingCenter {
 		return cancelled > 0;
 	}
 	
+	//edit an exam
+	//should be used by an administrator/student
+	public synchronized void editAppointment(String examIdA, String studentIdA,
+				DateTime dateId, int seatId, int appointmentId, DateTime startTime,
+				DateTime endTime){
+		logger.info("Editing exam with exam ID: " + examId +"& instructorId: "+ instructorIdA);
+		String queryString = String.format("UPDATE exam"
+				+" SET start='%d', end='%d', boolCourseExam='%d', numSeats='%d',"
+				+ " examLength='%d'+ courseId='%d'"
+				+ " WHERE "
+				+ "instructorIdA='%s'"
+				+ " AND "
+				+ "examId='%s'",
+				start, end, boolCourseExam, numSeats, examLength, courseId,
+				instructorIdA,
+				examId
+				);
+		db.updateQuery(queryString);
+	}
+	
 	public synchronized boolean canAppointmentBeCancelled(int appId) {
 		String queryString = String.format("SELECT startTime "
 				+ "FROM appointment "
@@ -520,6 +540,26 @@ public class TestingCenter {
 				+ " AND "
 				+ "examId='%s'",
 				instructorId,
+				examId
+				);
+		db.updateQuery(queryString);
+	}
+	
+	//edit an exam
+	//should be used by an administrator/instructor
+	public synchronized void editExam(String examId, DateTime start,
+			DateTime end, boolean boolCourseExam, String instructorIdA, int numSeats, 
+			int examLength, int courseId){
+		logger.info("Editing exam with exam ID: " + examId +"& instructorId: "+ instructorIdA);
+		String queryString = String.format("UPDATE exam"
+				+" SET start='%d', end='%d', boolCourseExam='%d', numSeats='%d',"
+				+ " examLength='%d'+ courseId='%d'"
+				+ " WHERE "
+				+ "instructorIdA='%s'"
+				+ " AND "
+				+ "examId='%s'",
+				start, end, boolCourseExam, numSeats, examLength, courseId,
+				instructorIdA,
 				examId
 				);
 		db.updateQuery(queryString);

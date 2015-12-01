@@ -127,6 +127,7 @@ public class TestAppointments {
 	@Test
 	//get the number of appointments for today
 	public void AtestAppointmentPerDay() {
+		logger.info("displaying the list of appointments");
 		Map<LocalDate, Integer> apptsPerDay = tc.appointmentsPerDay(1158);
 		
 		for (LocalDate date : apptsPerDay.keySet()) {
