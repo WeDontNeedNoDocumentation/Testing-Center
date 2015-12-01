@@ -1770,7 +1770,7 @@ public class TestingCenter {
 			String netID = (String) student.get("netID");
 			DateTime start = new DateTime( (long) student.get("startTime"));
 			int seatId = (int) student.get("seatId");
-			boolean checkedIn = (int) student.get("checkedIn") == 1;
+			boolean checkedIn = ((String) student.get("checkedIn")).equals("1");
 
 			Attendance att = new Attendance(netID, start, seatId, checkedIn);
 			
