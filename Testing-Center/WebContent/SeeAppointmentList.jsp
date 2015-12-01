@@ -43,7 +43,8 @@
       		
 			String fname = session.getAttribute("fname").toString();
 			String lname = session.getAttribute("lname").toString();
-			int termId = Integer.parseInt(session.getAttribute("termId").toString());
+			int termId = Integer.parseInt(request.getParameter("termId").toString());
+			System.out.println(termId);
 			
 			Student student = new Student(fname, lname, id, email,id);
       		
@@ -192,7 +193,7 @@
                                         <tr class="active">
                                             <th>Appointment</th>
                                             <th>Time</th>
-                                            <th>Available Seats</th>
+                                            <th>Seat Number</th>
                                             <th>Action</th>
                                         </tr>
                                     <!-- /Columns -->
@@ -205,9 +206,9 @@
                                         	
                                         %>
                                         <!-- row entries -->
-                                            <td>Sample appointment</td>
-                                            <td>S10:00AM</td>
-                                            <td>39</td>
+                                            <td><%out.print(a.getAppointmentId()); %></td>
+                                            <td><%out.print(dtUtil.getTime(a.getStartTime().getHourOfDay(), a.getStartTime().getMinuteOfHour())); %></td>
+                                            <td><%out.print(a.getSeatNumber()); %></td>
                                             <td>
                                             	<button type="button" class="btn btn-sm btn-danger">Cancel</button>
                                             </td>

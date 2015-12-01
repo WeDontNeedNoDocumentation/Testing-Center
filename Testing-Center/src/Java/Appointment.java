@@ -54,6 +54,10 @@ public class Appointment
 		return seatNumber;
 	}
 	
+	public DateTime getStartTime(){
+		return startTime;
+	}
+	
 	public boolean checkedIn() {
 		return checkedIn;
 	}
