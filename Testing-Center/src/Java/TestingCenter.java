@@ -1148,13 +1148,20 @@ public class TestingCenter {
 					appSeats.add(i, seatsAvailable.get(searchTime));
 				}
 				
-				for(int j = 0; j <numberOfSeats-numberOfSetAside;i++){
+				for(int j = 0; j <numberOfSeats-numberOfSetAside;j++){
 					searchTime = apEnd;
 					boolean aval = true;
 					for(String[] slot : appSeats) {
-						if(slot[j] != null || slot[j-1] == examId||slot[j+1] == examId){
-							aval = false;
-							break;
+						if(j==0) {
+							if(slot[j] != null||slot[j+1] == examId){
+								aval = false;
+								break;
+							}
+						} else {
+							if(slot[j] != null || slot[j-1] == examId||slot[j+1] == examId){
+								aval = false;
+								break;
+							}
 						}
 						if(aval) {
 							for(String[] slotFill : appSeats) {
@@ -1810,7 +1817,7 @@ public class TestingCenter {
 			String netID = (String) student.get("netID");
 			DateTime start = new DateTime( (long) student.get("startTime"));
 			int seatId = (int) student.get("seatId");
-			boolean checkedIn = (int) student.get("checkedIn") == 1;
+			boolean checkedIn = ((String) student.get("checkedIn")).equals("1");
 
 			Attendance att = new Attendance(netID, start, seatId, checkedIn);
 			
