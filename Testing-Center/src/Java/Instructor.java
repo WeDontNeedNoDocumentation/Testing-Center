@@ -118,7 +118,7 @@ public class Instructor {
 		//Exam exam = new Exam(examName, start, end, instructorId, examName, students.size(), duration, true);
 		if (makeExam(examName, start, end, false, students.size(), duration, examName)) {
 			enrollStudents(examName, students);
-			return true;
+			return true;	
 		}
 		else {
 			return false;

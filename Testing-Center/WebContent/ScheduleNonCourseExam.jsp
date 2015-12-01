@@ -1,9 +1,3 @@
-<%@page import="DBWorks.DBConnection"%>
-<%@page import="Java.*" %>
-<%@page import="org.joda.time.DateTime" %>
-<%@page import="java.util.*" %>
-<%@page import="java.lang.*" %>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -15,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Schedule Non-Course Exam Confirmation - Instructor</title>
+    <title>Schedule NonCourse Exam Request Page - Instructor</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -32,60 +26,12 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
-
+    <link href="css/addboxes.css" rel="stylesheet">
 
 </head>
 
 <body>
-	<%
-		String email = session.getAttribute("email").toString();
-		String id = session.getAttribute("id").toString();
-		String name = session.getAttribute("name").toString();
-	
-		Instructor instr = new Instructor(name, email, id);
-		
-		String examId = request.getParameter("examId");
-		
-		String sDate = request.getParameter("sDate");
-		int month = Integer.parseInt(sDate.substring(0,2));
-		int day = Integer.parseInt(sDate.substring(3,5));
-		int year = Integer.parseInt(sDate.substring(6,10));
-		
-		String sTime = request.getParameter("sTime");
-		int hour = Integer.parseInt(sTime.substring(0,2));
-		int minute = Integer.parseInt(sTime.substring(3,5));
-		String amPm = sTime.substring(5,7);
-		
-		if(amPm.equals("PM")||amPm.equals("pm")||amPm.equals("Pm"))
-			hour+= 12;
-		
-		DateTime stDate = new DateTime(year, month, day, hour, minute, 0, 0);
-		
-		String eDate = request.getParameter("eDate");
-		month = Integer.parseInt(eDate.substring(0,2));
-		day = Integer.parseInt(eDate.substring(3,5));
-		year = Integer.parseInt(eDate.substring(6,10));
-		
-		String eTime = request.getParameter("eTime");
-		hour = Integer.parseInt(eTime.substring(0,2));
-		minute = Integer.parseInt(eTime.substring(3,5));
-		amPm = eTime.substring(5,7);
-		
-		if(amPm.equals("PM")||amPm.equals("pm")||amPm.equals("Pm"))
-			hour+=12;
-		
-		DateTime enDate = new DateTime(year, month, day, hour, minute, 0, 0);
-		
-		String instrId = request.getParameter("instrId");
-		String courseId = request.getParameter("courseId");
-		String seats = request.getParameter("seats");
-		//int intSeats = Integer.parseInt(seats);
-		String duration = request.getParameter("duration");
-		//int intDuration = Integer.parseInt(duration);
-		
-		Exam e = new Exam(examId, stDate, enDate, instrId, courseId, Integer.parseInt(request.getParameter("seats")), Integer.parseInt(request.getParameter("duration")), false);
-		instr.makeExam(e, stDate, enDate, true, id);
-	%>
+
     <div id="wrapper">
 
         <!-- Navigation -->
@@ -219,12 +165,60 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <h1 class="page-header">
-                            Schedule Exam Confirmed
+                            Schedule Exam Request
                         </h1>
                     </div>
                 </div>
                 <div class="row">
-                	
+                	<form action="ScheduleNonExamConfirmation.jsp" method="post">
+                		<div class="col-sm-6re">
+                			<div class="form-group input-group">
+                			
+		                        <span class="input-group-addon">Exam ID</span>
+		                        <input name="examId" type="text" class="form-control" placeholder="IE:Test1">
+		                    </div>
+							
+							<div class="form-group input-group">
+		                        <span class="input-group-addon">Term</span>
+		                        <input name="termId" type="text" class="form-control" placeholder="IE:1158">
+		                    </div>
+							
+		                    <div class="form-group input-group">
+		                        <span class="input-group-addon">Start Date</span>
+		                        <input name="sDate" type="text" class="form-control" placeholder="mm/dd/yyyy">
+		                    </div>
+		
+		                    <div class="form-group input-group">
+		                    	<span class="input-group-addon">Start Time</span>
+		                        <input name="sTime" type="text" class="form-control" placeholder="10:00am">
+		                    </div>
+		
+		                    <div class="form-group input-group">
+		                        <span class="input-group-addon">End Date</span>
+		                        <input name="eDate" type="text" class="form-control" placeholder="mm/dd/yyyy">
+		                    </div>
+		                    
+		                    <div class="form-group input-group">
+		                    	<span class="input-group-addon">End Time</span>
+		                        <input name="eTime" type="text" class="form-control" placeholder="12:00pm">
+		                    </div>
+		                    
+		                    <div class="form-group input-group">
+		                        <span class="input-group-addon">Duration</span>
+		                        <input name="duration" type="text" class="form-control" placeholder="IE:120">
+		                    </div>
+		                    
+		                    <div class="form-group input-group">
+		                    	<span class="input-group-addon">Add Students</span>
+		                        <input name="stuList" type="text" class="form-control" placeholder="netId1,fName,lName:netId2,fName,lName ...">
+		                    </div>
+		                    
+		                    <button type="submit" value="submit">Submit</button>
+			                
+			                <div class="container">
+			                
+						</div>
+					</form>
                 </div>
             </div>
             <!-- /.container-fluid -->

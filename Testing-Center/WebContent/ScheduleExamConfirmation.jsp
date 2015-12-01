@@ -41,58 +41,27 @@
 		String email = session.getAttribute("email").toString();
 		String id = session.getAttribute("id").toString();
 		String name = session.getAttribute("name").toString();
+		String instrId = request.getParameter("instrId");
+		String courseId = request.getParameter("courseId");
+		String seats = request.getParameter("seats");
+		String duration = request.getParameter("duration");
 	
 		Instructor instr = new Instructor(name, email, id);
+		DateTimeUtil dtUtil = new DateTimeUtil();
 		
 		String examId = request.getParameter("examId");
 		
 		String sDate = request.getParameter("sDate");
-		int month = Integer.parseInt(sDate.substring(0,2));
-		int day = Integer.parseInt(sDate.substring(3,5));
-		int year = Integer.parseInt(sDate.substring(6,10));
-		
 		String sTime = request.getParameter("sTime");
-		int hour = Integer.parseInt(sTime.substring(0,2));
-		int minute = Integer.parseInt(sTime.substring(3,5));
-		String amPm = sTime.substring(5,7);
 		
-		if(amPm.equals("PM")||amPm.equals("pm")||amPm.equals("Pm"))
-		{
-			hour+= 12;
-			if(hour == 24)
-				hour = 0;
-		}
-		
-		DateTime stDate = new DateTime(year, month, day, hour, minute, 0, 0);
+		DateTime stDate = dtUtil.makeDateTime(sDate, sTime);
 		
 		String eDate = request.getParameter("eDate");
-		month = Integer.parseInt(eDate.substring(0,2));
-		day = Integer.parseInt(eDate.substring(3,5));
-		year = Integer.parseInt(eDate.substring(6,10));
-		
 		String eTime = request.getParameter("eTime");
-		hour = Integer.parseInt(eTime.substring(0,2));
-		minute = Integer.parseInt(eTime.substring(3,5));
-		amPm = eTime.substring(5,7);
 		
-		if(amPm.equals("PM")||amPm.equals("pm")||amPm.equals("Pm"))
-		{
-			hour+=12;
-			if(hour == 24)
-			hour = 0;
-		}
+		DateTime enDate = dtUtil.makeDateTime(sDate, sTime);
 		
-		DateTime enDate = new DateTime(year, month, day, hour, minute, 0, 0);
-		
-		String instrId = request.getParameter("instrId");
-		String courseId = request.getParameter("courseId");
-		String seats = request.getParameter("seats");
-		//int intSeats = Integer.parseInt(seats);
-		String duration = request.getParameter("duration");
-		//int intDuration = Integer.parseInt(duration);
-		
-		//Exam e = new Exam(examId, stDate, enDate, instrId, courseId, Integer.parseInt(request.getParameter("seats")), Integer.parseInt(request.getParameter("duration")), false);
-		instr.makeExam(examId, stDate, enDate, true, Integer.parseInt(seats), Integer.parseInt(duration), courseId);
+		Boolean success = instr.makeExam(examId, stDate, enDate, true, Integer.parseInt(seats), Integer.parseInt(duration), courseId);
 	%>
     <div id="wrapper">
 
@@ -227,7 +196,11 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <h1 class="page-header">
-                            Schedule Exam Confirmed
+                        	<%if(success)
+                        	{%>Schedule Exam Confirmed<%}
+                        	else{%>Schedule Exam Failed<%}
+                        	%>
+                        	
                         </h1>
                     </div>
                 </div>

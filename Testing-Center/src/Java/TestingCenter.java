@@ -374,8 +374,11 @@ public class TestingCenter {
 			String netId = (String) appt.get("studentIdA");
 			DateTime start = new DateTime((long) appt.get("startTime")*1000);
 			DateTime end = new DateTime((long) appt.get("endTime")*1000);
+			int appointmentId = (int) appt.get("appointmentId");
+			int seatNumber = (int) appt.get("seatId");
+			boolean checkedIn = (int) appt.get("checkedIn") == 1;
 			
-			Appointment newAppointment = new Appointment(examId, netId, start, end);
+			Appointment newAppointment = new Appointment(examId, netId, start, end, appointmentId, seatNumber, checkedIn);
 			appointments.add(newAppointment);
 			
 			System.out.println(newAppointment);
@@ -396,8 +399,11 @@ public class TestingCenter {
 			String netId = (String) appt.get("studentIdA");
 			DateTime start = new DateTime((long) appt.get("startTime")*1000);
 			DateTime end = new DateTime((long) appt.get("endTime")*1000);
+			int appointmentId = (int) appt.get("appointmentId");
+			int seatNumber = (int) appt.get("seatId");
+			boolean checkedIn = (int) appt.get("checkedIn") == 1;
 			
-			Appointment newAppointment = new Appointment(examId, netId, start, end);
+			Appointment newAppointment = new Appointment(examId, netId, start, end, appointmentId, seatNumber, checkedIn);
 			appointments.add(newAppointment);
 		}
 		
@@ -427,10 +433,17 @@ public class TestingCenter {
 		logger.fine("Course ID: " + courseId);
 		
 		if(start.isAfter(end)){
+			logger.warning("End time must be greater than start time.");
 			return false;
 		}
 		
-		if(numSeats<=0 || duration<=0){
+		if(numSeats <= 0) { 
+			logger.warning("Number of seats must be greater than 0");
+			return false;
+		}
+		
+		if (duration <= 0) {
+			logger.warning("Exam duration cannot be negative.");
 			return false;
 		}
 		
@@ -438,7 +451,8 @@ public class TestingCenter {
 				+ "examId='%s'", examId);
 		List<Map<String, Object>> response = Database.getDatabase().query(qString);
 
-		if(response.isEmpty()){
+		if(!response.isEmpty()){
+			logger.warning("Exam " + examId + " already exists");
 			return false;
 		}
 		
@@ -446,7 +460,8 @@ public class TestingCenter {
 				+ "instructorId='%s'", instructorId);
 		response = Database.getDatabase().query(rString);
 
-		if(response.isEmpty()){
+		if(response.isEmpty()) {
+			logger.info("Instructor " + instructorId + " does not exist.");
 			return false;
 		}
 		
@@ -455,6 +470,7 @@ public class TestingCenter {
 		response = Database.getDatabase().query(sString);
 
 		if(response.isEmpty()){
+			logger.info("Course " + courseId + " does not exist.");
 			return false;
 		}
 		
@@ -471,9 +487,9 @@ public class TestingCenter {
 				duration,
 				courseId
 				);
-		db.updateQuery(queryString);
+		int examCreated = db.updateQuery(queryString);
 		
-		return true;
+		return examCreated > 0;
 	}
 
 	//cancel an exam given the particular combination of examId and instructorId
