@@ -91,7 +91,6 @@ public class Student {
 
 	/*
 	 * This is used to create an exam appointment for a specific exam.
-	 * (NOTE: At this time no checks are made to see if this appointment is in any way valid.)
 	 */
 	public boolean makeAppointment(Exam exam, DateTime time, int appointmentId, DateTime start, DateTime end) {
 		return tC.makeAppointment(exam, time, appointmentId, netID, start, end);
@@ -99,8 +98,6 @@ public class Student {
 	
 	/*
 	 * Will cancel this students appointment for the exam specified.
-	 * (NOTE: This does not check to see if the appointment exists first. Will require the calling of
-	 * view in the future.)
 	 */
 	public boolean cancelAppointment(int string) {
 		return tC.cancelAppointment(string);
@@ -108,7 +105,7 @@ public class Student {
 	
 	/*
 	 * When called, returns a list of appointments associated with the student.
-	 * (NOTE: Later this will be required to be called before canceling.)
+	 * (NOTE: This is required to be called before canceling.)
 	 */
 	public List<Appointment> viewAppointments(int termId) {
 		return tC.showAppointments(netID, termId);
@@ -125,25 +122,5 @@ public class Student {
 		return tC.viewAvailableExams(this);
 
 	}
-	
-	/*
-	public static void main(String args[]) {
-		Student st = new Student();
-		st.netID = "abak";
-		
-		Exam exam = new Exam("ex1", null, null);
-		
-		DateTime date = new DateTime(2000,1,1,1,1);
-		
-		
-		st.makeAppointment(exam, date, 0, 0);
-		
-		List<Appointment> appts = st.viewAppointments();
-		System.out.println(appts);
-		
-		st.cancelAppointment("ex1");
-		
-	}
-	*/
 
 }

@@ -92,7 +92,6 @@ public class Database {
 		try {
 			boolean hasResultSet = statement.execute("USE ssattar");
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			logger.warning("Unable to execute statement: \"USE ssattar\"");
 			e.printStackTrace();
 		}
@@ -141,8 +140,24 @@ public class Database {
 		return results;
 	}
 	
+	public ResultSet queryRS(String queryString) {
+		logger.fine("Preparing to execute SQL query to retrieve data.");
+		logger.info("QUERY STRING: " + queryString);
+		ResultSet rs = null;
+		try {
+			Statement statement = conn.createStatement();
+			rs = statement.executeQuery(queryString);
+			logger.info("Query successfully executed.");
+
+		} catch (SQLException e) {
+			logger.warning("Error executing query. Please check query and try again.");
+			e.printStackTrace();
+		}
+		return rs;
+	}
+	
 	/*
-	 * Sends a query to update
+	 * Sends a sql query to update the database
 	 */
 	public int updateQuery(String queryString) {
 		logger.fine("Preparing to execute SQL query to update database.");

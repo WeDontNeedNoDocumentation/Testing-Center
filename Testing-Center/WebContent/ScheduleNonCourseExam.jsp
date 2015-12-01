@@ -1,5 +1,6 @@
 <%@page import="DBWorks.DBConnection"%>
 <%@page import="Java.*" %>
+<%@page import="org.joda.time.DateTime" %>
 <%@page import="java.util.*" %>
 <%@page import="java.lang.*" %>
 
@@ -7,13 +8,14 @@
 <html lang="en">
 
 <head>
+
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Make Appointments Page - Student</title>
+    <title>Schedule Non-Course Exam Confirmation - Instructor</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -31,10 +33,59 @@
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 
+
 </head>
 
 <body>
-
+	<%
+		String email = session.getAttribute("email").toString();
+		String id = session.getAttribute("id").toString();
+		String name = session.getAttribute("name").toString();
+	
+		Instructor instr = new Instructor(name, email, id);
+		
+		String examId = request.getParameter("examId");
+		
+		String sDate = request.getParameter("sDate");
+		int month = Integer.parseInt(sDate.substring(0,2));
+		int day = Integer.parseInt(sDate.substring(3,5));
+		int year = Integer.parseInt(sDate.substring(6,10));
+		
+		String sTime = request.getParameter("sTime");
+		int hour = Integer.parseInt(sTime.substring(0,2));
+		int minute = Integer.parseInt(sTime.substring(3,5));
+		String amPm = sTime.substring(5,7);
+		
+		if(amPm.equals("PM")||amPm.equals("pm")||amPm.equals("Pm"))
+			hour+= 12;
+		
+		DateTime stDate = new DateTime(year, month, day, hour, minute, 0, 0);
+		
+		String eDate = request.getParameter("eDate");
+		month = Integer.parseInt(eDate.substring(0,2));
+		day = Integer.parseInt(eDate.substring(3,5));
+		year = Integer.parseInt(eDate.substring(6,10));
+		
+		String eTime = request.getParameter("eTime");
+		hour = Integer.parseInt(eTime.substring(0,2));
+		minute = Integer.parseInt(eTime.substring(3,5));
+		amPm = eTime.substring(5,7);
+		
+		if(amPm.equals("PM")||amPm.equals("pm")||amPm.equals("Pm"))
+			hour+=12;
+		
+		DateTime enDate = new DateTime(year, month, day, hour, minute, 0, 0);
+		
+		String instrId = request.getParameter("instrId");
+		String courseId = request.getParameter("courseId");
+		String seats = request.getParameter("seats");
+		//int intSeats = Integer.parseInt(seats);
+		String duration = request.getParameter("duration");
+		//int intDuration = Integer.parseInt(duration);
+		
+		Exam e = new Exam(examId, stDate, enDate, instrId, courseId, Integer.parseInt(request.getParameter("seats")), Integer.parseInt(request.getParameter("duration")), false);
+		instr.makeExam(e, stDate, enDate, true, id);
+	%>
     <div id="wrapper">
 
         <!-- Navigation -->
@@ -144,13 +195,16 @@
             <div class="collapse navbar-collapse navbar-ex1-collapse">
                 <ul class="nav navbar-nav side-nav">
                     <li class="active">
-                        <a href="MakeAppointmentStudent.jsp"><span class="glyphicon glyphicon-calendar"></span></span></i> Make An Appointment</a>
+                        <a href="ScheduleExamRequest.jsp"><span class="glyphicon glyphicon-calendar"></span></span></i> Schedule Exam Request</a>
                     </li>
                     <li>
-                        <a href="SeeAppointmentList.jsp"><span class="glyphicon glyphicon-ok"></span></span></i> See Appointments</a>
+                        <a href="SeeExamRequests.jsp"><i class="fa fa-fw fa-table"></i> See Exam Requests</a>
                     </li>
                     <li>
-                        <a href="SetAppointmentReminder.jsp"><span class="glyphicon glyphicon-saved"></span></i> Set Appointment Reminder</a>
+                        <a href="ApptAttendanceDetails.jsp"><span class="glyphicon glyphicon-ok"></span></span></i> Appt/Attendance Details</a>
+                    </li>
+                    <li>
+                        <a href="#"><i class="fa fa-fw fa-dashboard"></i> Display Utilization Center</a>
                     </li>
                 </ul>
             </div>
@@ -160,58 +214,17 @@
         <div id="page-wrapper">
 
             <div class="container-fluid">
-            	<img src="img/appointmentsetting.png" alt="missing">
+
                 <!-- Page Heading -->
                 <div class="row">
                     <div class="col-lg-12">
                         <h1 class="page-header">
-                            Make Appointment
+                            Schedule Exam Confirmed
                         </h1>
                     </div>
                 </div>
-                
-                <!-- Exam exam, DateTime time, int seatId, int appointmentId, String netID -->
-
                 <div class="row">
-	                <table class="table table-bordered table-hover">
-	                    <thead>
-	                    <!-- Columns -->
-	                        <tr class="active">
-	                            <th>Exam</th>
-	                            <th>Time</th>
-	                            <th>Seat ID</th>
-	                            <th>Net ID</th>
-	                        </tr>
-	                    <!-- /Columns -->
-	                    </thead>
-	                    <tbody>
-	                        <tr>
-	                        <!--enter code here for table -->
-	                        <% 
-		                        String email = session.getAttribute("email").toString();
-		                		String id = session.getAttribute("id").toString();
-		                		String name = session.getAttribute("name").toString();
-		                		
-		                		session.getAttribute("name", fname);
-				        		session.getAttribute("login", email);
-				        		session.getAttribute("id", password);
-				        		session.getAttribute("email", email);
-				        		
-				        		Student student = new Student(fname, lname, id, email,id);
-		                	
-		                		Student Student = new Instructor(name, email, id);
-		                        Exam e = new Exam(examId, stDate, enDate, instrId, courseId, Integer.parseInt(request.getParameter("seats")), Integer.parseInt(request.getParameter("duration")), false);
-		                		instr.makeExam(e, stDate, enDate, true, instrId);
-	                        %>
-	                        <!-- row entries -->
-	                            <td>Sample exam</td>
-	                            <td>S11:30AM</td>
-	                            <td>D8</td>
-	                            <td>123456789</td>
-	                        <!-- /row entries -->    
-	                        </tr>
-	                    </tbody>
-	                </table>
+                	
                 </div>
             </div>
             <!-- /.container-fluid -->

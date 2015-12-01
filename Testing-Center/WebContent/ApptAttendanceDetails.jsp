@@ -1,3 +1,9 @@
+<%@page import="DBWorks.DBConnection"%>
+<%@page import="Java.*" %>
+<%@page import="org.joda.time.DateTime" %>
+<%@page import="java.util.*" %>
+<%@page import="java.lang.*" %>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -57,7 +63,7 @@
                                         <img class="media-object" src="http://placehold.it/50x50" alt="">
                                     </span>
                                     <div class="media-body">
-                                        <h5 class="media-heading"><strong>John Smith</strong>
+                                        <h5 class="media-heading"><strong>${sessionScope.name}</strong>
                                         </h5>
                                         <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
                                         <p>Lorem ipsum dolor sit amet, consectetur...</p>
@@ -72,7 +78,7 @@
                                         <img class="media-object" src="http://placehold.it/50x50" alt="">
                                     </span>
                                     <div class="media-body">
-                                        <h5 class="media-heading"><strong>John Smith</strong>
+                                        <h5 class="media-heading"><strong>${sessionScope.name}</strong>
                                         </h5>
                                         <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
                                         <p>Lorem ipsum dolor sit amet, consectetur...</p>
@@ -87,7 +93,7 @@
                                         <img class="media-object" src="http://placehold.it/50x50" alt="">
                                     </span>
                                     <div class="media-body">
-                                        <h5 class="media-heading"><strong>John Smith</strong>
+                                        <h5 class="media-heading"><strong>${sessionScope.name}</strong>
                                         </h5>
                                         <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
                                         <p>Lorem ipsum dolor sit amet, consectetur...</p>
@@ -128,18 +134,8 @@
                     </ul>
                 </li>
                 <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> John Smith <b class="caret"></b></a>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> ${sessionScope.name} <b class="caret"></b></a>
                     <ul class="dropdown-menu">
-                        <li>
-                            <a href="#"><i class="fa fa-fw fa-user"></i> Profile</a>
-                        </li>
-                        <li>
-                            <a href="#"><i class="fa fa-fw fa-envelope"></i> Inbox</a>
-                        </li>
-                        <li>
-                            <a href="#"><i class="fa fa-fw fa-gear"></i> Settings</a>
-                        </li>
-                        <li class="divider"></li>
                         <li>
                             <a href="#"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
                         </li>
@@ -185,14 +181,7 @@
 	                    <!-- Columns -->
 	                        <tr class="active">
 	                            <th>Course ID</th>
-	                            <th>Section</th>
-	                            <th>Term</th>
-	                            <th>Duration</th>
-	                            <th>Start Date</th>
-	                            <th>Time</th>
-	                            <th>End Date</th>
-	                            <th>Time</th>
-	                            <th>Seats Available</th>
+	                            <th>Exam ID</th>
 	                            <th>Action</th>
 	                        </tr>
 	                    <!-- /Columns -->
@@ -200,22 +189,33 @@
 	                    <tbody>
 	                        <tr>
 	                        <!--enter code here for table -->
-	                        <%  %>
-	                        <!-- row entries -->
-	                            <td>123456789</td>
-	                            <td>2</td>
-	                            <td>Spring 2016</td>
-	                            <td>90</td>
-	                            <td>11/21/15</td>
-	                            <td>11:00AM</td>
-	                            <td>11/22/15</td>
-	                            <td>1:00PM</td>
-	                            <td>32</td>
+	                        <%  
+		                        String email = session.getAttribute("email").toString();
+		                		String id = session.getAttribute("id").toString();
+		                		String name = session.getAttribute("name").toString();
+		                	
+		                		Instructor instr = new Instructor(name, email, id);
+		                		
+		                		List<Exam> exams = new ArrayList<Exam>();
+                               	exams = instr.viewExams();
+		                		
+		                		for(Exam e : exams)
+                               	{
+                                    String courseId = e.getCourseId();
+                                    String duration = String.valueOf(e.getLength());
+                                  
+	                        %>
+	                        
+	                        	<td><%out.print(courseId);%></td>
+	                            <td><%out.print(e.getExamID());%></td>
 	                            <td>
-		                            <a href="ShowApptAttendanceDetails.jsp" button type="button" class="btn btn-sm btn-success">Select</a>
-	                    		</td>
+		                    		<form action="ShowApptAttendanceDetails.jsp" method="post">
+		                            	<button type="submit" class="btn btn-sm btn-success" name="examId" value="<%out.print(e.getExamID());%>" formaction="ShowApptAttendanceDetails.jsp">Select</button>
+	                            	</form>
+                            	</td>
 	                        <!-- /row entries -->    
 	                        </tr>
+	                        	<%} %>
 	                    </tbody>
 	                </table>
                 </div>

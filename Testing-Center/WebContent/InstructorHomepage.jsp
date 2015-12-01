@@ -61,7 +61,7 @@
         <div class="row">
             <div class="col-lg-12">
                 <h1 class="page-header">Testing Center Scheduler
-                    <small>What would you like to do? ${sessionScope.id } </small>
+                    <small>What would you like to do? ${sessionScope.name} </small>
                 </h1>
             </div>
         </div>
