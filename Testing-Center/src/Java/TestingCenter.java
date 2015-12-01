@@ -986,7 +986,7 @@ public class TestingCenter {
 		int seat = -1;
 		for (Map<String,Object> appointment : appointments) {	
 		
-			seat =  (int)appointment.get("seatIdA");
+			seat =  (int)appointment.get("seatId");
 		}
 		
 		if (seat != -1) {
