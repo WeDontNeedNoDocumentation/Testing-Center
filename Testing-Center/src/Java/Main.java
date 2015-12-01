@@ -32,7 +32,9 @@ public class Main {
 	public static void main(String[] args) throws SecurityException, IOException
 	{
 		long time=1448998200;
-		DateTime start = new DateTime(time*1000);
+//		DateTime start = new DateTime(time*1000);
+		
+		DateTime start = new DateTime(((long) time)*1000);
 		System.out.println(start);
 //		log.info("Logger Name: "+log.getName());
 //		log.warning("Can cause ArrayIndexOutOfBoundsException");
