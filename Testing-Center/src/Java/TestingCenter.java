@@ -839,7 +839,7 @@ public class TestingCenter {
 		List<Map<String,Object>> appointments = db.query(
 				String.format("SELECT examIdA, studentIdA, dateIdA, seatIdA, appointmentID "
 				+ "FROM appointment "
-				+ "WHERE studentIDA = '%s' AND dateIdA = '%d'",
+				+ "WHERE studentIdA = '%s' AND dateIdA = %d",
 				netID,
 				search.getMillis()/1000
 				));
@@ -847,6 +847,16 @@ public class TestingCenter {
 		for (Map<String,Object> appointment : appointments) {	
 		
 			seat =  (int)appointment.get("seatIdA");
+		}
+		
+		if (seat != -1) {
+			db.query(
+					String.format("UPDATE appointment "
+					+ "SET checkedIn = 'T' "
+					+ "WHERE studentIdA = '%s' AND dateIdA = '%d", 
+					netID,
+					search.getMillis()/1000
+					));
 		}
 		
 		return seat;
@@ -1601,15 +1611,16 @@ public class TestingCenter {
 		return apptsPerTerm;
 	}
 	
+
 	/**
 	 * Takes the examId and outputs a list of students who attended this exam
 	 * @param examId
-	 * @return List<Student> corresponding to the results of the query
+	 * @return List<Attendance> corresponding to the results of the query
 	*/
-	public synchronized List<Student> viewAttendanceStats(String examId) {
-		List<Student> studentsList = new ArrayList<Student>();
-		
-		String queryString = String.format("SELECT student.* "
+
+	public synchronized List<Attendance> viewAttendanceStats(String examId) {
+		List<Attendance> studentsList = new ArrayList<Attendance>();
+		String queryString = String.format("SELECT student.netId, appointment.seatId, appointment.startTime, appointment.checkedIn "
 				+ "FROM student "
 				+ "INNER JOIN appointment "
 				+ "ON student.studentId = appointment.studentIdA "
@@ -1620,14 +1631,14 @@ public class TestingCenter {
 		List<Map<String, Object>> students = Database.getDatabase().query(queryString);
 		
 		for (Map<String, Object> student : students) {
-			String firstName = (String) student.get("firstName");
-			String lastName = (String) student.get("lastName");
 			String netID = (String) student.get("netID");
-			String email = (String) student.get("email");
-			String userIdB = (String) student.get("userIdB");
+			DateTime start = new DateTime( (long) student.get("startTime"));
+			int seatId = (int) student.get("seatId");
+			boolean checkedIn = ((String) student.get("checkedIn")).equals("T");
+
+			Attendance att = new Attendance(netID, start, seatId, checkedIn);
 			
-			Student newStudent = new Student(firstName, lastName, netID, email, userIdB);
-			studentsList.add(newStudent);
+			studentsList.add(att);
 		}
 		
 		return studentsList;
