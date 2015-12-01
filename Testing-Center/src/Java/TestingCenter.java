@@ -353,6 +353,24 @@ public class TestingCenter {
 		return cancelled > 0;
 	}
 	
+	public synchronized boolean canAppointmentBeCancelled(int appId) {
+		String queryString = String.format("SELECT startTime "
+				+ "FROM appointment "
+				+ "WHERE appointmentId=%d", appId);
+		List<Map<String, Object>> appts = db.query(queryString);
+		
+		if (appts.size() == 0)
+			return false;
+		
+		Map<String, Object> appt = appts.get(0);
+
+		DateTime now = DateTime.now();
+		DateTime start = new DateTime((long) appt.get("startTime") * 1000);
+		start = start.minusHours(24);
+		
+		return now.getMillis() < start.getMillis();
+	}
+	
 	//Return a list of all appointments, given a student's netID and the desired term
 	public List<Appointment> showAppointments(String netID, int termId) {
 		logger.info("Retrieving all appointments for student ID " + netID);
@@ -1279,6 +1297,7 @@ public class TestingCenter {
 			nowM = nowM %(60);
 			long thirtyM = thirty.getMillisOfDay()/60000;
 			DateTime search = null;
+			DateTime searchUntil = null;
 			if (nowM<thirtyM) {
 				search = now.hourOfDay().roundFloorCopy();
 				search = search.plusHours(reminderInt.getHours());
@@ -1287,17 +1306,18 @@ public class TestingCenter {
 				search = search.withMinuteOfHour(30);
 				search = search.plusHours(reminderInt.getHours());
 			}
+			searchUntil=search.plusHours(reminderInt.getHours());
 			List<Map<String,Object>> appointments = db.query(
 					String.format("SELECT examIdA, studentIdA, dateId, seatId, appointmentID "
 					+ "FROM appointment "
-					+ "WHERE dateId = '%d'",
-					search.getMillis()/1000
+					+ "WHERE startTime >= '%d' AND endTime <= '%d'",
+					search.getMillis()/1000, searchUntil.getMillis()/1000
 					));
 			
 			
 			for (Map<String,Object> appointment : appointments) {
-				String queryString = String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, numSeats, examLength, courseId FROM exam"
-						+ "WHERE examID = '%s'",
+				String queryString = String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorIdA, numSeats, examLength, courseId FROM exam"
+						+ " WHERE examID = '%s'",
 						appointment.get("examIdA"));
 				List<Map<String,Object>> exams = db.query(queryString);
 				
@@ -1307,10 +1327,10 @@ public class TestingCenter {
 				
 				Map<String,Object>exam = exams.get(0);
 				String examId = (String) exam.get("examId");
-				DateTime start = new DateTime((long) exam.get("start")*1000);
-				DateTime end = new DateTime((long) exam.get("end")*1000);
+				DateTime start = new DateTime(((long) exam.get("start"))*1000);
+				DateTime end = new DateTime(((long) exam.get("end"))*1000);
 				String status = (String) exam.get("status");
-				String instructorId = (String) exam.get("instructorId");
+				String instructorId = (String) exam.get("instructorIdA");
 				String courseId = (String) exam.get("courseId");
 				int numSeats = (int) exam.get("numSeats");
 				int duration = (int) exam.get("examLength");
