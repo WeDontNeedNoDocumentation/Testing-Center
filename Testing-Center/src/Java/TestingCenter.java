@@ -1327,8 +1327,8 @@ public class TestingCenter {
 				
 				Map<String,Object>exam = exams.get(0);
 				String examId = (String) exam.get("examId");
-				DateTime start = new DateTime((long) exam.get("start")*1000);
-				DateTime end = new DateTime((long) exam.get("end")*1000);
+				DateTime start = new DateTime(((long) exam.get("start"))*1000);
+				DateTime end = new DateTime(((long) exam.get("end"))*1000);
 				String status = (String) exam.get("status");
 				String instructorId = (String) exam.get("instructorIdA");
 				String courseId = (String) exam.get("courseId");
