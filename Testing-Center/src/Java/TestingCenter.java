@@ -901,7 +901,7 @@ public class TestingCenter {
 			db.query(
 					String.format("UPDATE appointment "
 					+ "SET checkedIn = 'T' "
-					+ "WHERE studentIdA = '%s' AND dateIdA = '%d", 
+					+ "WHERE studentIdA = '%s' AND dateIdA = %d", 
 					netID,
 					search.getMillis()/1000
 					));
