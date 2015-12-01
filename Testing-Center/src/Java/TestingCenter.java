@@ -491,13 +491,17 @@ public class TestingCenter {
 	}
 
 	//retrieve a list of all exams that are still pending
-	public List<Exam> getPendingExams() {
+	public List<Exam> getPendingExams(int term) {
 		logger.info("Retrieving all pending exam reservation requests.");
 		
 		List<Map<String,Object>> exams = db.query(
 				String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorIdA, numSeats, courseId, examLength "
 				+ "FROM exam "
-				+ "WHERE examStatus = 'P'"
+				+ "LEFT JOIN course "
+				+ "ON exam.courseId = course.courseTerm"
+				+ "WHERE examStatus = 'P' "
+				+ "AND course.termId = %d",
+				term
 				));
 		
 		List<Exam> examsList = new ArrayList<Exam>();
