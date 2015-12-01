@@ -375,8 +375,9 @@ public class TestingCenter {
 			DateTime start = new DateTime((long) appt.get("startTime")*1000);
 			DateTime end = new DateTime((long) appt.get("endTime")*1000);
 			int appointmentId = (int) appt.get("appointmentId");
+			int seatNumber = (int) appt.get("seatId");
 			
-			Appointment newAppointment = new Appointment(examId, netId, start, end, appointmentId);
+			Appointment newAppointment = new Appointment(examId, netId, start, end, appointmentId, seatNumber);
 			appointments.add(newAppointment);
 			
 			System.out.println(newAppointment);
@@ -398,8 +399,9 @@ public class TestingCenter {
 			DateTime start = new DateTime((long) appt.get("startTime")*1000);
 			DateTime end = new DateTime((long) appt.get("endTime")*1000);
 			int appointmentId = (int) appt.get("appointmentId");
+			int seatNumber = (int) appt.get("seatId");
 			
-			Appointment newAppointment = new Appointment(examId, netId, start, end, appointmentId);
+			Appointment newAppointment = new Appointment(examId, netId, start, end, appointmentId, seatNumber);
 			appointments.add(newAppointment);
 		}
 		

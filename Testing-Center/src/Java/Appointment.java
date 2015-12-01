@@ -19,17 +19,19 @@ public class Appointment
 	private DateTime startTime;
 	private DateTime endTime;
 	private int appointmentId;
+	private int seatNumber;
 	
 	public Appointment() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Appointment(String examID, String studentNetID, DateTime start, DateTime end, int appointmentId) {
+	public Appointment(String examID, String studentNetID, DateTime start, DateTime end, int appointmentId, int seatNumber) {
 		this.examID = examID;
 		this.StudentNetID = studentNetID;
 		this.startTime = start;
 		this.endTime = end;
 		this.appointmentId = appointmentId;
+		this.seatNumber = seatNumber;
 	}
 	
 	public String getNetId() {
@@ -44,6 +46,10 @@ public class Appointment
 	
 	public int getAppointmentId() {
 		return appointmentId;
+	}
+	
+	public int getSeatNumber() {
+		return seatNumber;
 	}
 	
 	public boolean cancelAppointment() {
