@@ -1670,10 +1670,10 @@ public class TestingCenter {
 		return apptsPerTerm;
 	}
 	
-	public synchronized List<Student> viewAttendanceStats(String examId) {
-		List<Student> studentsList = new ArrayList<Student>();
+	public synchronized List<Attendance> viewAttendanceStats(String examId) {
+		List<Attendance> studentsList = new ArrayList<Attendance>();
 		
-		String queryString = String.format("SELECT student.* "
+		String queryString = String.format("SELECT student.netId, appointment.seatId, appointment.startTime, appointment.checkedIn "
 				+ "FROM student "
 				+ "INNER JOIN appointment "
 				+ "ON student.studentId = appointment.studentIdA "
@@ -1684,14 +1684,14 @@ public class TestingCenter {
 		List<Map<String, Object>> students = Database.getDatabase().query(queryString);
 		
 		for (Map<String, Object> student : students) {
-			String firstName = (String) student.get("firstName");
-			String lastName = (String) student.get("lastName");
 			String netID = (String) student.get("netID");
-			String email = (String) student.get("email");
-			String userIdB = (String) student.get("userIdB");
+			DateTime start = new DateTime( (long) student.get("startTime"));
+			int seatId = (int) student.get("seatId");
+			boolean checkedIn = ((String) student.get("checkedIn")).equals("T");
+
+			Attendance att = new Attendance(netID, start, seatId, checkedIn);
 			
-			Student newStudent = new Student(firstName, lastName, netID, email, userIdB);
-			studentsList.add(newStudent);
+			studentsList.add(att);
 		}
 		
 		return studentsList;

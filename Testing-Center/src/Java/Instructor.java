@@ -93,7 +93,7 @@ public class Instructor {
 		tC.cancelExam(examId, this.instructorId);
 	}
 	
-	public List<Student> viewAttendanceStats(String examId) {
+	public List<Attendance> viewAttendanceStats(String examId) {
 		return tC.viewAttendanceStats(examId);
 	}
 	
