@@ -1,3 +1,8 @@
+<%@page import="DBWorks.DBConnection"%>
+<%@page import="Java.*" %>
+<%@page import="java.util.*" %>
+<%@page import="java.lang.*" %>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -56,7 +61,7 @@
                                         <img class="media-object" src="http://placehold.it/50x50" alt="">
                                     </span>
                                     <div class="media-body">
-                                        <h5 class="media-heading"><strong>John Smith</strong>
+                                        <h5 class="media-heading"><strong>${sessionScope.name}</strong>
                                         </h5>
                                         <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
                                         <p>Lorem ipsum dolor sit amet, consectetur...</p>
@@ -71,7 +76,7 @@
                                         <img class="media-object" src="http://placehold.it/50x50" alt="">
                                     </span>
                                     <div class="media-body">
-                                        <h5 class="media-heading"><strong>John Smith</strong>
+                                        <h5 class="media-heading"><strong>${sessionScope.name}</strong>
                                         </h5>
                                         <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
                                         <p>Lorem ipsum dolor sit amet, consectetur...</p>
@@ -86,7 +91,7 @@
                                         <img class="media-object" src="http://placehold.it/50x50" alt="">
                                     </span>
                                     <div class="media-body">
-                                        <h5 class="media-heading"><strong>John Smith</strong>
+                                        <h5 class="media-heading"><strong>${sessionScope.name}</strong>
                                         </h5>
                                         <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
                                         <p>Lorem ipsum dolor sit amet, consectetur...</p>
@@ -127,18 +132,8 @@
                     </ul>
                 </li>
                 <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> John Smith <b class="caret"></b></a>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> ${sessionScope.name} <b class="caret"></b></a>
                     <ul class="dropdown-menu">
-                        <li>
-                            <a href="#"><i class="fa fa-fw fa-user"></i> Profile</a>
-                        </li>
-                        <li>
-                            <a href="#"><i class="fa fa-fw fa-envelope"></i> Inbox</a>
-                        </li>
-                        <li>
-                            <a href="#"><i class="fa fa-fw fa-gear"></i> Settings</a>
-                        </li>
-                        <li class="divider"></li>
                         <li>
                             <a href="#"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
                         </li>
@@ -192,7 +187,22 @@
 	                    <tbody>
 	                        <tr>
 	                        <!--enter code here for table -->
-	                        <%  %>
+	                        <% 
+		                        String email = session.getAttribute("email").toString();
+		                		String id = session.getAttribute("id").toString();
+		                		String name = session.getAttribute("name").toString();
+		                		
+		                		session.getAttribute("name", fname);
+				        		session.getAttribute("login", email);
+				        		session.getAttribute("id", password);
+				        		session.getAttribute("email", email);
+				        		
+				        		Student student = new Student(fname, lname, id, email,id);
+		                	
+		                		Student Student = new Instructor(name, email, id);
+		                        Exam e = new Exam(examId, stDate, enDate, instrId, courseId, Integer.parseInt(request.getParameter("seats")), Integer.parseInt(request.getParameter("duration")), false);
+		                		instr.makeExam(e, stDate, enDate, true, instrId);
+	                        %>
 	                        <!-- row entries -->
 	                            <td>Sample exam</td>
 	                            <td>S11:30AM</td>

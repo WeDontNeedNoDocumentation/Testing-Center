@@ -1,5 +1,6 @@
 package Java;
 
+//this exception is thrown when an appointment attempts to overlap another appointment
 public class ConflictingAppointmentException extends RuntimeException {
 
 	public ConflictingAppointmentException() {

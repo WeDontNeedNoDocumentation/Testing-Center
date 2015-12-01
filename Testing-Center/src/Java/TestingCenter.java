@@ -26,7 +26,6 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
 import org.joda.time.LocalDate;
@@ -125,12 +124,8 @@ public class TestingCenter {
 		}
 		return instance;
 	}
-	/*
-	 * (NOTE: Many of these functions have been implemented but their functionality are in a different class 
-	 * for the moment. For the next submission the project will be organized correctly or the design will be
-	 * changed. For Example- makeAppointment is currently being done in Student but at this time it does not
-	 * use checkAvailability().) 
-	 */
+	
+	//get available times for this exam, with the given student's netid
 	
 	public synchronized List<DateTime> getAvailabile(Exam exam, String netId) {
 		List<DateTime> slots = new ArrayList<DateTime>();
@@ -194,16 +189,15 @@ public class TestingCenter {
 	}
 	
 	//make an appointment to take an exam
-	//
-	public synchronized boolean makeAppointment(Exam exam, DateTime time, int appointmentId, String netID, DateTime startTime, DateTime endTime) throws ExistingAppointmentException {
+	public synchronized boolean makeAppointment(String examId, DateTime time, String netID, DateTime startTime, DateTime endTime, int duration) throws ExistingAppointmentException {
 		logger.info("Creating new Appointment");
-		logger.fine("Exam id: " + exam.getExamID());
+		logger.fine("Exam id: " + examId);
 		logger.fine("Student ID: " + netID);
 		logger.fine("Appointment start time: " + time.toString());
-		logger.fine("Appointment ID: " + appointmentId);
+		//logger.fine("Appointment ID: " + appointmentId);
 		
-		if (hasAppointment(netID, exam.getExamID())) {
-			logger.warning("Student " + netID + " already has appointment for exam " + exam.getExamID());
+		if (hasAppointment(netID, examId)) {
+			logger.warning("Student " + netID + " already has appointment for exam " + examId);
 			//throw new ExistingAppointmentException("Student " + netID + " already has appointment for exam " + exam.getExamID());
 			return false;
 		}
@@ -214,8 +208,8 @@ public class TestingCenter {
 			return false;
 		}
 		
-		if (appointmentOutOfExamBounds(exam.getExamID(), startTime, endTime)) {
-			logger.warning("Requested appointment not within bounds of exam " + exam.getExamID() + " start and end times.");
+		if (appointmentOutOfExamBounds(examId, startTime, endTime)) {
+			logger.warning("Requested appointment not within bounds of exam " + examId + " start and end times.");
 			//throw new OutOfExamBoundsException("Requested appointment not within bounds of exam " + exam.getExamID() + " start and end times.");
 			return false;
 		}
@@ -224,7 +218,7 @@ public class TestingCenter {
 		boolean avalSeat = false;
 		long start = startTime.getMillis()/1000;
 		long gapTime = (long)gap.getMinutes()*60;
-		long actualLen = gapTime+exam.getLength();  
+		long actualLen = gapTime+duration;  
 		long rem = actualLen%1800;
 		long len =0;
 		if(rem == 0) {
@@ -244,7 +238,7 @@ public class TestingCenter {
 				} else {
 					apps = db.query(String.format("SELECT seatId FROM timeSlots "
 							+ "WHERE dateId = '%d' AND examIdT = '%s'",
-							l,exam.getExamID()));
+							l,examId));
 					if(apps.contains((i-1))|| apps.contains((i+1))) {
 						clear = false;
 					}
@@ -257,15 +251,15 @@ public class TestingCenter {
 								start,
 								i,
 								netID,
-								exam.getExamID()));
+								examId));
 					}
-					String queryString = String.format("INSERT INTO appointment VALUES ("
-							+ "'%s', '%s', %d, %d, %d, %d, %d)", 
-							exam.getExamID(), 
+					String queryString = String.format("INSERT INTO appointment "
+							+ "(examIdA, studentIdA, dateId, seatId, startTime, endTime) "
+							+ "VALUES ('%s', '%s', %d, %d, %d, %d)", 
+							examId, 
 							netID, 
 							time.getMillis()/1000,
 							i,
-							appointmentId,
 							startTime.getMillis()/1000,
 							endTime.getMillis()/1000
 							);
@@ -279,6 +273,7 @@ public class TestingCenter {
 		return true;
 	}
 	
+	//check if the appointment is out of bounds of the expected exam time range
 	private boolean appointmentOutOfExamBounds(String examID, DateTime startTime, DateTime endTime) {
 		String queryString = String.format("SELECT start, end "
 				+ "FROM exam "
@@ -354,10 +349,13 @@ public class TestingCenter {
 		for (Map<String,Object> appt : appts) {
 			String examId = (String) appt.get("examId");
 			String netId = (String) appt.get("studentIdA");
-			DateTime time = new DateTime((long) appt.get("dateIdA")*1000);
+			DateTime start = new DateTime((long) appt.get("startTime")*1000);
+			DateTime end = new DateTime((long) appt.get("endTime")*1000);
 			
-			Appointment newAppointment = new Appointment(examId, netId, time);
+			Appointment newAppointment = new Appointment(examId, netId, start, end);
 			appointments.add(newAppointment);
+			
+			System.out.println(newAppointment);
 		}
 		
 		return appointments;
@@ -373,9 +371,10 @@ public class TestingCenter {
 		for (Map<String,Object> appt : appts) {
 			String examId = (String) appt.get("examId");
 			String netId = (String) appt.get("studentIdA");
-			DateTime time = new DateTime((long) appt.get("dateIdA")*1000);
+			DateTime start = new DateTime((long) appt.get("startTime")*1000);
+			DateTime end = new DateTime((long) appt.get("endTime")*1000);
 			
-			Appointment newAppointment = new Appointment(examId, netId, time);
+			Appointment newAppointment = new Appointment(examId, netId, start, end);
 			appointments.add(newAppointment);
 		}
 		
@@ -416,21 +415,6 @@ public class TestingCenter {
 				);
 		db.updateQuery(queryString);
 		
-		// No longer needed if exams have a courseId attached.
-		/*
-		if (!exam.isAdHocExam()) {
-			logger.info("Adding entry into courseexam database with course ID: " + exam.getCourseId());
-			
-			queryString = String.format("INSERT INTO courseexam "
-					+ "(courseIdCE, examIdCE) "
-					+ "VALUES ('%s', '%s')", 
-					exam.getCourseId(),
-					exam.getExamID()
-					);
-			db.updateQuery(queryString);
-		}
-		*/
-		
 		return true;
 	}
 
@@ -446,17 +430,6 @@ public class TestingCenter {
 				examId
 				);
 		db.updateQuery(queryString);
-		
-		// No longer needed, since exams have the courseId as well
-		/*
-		queryString = String.format("DELETE FROM courseexam"
-				+ " WHERE "
-				+ "examIdCE='%s'",
-				instructorId,
-				examId
-				);
-		db.updateQuery(queryString);
-		*/
 	}
 
 	//retrieve a list of all exams
@@ -487,34 +460,6 @@ public class TestingCenter {
 		
 		return examsList;
 	}
-
-	/*
-	 * Returns a list of adHoc exams from the database.
-	 * Not actually used by anything... so I commented it out
-	 * 
-	/*
-	public List<Exam> getAdHocExams() {
-		logger.info("Retrieving all ad hoc exams");
-		Database db = Database.getDatabase();
-		List<Map<String,Object>> adHocExams = db.query("SELECT (examId, start, end, examStatus, instructorId,examLength) FROM exam WHERE boolCourseExam = 0");
-		
-		List<OutsideExam> exams = new ArrayList<OutsideExam>();
-		for (Map<String,Object> exam : adHocExams) {
-			String id = (String) exam.get("examId");
-			long startMilliseconds = new Long((int) exam.get("start")*1000);
-			long endMilliseconds = new Long((int) exam.get("end")*1000);
-			String status = (String) exam.get("examStatus");
-			String instructorId = (String) exam.get("instructorId");
-			int numSeats = (int) exam.get("numSeats");
-			int duration = (int) exam.get("examLength");
-			
-			OutsideExam newExam = new OutsideExam(id, startMilliseconds, endMilliseconds, status, instructorId, numSeats,duration);
-			exams.add(newExam);
-		}
-		
-		return exams;
-	}
-	*/
 
 	//retrieve a list of all exams, given a certain instructor id
 	public List<Exam> getInstructorExams(String instructorId) {
@@ -575,6 +520,7 @@ public class TestingCenter {
 		return examsList;
 	}
 	
+	//update from csv file
 	private void updateTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
 		ArrayList<String> lines = new ArrayList<String>();
 		String currentLine;
@@ -594,6 +540,7 @@ public class TestingCenter {
 		}
 	}
 	
+	//update users from csv file
 	private void updateUsersTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
 		ArrayList<String> lines = new ArrayList<String>();
 		String currentLine;
@@ -613,6 +560,7 @@ public class TestingCenter {
 		}
 	}
 	
+	//update classes from csv file
 	private void updateClassTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
 		ArrayList<String> lines = new ArrayList<String>();
 		String currentLine;
@@ -632,6 +580,7 @@ public class TestingCenter {
 		}
 	}
 	
+	//update instructors from csv file
 	private void updateInstructorTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
 		ArrayList<String> lines = new ArrayList<String>();
 		String currentLine;
@@ -651,6 +600,7 @@ public class TestingCenter {
 		}
 	}
 	
+	//update students from csv file
 	private void updateStudentTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
 		ArrayList<String> lines = new ArrayList<String>();
 		String currentLine;
@@ -670,6 +620,7 @@ public class TestingCenter {
 		}
 	}
 	
+	//update course-student relationship from csv file
 	private void updateCourseStudentTableFromFile(String filename, String tableName) throws FileNotFoundException, IOException {
 		ArrayList<String> lines = new ArrayList<String>();
 		String currentLine;
@@ -692,7 +643,6 @@ public class TestingCenter {
 	/*
 	 * This method reads in the 3 .csv files that were provided to us and then stores that data in the 
 	 * corresponding tables in our data base.
-	 * (NOTE: At the moment the function will try to add an entry even if the Primary Key already exists.)
 	 */
 	public boolean updateData(String usersFileName, /*String instructorFileName, */String coursesFileName, String rostersFileName) {
 		logger.info("Reading csv files, updating database");
@@ -747,6 +697,7 @@ public class TestingCenter {
 		
 	}
 	
+	//format of the student csv
 	private String queryStudentFormat(String line) {
 		String[] wordsFromLine = line.split(",");
 		StringBuilder sb = new StringBuilder("");
@@ -772,6 +723,7 @@ public class TestingCenter {
 		
 	}
 	
+	//format of the coursestudent csv
 	private String queryCourseStudentFormat(String line) {
 		String[] wordsFromLine = line.split(",");
 		StringBuilder sb = new StringBuilder("");
@@ -794,6 +746,7 @@ public class TestingCenter {
 		
 	}
 	
+	//format of the users csv
 	private String queryUsersFormat(String line) {
 		String[] wordsFromLine = line.split(",");
 		StringBuilder sb = new StringBuilder("");
@@ -818,6 +771,7 @@ public class TestingCenter {
 		
 	}
 	
+	//format of the class csv
 	private String queryClassFormat(String line) {
 		String[] wordsFromLine = line.split("[-,]");
 		StringBuilder sb = new StringBuilder("");
@@ -845,6 +799,7 @@ public class TestingCenter {
 		
 	}
 	
+	//format of the instructor csv
 	private String queryInstructorFormat(String line) {
 		String[] wordsFromLine = line.split(",");
 		StringBuilder sb = new StringBuilder("");
@@ -885,9 +840,9 @@ public class TestingCenter {
 			search = search.withMinuteOfHour(30);
 		}
 		List<Map<String,Object>> appointments = db.query(
-				String.format("SELECT examIdA, studentIdA, dateIdA, seatIdA, appointmentID "
+				String.format("SELECT examIdA, studentIdA, startTime, seatId, appointmentID "
 				+ "FROM appointment "
-				+ "WHERE studentIDA = '%s' AND dateIdA = '%d'",
+				+ "WHERE studentIdA = '%s' AND startTime = %d",
 				netID,
 				search.getMillis()/1000
 				));
@@ -895,6 +850,16 @@ public class TestingCenter {
 		for (Map<String,Object> appointment : appointments) {	
 		
 			seat =  (int)appointment.get("seatIdA");
+		}
+		
+		if (seat != -1) {
+			db.query(
+					String.format("UPDATE appointment "
+					+ "SET checkedIn = 'T' "
+					+ "WHERE studentIdA = '%s' AND dateIdA = %d", 
+					netID,
+					search.getMillis()/1000
+					));
 		}
 		
 		return seat;
@@ -987,8 +952,7 @@ public class TestingCenter {
 	
 	
 	/*
-	 * 
-		This function was not completed due to several errors that appeared in the last few hours.
+	 * checks if exam may be scheduled given the exam parameters	
 	 */
 	public synchronized boolean isExamSchedulable(Exam newExam) {
 
@@ -1074,7 +1038,7 @@ public class TestingCenter {
 		return true;
 	}
 	
-
+//internal fcn for schedulability
 	private Map<Long, String[]> insertExisting(List<Map<String, Object>> exams) {
 		Map<Long, String[]> seatsAvailable = new HashMap<Long, String[]>();
 		for(Map<String,Object> exam : exams) {
@@ -1100,6 +1064,7 @@ public class TestingCenter {
 		return seatsAvailable;
 	}
 
+	//checks to see which exams overlap in timeslot with the current exam
 	private List<Map<String, Object>> getOverlap(Exam newExam) {
 		List<Map<String, Object>>fullList = new ArrayList<Map<String,Object>>();
 		List<Map<String,Object>> newExamEntry = db.query(String.format("SELECT examId, start,end,examStatus,numSeats,examLength,boolCourseExam,courseId,instructor.instructorId"
@@ -1111,7 +1076,7 @@ public class TestingCenter {
 		return fullList;
 	}
 	
-	
+	//checks to see which exams overlap in timeslot with the given exam
 	private List<Map<String, Object>> getOverlap(Map<String,Object> newExam,List<Map<String,Object>> fullList) {
 		long start = (long) newExam.get("start");
 		long end = (long) newExam.get("end");
@@ -1136,27 +1101,6 @@ public class TestingCenter {
 		return fullList;
 	}
 
-	
-//	private List<Map<String, Object>> getOverlap(Exam newExam) {
-//		//Set set = new Set(); //prior to this method
-//		//List numList = new List();
-	
-//		//set.add(newExam)
-//		//SELECT examIds FROM Exam 
-//		//WHERE start < this.start & end > this.end
-//		//OR start < this.start & end > this.start & end < this.end
-//		//OR start > this.start & start < this.end
-//		//
-//		//if(response==null){return;}
-//		//else{ for each overlap, set.add(overlap) ; numList.add(numNewExams) if it is
-//		//a new examId
-//		// Iterator iter = set.iterator(); 
-//		//while (iter.hasNext()){getOverlap(iter.next())}
-//		//}
-//		//after entire method is complete, print the static set & numList
-//		//empty out both 	
-//		return null;
-//	}
 
 	//retrieve a list of all exams that may be selected by a certain student
 	public List<Exam> viewAvailableExams(Student st) {
@@ -1300,7 +1244,6 @@ public class TestingCenter {
 
 		/*
 		 * This function creates and sends an email reminder to a student for an exam.
-		 * (NOTE: At this time this is not automated.)
 		 */
 		public void sendNotice(String email, Exam exam) {
 			final String username = "stonybrooktestingcenter@gmail.com";
@@ -1352,6 +1295,7 @@ public class TestingCenter {
 		
 	}
 	
+	//returns the actual utilization of the testingcenter
 	public Map<LocalDate, Double> actualUtilizationPerDay(LocalDate start, LocalDate end) {
 		Map<LocalDate,Double> utilMap = new HashMap<LocalDate, Double>();
 		
@@ -1365,7 +1309,7 @@ public class TestingCenter {
 	}
 	
 	/*
-	 * 
+	 * returns the actual utilization of the testingCenter
 	 */
 	public double actualUtilization(LocalDate date) {
 		long dateStartMillis = date.toDateTimeAtStartOfDay().getMillis();
@@ -1404,8 +1348,8 @@ public class TestingCenter {
 		return utilMap;
 	}
 
-	// appt.start < tc.close &&
-	// appt.end > tc.open
+	//checks expected utilization of the testingcenter for a given date
+	
 	public double expectedUtilization(LocalDate date) {
 		double expectedUtilization = actualUtilization(date);
 		
@@ -1624,7 +1568,7 @@ public class TestingCenter {
 		for (Map<String, Object> course : courses) {
 			String courseId = (String) course.get("courseId");
 			String subject = (String) course.get("subject");
-			int catalogNumber = course.get("catalogNumber") == null ? null : (int) course.get("catalogNumber");
+			int catalogNumber = course.get("catalogNumber") == null ? 0 : (int) course.get("catalogNumber");
 			String section = (String) course.get("section");
 			String instructorId = (String) course.get("instructorIdB");
 			int termId = (int) course.get("termId");
@@ -1670,53 +1614,37 @@ public class TestingCenter {
 		
 		return apptsPerTerm;
 	}
-	
-	public synchronized List<Student> viewAttendanceStats(String examId) {
-		List<Student> studentsList = new ArrayList<Student>();
-		
-		String queryString = String.format("SELECT student.* "
+
+	/**
+	 * Takes the examId and outputs a list of students who attended this exam
+	 * @param examId
+	 * @return List<Attendance> corresponding to the results of the query
+	*/
+
+	public synchronized List<Attendance> viewAttendanceStats(String examId) {
+		List<Attendance> studentsList = new ArrayList<Attendance>();
+		String queryString = String.format("SELECT student.netId, appointment.seatId, appointment.startTime, appointment.checkedIn "
 				+ "FROM student "
 				+ "INNER JOIN appointment "
 				+ "ON student.studentId = appointment.studentIdA "
 				+ "INNER JOIN exam "
 				+ "ON appointment.examIdA = exam.examId "
-				+ "WHERE examId = '%d';",
-				examId);
+				+ "WHERE examId = '"+examId+"';");
 		List<Map<String, Object>> students = Database.getDatabase().query(queryString);
 		
 		for (Map<String, Object> student : students) {
-			String firstName = (String) student.get("firstName");
-			String lastName = (String) student.get("lastName");
 			String netID = (String) student.get("netID");
-			String email = (String) student.get("email");
-			String userIdB = (String) student.get("userIdB");
+			DateTime start = new DateTime( (long) student.get("startTime"));
+			int seatId = (int) student.get("seatId");
+			boolean checkedIn = ((String) student.get("checkedIn")).equals("T");
+
+			Attendance att = new Attendance(netID, start, seatId, checkedIn);
 			
-			Student newStudent = new Student(firstName, lastName, netID, email, userIdB);
-			studentsList.add(newStudent);
+			studentsList.add(att);
 		}
 		
 		return studentsList;
 	}
-	
-/*
-	public static void main(String[] args) {
-		DateTime start = new DateTime(2015, 10, 29, 8, 0);
-		DateTime end = new DateTime(2015, 10, 29, 14, 0);
-		
-		Exam ex = new Exam("test4", start, end, "sstoller", 64);
-		
-		TestingCenter tc = TestingCenter.getTestingCenter();
-		
-		System.out.println(tc.isExamSchedulable(ex));
-		
-		Student student = new Student(null, "a", null, null);
-		List<Exam> exams = tc.viewAvailableExams(student);
-		System.out.println("Lol");
-		for (Exam exam : exams) {
-			System.out.println(exam);
-		}
-	}
-*/	
 	
 	public static void main(String[] args) {
 		TestingCenter tc = getTestingCenter();
@@ -1743,7 +1671,10 @@ public class TestingCenter {
 		
 		//tc.updateData("user.csv", "instructor.csv", "class.csv", "roster.csv");
 		
-		tc.updateData("user.csv", "class.csv", "roster.csv");
+		//tc.updateData("user.csv", "class.csv", "roster.csv");
+		
+		tc.makeAppointment("test-exam-1", DateTime.now(), "a", new DateTime(2015, 1, 1, 12, 0), new DateTime(2015, 1, 1, 13, 0), 60);
+		tc.makeAppointment("test-exam-1", DateTime.now(), "abinning", new DateTime(2015, 1, 1, 12, 0), new DateTime(2015, 1, 1, 13, 0), 60);
 	}
 
 }

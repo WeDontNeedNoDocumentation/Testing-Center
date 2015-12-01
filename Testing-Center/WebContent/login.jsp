@@ -67,7 +67,20 @@
 	         		rs = DBConnection.ExecQuery(query);
 	         		if(rs.next())
 	         		{
-	         			session.setAttribute("login", email);
+	         			id = rs.getString(5);
+		        		email = rs.getString(4);
+		        		String fname = rs.getString(1);
+		        		String lname = rs.getString(2);
+		        		
+		        		session.setAttribute("name", fname);
+		        		session.setAttribute("login", email);
+		        		session.setAttribute("id", password);
+		        		session.setAttribute("email", email);
+		        		
+		        		Student student = new Student(fname, lname, id, email,id);
+		        		
+		        		
+		        		session.setAttribute("Student", student);
 	                    response.sendRedirect("StudentHomepage.jsp");
 	         		}
 	         		else

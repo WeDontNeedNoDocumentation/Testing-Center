@@ -1,5 +1,6 @@
 <%@page import="DBWorks.DBConnection"%>
 <%@page import="Java.*" %>
+<%@page import="org.joda.time.DateTime" %>
 <%@page import="java.util.*" %>
 <%@page import="java.lang.*" %>
 
@@ -14,7 +15,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>See Exam Requests Page - Instructor</title>
+    <title>Schedule Non-Course Exam Confirmation - Instructor</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -32,10 +33,59 @@
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 
+
 </head>
 
 <body>
-
+	<%
+		String email = session.getAttribute("email").toString();
+		String id = session.getAttribute("id").toString();
+		String name = session.getAttribute("name").toString();
+	
+		Instructor instr = new Instructor(name, email, id);
+		
+		String examId = request.getParameter("examId");
+		
+		String sDate = request.getParameter("sDate");
+		int month = Integer.parseInt(sDate.substring(0,2));
+		int day = Integer.parseInt(sDate.substring(3,5));
+		int year = Integer.parseInt(sDate.substring(6,10));
+		
+		String sTime = request.getParameter("sTime");
+		int hour = Integer.parseInt(sTime.substring(0,2));
+		int minute = Integer.parseInt(sTime.substring(3,5));
+		String amPm = sTime.substring(5,7);
+		
+		if(amPm.equals("PM")||amPm.equals("pm")||amPm.equals("Pm"))
+			hour+= 12;
+		
+		DateTime stDate = new DateTime(year, month, day, hour, minute, 0, 0);
+		
+		String eDate = request.getParameter("eDate");
+		month = Integer.parseInt(eDate.substring(0,2));
+		day = Integer.parseInt(eDate.substring(3,5));
+		year = Integer.parseInt(eDate.substring(6,10));
+		
+		String eTime = request.getParameter("eTime");
+		hour = Integer.parseInt(eTime.substring(0,2));
+		minute = Integer.parseInt(eTime.substring(3,5));
+		amPm = eTime.substring(5,7);
+		
+		if(amPm.equals("PM")||amPm.equals("pm")||amPm.equals("Pm"))
+			hour+=12;
+		
+		DateTime enDate = new DateTime(year, month, day, hour, minute, 0, 0);
+		
+		String instrId = request.getParameter("instrId");
+		String courseId = request.getParameter("courseId");
+		String seats = request.getParameter("seats");
+		//int intSeats = Integer.parseInt(seats);
+		String duration = request.getParameter("duration");
+		//int intDuration = Integer.parseInt(duration);
+		
+		Exam e = new Exam(examId, stDate, enDate, instrId, courseId, Integer.parseInt(request.getParameter("seats")), Integer.parseInt(request.getParameter("duration")), false);
+		instr.makeExam(e, stDate, enDate, true, id);
+	%>
     <div id="wrapper">
 
         <!-- Navigation -->
@@ -144,10 +194,10 @@
             <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
             <div class="collapse navbar-collapse navbar-ex1-collapse">
                 <ul class="nav navbar-nav side-nav">
-                    <li>
+                    <li class="active">
                         <a href="ScheduleExamRequest.jsp"><span class="glyphicon glyphicon-calendar"></span></span></i> Schedule Exam Request</a>
                     </li>
-                    <li class="active">
+                    <li>
                         <a href="SeeExamRequests.jsp"><i class="fa fa-fw fa-table"></i> See Exam Requests</a>
                     </li>
                     <li>
@@ -169,78 +219,15 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <h1 class="page-header">
-                            See Exam Requests
+                            Schedule Exam Confirmed
                         </h1>
                     </div>
                 </div>
-                
                 <div class="row">
-                <h3>Current Term</h3>
-	                <table class="table table-bordered table-hover">
-	                    <thead>
-	                    <!-- Columns -->
-	                        <tr class="active">
-	                            <th>Course ID</th>
-	                            <th>Duration</th>
-	                            <th>Start Date</th>
-	                            <th>Num Seats</th>
-	                            <th>Status</th>
-	                            <th>Action</th>
-	                        </tr>
-	                    <!-- /Columns -->
-	                    </thead>
-	                    <tbody>
-	                    	
-	                        <tr>
-	                        <!--enter code here for table -->
-	      					<%
-	      						String email = session.getAttribute("email").toString();
-                        		String id = session.getAttribute("id").toString();
-                        		String name = session.getAttribute("name").toString();
-                        		
-      							Instructor instr = new Instructor(name, email, id);
-                               	
-                               	List<Exam> exams = new ArrayList<Exam>();
-                               	exams = instr.viewExams();
-                               	
-                               	for(Exam e : exams)
-                               	{
-                                    String courseId = e.getCourseId();
-                                    String duration = String.valueOf(e.getLength());
-                                    String sDate = e.getStart().toString();
-                                    String numSeats = String.valueOf(e.getNumSeats());
-                                    String status = e.getStatus();
-                                    
-                            %> 
-	                        <!-- row entries -->
-	                            <td><%out.print(courseId);%></td>
-	                            <td><%out.print(duration);%></td>
-	                            <td><%out.print(sDate);%></td>
-	                            <td><%out.print(numSeats);%></td>
-	                            <td>
-	                            	<%if(status.equals("P"))
-	                            	{%>
-		                            	<button type="button" class="btn btn-sm btn-info">Pending</button>
-		                           	<%}else if(status.equals("A"))
-		                           	{%>
-		                           		<button type="button" class="btn btn-sm btn-success">Approved</button>
-		                           	<%}else
-		                           	{%>
-		                           		<button type="button" class="btn btn-sm btn-danger">Denied</button>
-		                           	<%}
-		                           	%>
-				                </td>
-	                            <td>
-	                            	<form action="CancelExamRequest.jsp" method="post">
-		                            	<button type="submit" class="btn btn-sm btn-danger" name="examId" value="<%out.print(e.getExamID());%>" formaction="CancelExamRequest.jsp">Cancel</button>
-	                            	</form>
-	                    		</td>
-	                        <!-- /row entries -->    
-	                        </tr>
-	                        <%} %>
-	                    </tbody>
+                	
                 </div>
             </div>
+            <!-- /.container-fluid -->
 
         </div>
         <!-- /#page-wrapper -->

@@ -75,7 +75,6 @@ public class Instructor {
 	/*
 	 * The instructor can make an exam reservation in the database. A query with the relevent information
 	 * is created and sent.
-	 * (NOTE: This does not yet check for conflicts.)
 	 */
 	public boolean makeExam(String examId, DateTime start, DateTime end, boolean courseExam, int numSeats, int duration, String courseId) {
 		return tC.makeReservation(examId, start, end, courseExam, this.instructorId, numSeats, duration, courseId);
@@ -87,13 +86,12 @@ public class Instructor {
 	
 	/*
 	 * The instructor can cancle any exam reservation he has made.
-	 * (NOTE: This does not handle an non-existent ID at this time.)
 	 */
 	public void cancelExam(String examId) {
 		tC.cancelExam(examId, this.instructorId);
 	}
 	
-	public List<Student> viewAttendanceStats(String examId) {
+	public List<Attendance> viewAttendanceStats(String examId) {
 		return tC.viewAttendanceStats(examId);
 	}
 	
