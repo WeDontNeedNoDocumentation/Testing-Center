@@ -79,7 +79,7 @@ public class TestAppointments {
 		int startSize = appts.size();
 		
 		// Sat, 01 Jan 2000 10:01:00 GMT -> Sat, 01 Jan 2000 11:01:00 GMT
-		boolean examMade = st.makeAppointment(exam, new DateTime(2000,1,1,10,1), 1, new DateTime(2000,1,1,10,1), new DateTime(2000, 1,1,11,1));
+		boolean examMade = st.makeAppointment("exam1", new DateTime(2000,1,1,10,1), 1, new DateTime(2000,1,1,10,1), new DateTime(2000, 1,1,11,1), 60);
 		
 		assertTrue(examMade);
 		
@@ -93,7 +93,7 @@ public class TestAppointments {
 	public void AtestExistingAppointment() {
 		logger.info("Attempted to make appointment for same exam. Should fail due to existing appointment.");
 		Exam exam = new Exam("exam1", null, null, "SStoller", "81468-1158", 64, 60, true);
-		boolean apptMade = st.makeAppointment(exam, new DateTime(2000,1,1,10,1), 1, new DateTime(2000,1,2,10,1), new DateTime(2000, 1,2,11,1));
+		boolean apptMade = st.makeAppointment("exam1", new DateTime(2000,1,1,10,1), 1, new DateTime(2000,1,2,10,1), new DateTime(2000, 1,2,11,1), 60);
 		assertFalse(apptMade);
 	}
 	
@@ -101,7 +101,7 @@ public class TestAppointments {
 	public void AtestConflictingAppointment() {
 		logger.info("Attempted to make appointment at same time for different exam. Should fail due to conflicting appointment.");
 		Exam exam = new Exam("exam1-copy", null, null, "SStoller", "81468-1158", 64, 60, true);
-		boolean apptMade = st.makeAppointment(exam, new DateTime(2000,1,1,10,1), 1, new DateTime(2000,1,1,10,1), new DateTime(2000, 1,1,11,1));
+		boolean apptMade = st.makeAppointment("exam1-copy", new DateTime(2000,1,1,10,1), 1, new DateTime(2000,1,1,10,1), new DateTime(2000, 1,1,11,1), 60);
 		
 		assertFalse(apptMade);
 	}

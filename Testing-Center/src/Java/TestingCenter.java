@@ -190,15 +190,15 @@ public class TestingCenter {
 	}
 	
 	//make an appointment to take an exam
-	public synchronized boolean makeAppointment(Exam exam, DateTime time, int appointmentId, String netID, DateTime startTime, DateTime endTime) throws ExistingAppointmentException {
+	public synchronized boolean makeAppointment(String examId, DateTime time, int appointmentId, String netID, DateTime startTime, DateTime endTime, int duration) throws ExistingAppointmentException {
 		logger.info("Creating new Appointment");
-		logger.fine("Exam id: " + exam.getExamID());
+		logger.fine("Exam id: " + examId);
 		logger.fine("Student ID: " + netID);
 		logger.fine("Appointment start time: " + time.toString());
 		logger.fine("Appointment ID: " + appointmentId);
 		
-		if (hasAppointment(netID, exam.getExamID())) {
-			logger.warning("Student " + netID + " already has appointment for exam " + exam.getExamID());
+		if (hasAppointment(netID, examId)) {
+			logger.warning("Student " + netID + " already has appointment for exam " + examId);
 			//throw new ExistingAppointmentException("Student " + netID + " already has appointment for exam " + exam.getExamID());
 			return false;
 		}
@@ -209,8 +209,8 @@ public class TestingCenter {
 			return false;
 		}
 		
-		if (appointmentOutOfExamBounds(exam.getExamID(), startTime, endTime)) {
-			logger.warning("Requested appointment not within bounds of exam " + exam.getExamID() + " start and end times.");
+		if (appointmentOutOfExamBounds(examId, startTime, endTime)) {
+			logger.warning("Requested appointment not within bounds of exam " + examId + " start and end times.");
 			//throw new OutOfExamBoundsException("Requested appointment not within bounds of exam " + exam.getExamID() + " start and end times.");
 			return false;
 		}
@@ -219,7 +219,7 @@ public class TestingCenter {
 		boolean avalSeat = false;
 		long start = startTime.getMillis()/1000;
 		long gapTime = (long)gap.getMinutes()*60;
-		long actualLen = gapTime+exam.getLength();  
+		long actualLen = gapTime+duration;  
 		long rem = actualLen%1800;
 		long len =0;
 		if(rem == 0) {
@@ -239,7 +239,7 @@ public class TestingCenter {
 				} else {
 					apps = db.query(String.format("SELECT seatId FROM timeSlots "
 							+ "WHERE dateId = '%d' AND examIdT = '%s'",
-							l,exam.getExamID()));
+							l,examId));
 					if(apps.contains((i-1))|| apps.contains((i+1))) {
 						clear = false;
 					}
@@ -252,11 +252,11 @@ public class TestingCenter {
 								start,
 								i,
 								netID,
-								exam.getExamID()));
+								examId));
 					}
 					String queryString = String.format("INSERT INTO appointment VALUES ("
 							+ "'%s', '%s', %d, %d, %d, %d, %d)", 
-							exam.getExamID(), 
+							examId, 
 							netID, 
 							time.getMillis()/1000,
 							i,
