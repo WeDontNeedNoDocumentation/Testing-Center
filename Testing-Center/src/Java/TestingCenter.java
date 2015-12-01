@@ -445,7 +445,8 @@ public class TestingCenter {
 				+ "examId='%s'", examId);
 		List<Map<String, Object>> response = Database.getDatabase().query(qString);
 
-		if(response.isEmpty()){
+		if(!response.isEmpty()){
+			logger.warning("Exam " + examId + " already exists");
 			return false;
 		}
 		
