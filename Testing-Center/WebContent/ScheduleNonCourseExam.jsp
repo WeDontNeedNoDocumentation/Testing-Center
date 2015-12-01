@@ -170,7 +170,7 @@
                     </div>
                 </div>
                 <div class="row">
-                	<form action="ScheduleNonExamConfirmation.jsp" method="post">
+                	<form action="ShowUtilizationNonCourseExam.jsp" method="post">
                 		<div class="col-sm-6re">
                 			<div class="form-group input-group">
                 			

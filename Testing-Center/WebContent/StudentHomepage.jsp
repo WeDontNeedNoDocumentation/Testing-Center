@@ -74,11 +74,11 @@
                 </h3>
             </div>
             <div class="col-md-4 portfolio-item">
-                <a href="SeeAppointmentList.jsp">
+                <a href="SeeAppointmentListInput.jsp">
                     <img class="img-responsive" src="img/scheduleexamrequest.png" alt                                                                                                                   ="">
                 </a>
                 <h3>
-                    <a href="SeeAppointmentList.jsp">See List of Appointments</a>
+                    <a href="SeeAppointmentListInput.jsp">See List of Appointments</a>
                 </h3>
             </div>
             <div class="col-md-4 portfolio-item">
