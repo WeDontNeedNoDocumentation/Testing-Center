@@ -32,7 +32,7 @@ public class Appointment
 		return StudentNetID;
 	}
 	
-	// jsp helper methods
+	//jsp helper methods
 	public String getViewForAllAppointments()
 	{
 		return examID+" "+time;

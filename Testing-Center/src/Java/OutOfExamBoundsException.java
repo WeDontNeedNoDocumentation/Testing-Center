@@ -1,4 +1,6 @@
 package Java;
+//this is thrown if the appointment being made is out of the constraints 
+//of the exam time range
 
 public class OutOfExamBoundsException extends RuntimeException {
 

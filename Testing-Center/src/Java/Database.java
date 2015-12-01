@@ -92,7 +92,6 @@ public class Database {
 		try {
 			boolean hasResultSet = statement.execute("USE ssattar");
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			logger.warning("Unable to execute statement: \"USE ssattar\"");
 			e.printStackTrace();
 		}
@@ -158,7 +157,7 @@ public class Database {
 	}
 	
 	/*
-	 * Sends a query to update
+	 * Sends a sql query to update the database
 	 */
 	public int updateQuery(String queryString) {
 		logger.fine("Preparing to execute SQL query to update database.");

@@ -20,7 +20,7 @@ public class Exam {
 	protected String instructorId;
 	protected String courseId;
 	protected int numSeats;
-	protected long duration;
+	protected int duration;
 	protected boolean adHocExam;
 	
 	public Exam(String examID, DateTime start, DateTime end, String instructorId, String courseId, int seats, int duration, boolean adHocExam) {
@@ -65,7 +65,7 @@ public class Exam {
 		return tc.isExamSchedulable(this);
 	}
 
-	public Object getNumSeats() {
+	public int getNumSeats() {
 		// TODO Auto-generated method stub
 		return numSeats;
 	}
@@ -94,17 +94,15 @@ public class Exam {
 		
 	}
 
-	public long getLength() {
+	public int getLength() {
 		return duration;
 	}
 
 	public boolean isAdHocExam() {
-		// TODO Auto-generated method stub
 		return adHocExam;
 	}
 
 	public String getCourseId() {
-		// TODO Auto-generated method stub
 		return courseId;
 	}
 

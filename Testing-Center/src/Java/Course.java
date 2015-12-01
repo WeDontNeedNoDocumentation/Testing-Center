@@ -49,4 +49,8 @@ public class Course {
 				courseTerm);
 	}
 
+	public String getCourseTerm() {
+		return courseTerm;
+	}
+
 }
