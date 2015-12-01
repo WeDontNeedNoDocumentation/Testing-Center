@@ -26,7 +26,6 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
 import org.joda.time.LocalDate;
@@ -190,12 +189,12 @@ public class TestingCenter {
 	}
 	
 	//make an appointment to take an exam
-	public synchronized boolean makeAppointment(String examId, DateTime time, int appointmentId, String netID, DateTime startTime, DateTime endTime, int duration) throws ExistingAppointmentException {
+	public synchronized boolean makeAppointment(String examId, DateTime time, String netID, DateTime startTime, DateTime endTime, int duration) throws ExistingAppointmentException {
 		logger.info("Creating new Appointment");
 		logger.fine("Exam id: " + examId);
 		logger.fine("Student ID: " + netID);
 		logger.fine("Appointment start time: " + time.toString());
-		logger.fine("Appointment ID: " + appointmentId);
+		//logger.fine("Appointment ID: " + appointmentId);
 		
 		if (hasAppointment(netID, examId)) {
 			logger.warning("Student " + netID + " already has appointment for exam " + examId);
@@ -254,13 +253,13 @@ public class TestingCenter {
 								netID,
 								examId));
 					}
-					String queryString = String.format("INSERT INTO appointment VALUES ("
-							+ "'%s', '%s', %d, %d, %d, %d, %d)", 
+					String queryString = String.format("INSERT INTO appointment "
+							+ "(examIdA, studentIdA, dateId, seatId, startTime, endTime) "
+							+ "VALUES ('%s', '%s', %d, %d, %d, %d)", 
 							examId, 
 							netID, 
 							time.getMillis()/1000,
 							i,
-							appointmentId,
 							startTime.getMillis()/1000,
 							endTime.getMillis()/1000
 							);
@@ -350,10 +349,13 @@ public class TestingCenter {
 		for (Map<String,Object> appt : appts) {
 			String examId = (String) appt.get("examId");
 			String netId = (String) appt.get("studentIdA");
-			DateTime time = new DateTime((long) appt.get("dateIdA")*1000);
+			DateTime start = new DateTime((long) appt.get("startTime")*1000);
+			DateTime end = new DateTime((long) appt.get("endTime")*1000);
 			
-			Appointment newAppointment = new Appointment(examId, netId, time);
+			Appointment newAppointment = new Appointment(examId, netId, start, end);
 			appointments.add(newAppointment);
+			
+			System.out.println(newAppointment);
 		}
 		
 		return appointments;
@@ -369,9 +371,10 @@ public class TestingCenter {
 		for (Map<String,Object> appt : appts) {
 			String examId = (String) appt.get("examId");
 			String netId = (String) appt.get("studentIdA");
-			DateTime time = new DateTime((long) appt.get("dateIdA")*1000);
+			DateTime start = new DateTime((long) appt.get("startTime")*1000);
+			DateTime end = new DateTime((long) appt.get("endTime")*1000);
 			
-			Appointment newAppointment = new Appointment(examId, netId, time);
+			Appointment newAppointment = new Appointment(examId, netId, start, end);
 			appointments.add(newAppointment);
 		}
 		
@@ -837,9 +840,9 @@ public class TestingCenter {
 			search = search.withMinuteOfHour(30);
 		}
 		List<Map<String,Object>> appointments = db.query(
-				String.format("SELECT examIdA, studentIdA, dateIdA, seatIdA, appointmentID "
+				String.format("SELECT examIdA, studentIdA, startTime, seatId, appointmentID "
 				+ "FROM appointment "
-				+ "WHERE studentIdA = '%s' AND dateIdA = %d",
+				+ "WHERE studentIdA = '%s' AND startTime = %d",
 				netID,
 				search.getMillis()/1000
 				));
@@ -1564,7 +1567,7 @@ public class TestingCenter {
 		for (Map<String, Object> course : courses) {
 			String courseId = (String) course.get("courseId");
 			String subject = (String) course.get("subject");
-			int catalogNumber = course.get("catalogNumber") == null ? null : (int) course.get("catalogNumber");
+			int catalogNumber = course.get("catalogNumber") == null ? 0 : (int) course.get("catalogNumber");
 			String section = (String) course.get("section");
 			String instructorId = (String) course.get("instructorIdB");
 			int termId = (int) course.get("termId");
@@ -1667,7 +1670,10 @@ public class TestingCenter {
 		
 		//tc.updateData("user.csv", "instructor.csv", "class.csv", "roster.csv");
 		
-		tc.updateData("user.csv", "class.csv", "roster.csv");
+		//tc.updateData("user.csv", "class.csv", "roster.csv");
+		
+		tc.makeAppointment("test-exam-1", DateTime.now(), "a", new DateTime(2015, 1, 1, 12, 0), new DateTime(2015, 1, 1, 13, 0), 60);
+		tc.makeAppointment("test-exam-1", DateTime.now(), "abinning", new DateTime(2015, 1, 1, 12, 0), new DateTime(2015, 1, 1, 13, 0), 60);
 	}
 
 }

@@ -16,16 +16,18 @@ public class Appointment
 
 	private String examID;
 	private String StudentNetID;
-	private DateTime time;
+	private DateTime startTime;
+	private DateTime endTime;
 	
 	public Appointment() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Appointment(String examID, String studentNetID, DateTime time) {
+	public Appointment(String examID, String studentNetID, DateTime start, DateTime end) {
 		this.examID = examID;
-		StudentNetID = studentNetID;
-		this.time = time;
+		this.StudentNetID = studentNetID;
+		this.startTime = start;
+		this.endTime = end;
 	}
 	
 	public String getNetId() {
@@ -35,6 +37,6 @@ public class Appointment
 	//jsp helper methods
 	public String getViewForAllAppointments()
 	{
-		return examID+" "+time;
+		return examID+" "+startTime;
 	}
 }

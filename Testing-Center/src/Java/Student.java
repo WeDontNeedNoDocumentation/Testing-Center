@@ -92,8 +92,8 @@ public class Student {
 	/*
 	 * This is used to create an exam appointment for a specific exam.
 	 */
-	public boolean makeAppointment(String examId, DateTime time, int appointmentId, DateTime start, DateTime end, int duration) {
-		return tC.makeAppointment(examId, time, appointmentId, netID, start, end, duration);
+	public boolean makeAppointment(String examId, DateTime time, DateTime start, DateTime end, int duration) {
+		return tC.makeAppointment(examId, time, netID, start, end, duration);
 	}
 	
 	/*
