@@ -72,7 +72,7 @@ public class TestAppointments {
 	public void AAtestStudentCreateAppointment() {
 		logger.info("Testing Student's ability to create an appointment.");
 		
-		Exam exam = new Exam("exam1", null, null, "SStoller", "81468-1158", 64, 60, true);
+		Exam exam = new Exam("exam1", new DateTime(2003,2,3,10,1), new DateTime(2004,2,3,10,1), "SStoller", "81468-1158", 64, 60, true);
 		
 		List<Appointment> appts;
 		
@@ -110,11 +110,12 @@ public class TestAppointments {
 	}
 	
 	@Test
-	//test to see that a student cannot make an appointment out of the date range for the exam
+	// test to see that a student cannot make an appointment out of the date range for the exam
 	public void AtestAppointmentOutOfExamBounds() {
 		logger.info("Attempted to make appointment past the date range for this exam. Should fail due to surpassing the established date range.");
-		//Exam exam = new Exam("exam1-copy", new DateTime(2005,1,1,10,1), new DateTime(2000,2,1,10,1), "SStoller", "81468-1158", 64, 60, true);
+		// Exam exam = new Exam("exam1-copy", new DateTime(2005,1,1,10,1), new DateTime(2000,2,1,10,1), "SStoller", "81468-1158", 64, 60, true);
 		boolean apptMade = st.makeAppointment("exam2", new DateTime(2000,5,1,0,0), new DateTime(2000,5,1,0,0), new DateTime(2000, 5,11,0,0), 60);
+		//assertTrue(apptMade);
 		assertFalse(apptMade);
 		
 		apptMade = st.makeAppointment("exam2", new DateTime(2000,5,11,0,0), new DateTime(2000,5,11,0,0), new DateTime(2000, 5,20,0,0), 60);
@@ -122,6 +123,7 @@ public class TestAppointments {
 		
 		apptMade = st.makeAppointment("exam2", new DateTime(2000,5,11,0,0), new DateTime(2000,5,11,0,0), new DateTime(2000, 5,11,5,0), 60);
 		assertTrue(apptMade);
+		//assertFalse(apptMade);
 	}
 	
 	@Test
@@ -338,8 +340,14 @@ public class TestAppointments {
 	}
 	
 	@Test
-	public void testGetOverlap(){
-		logger.info("Testing ability to get overlap of the current exam");
+	public void testEditAppointment(){
+		logger.info("Testing ability to edit an existing appointment");
+		//
+	}
+	
+	@Test
+	public void testEditExam(){
+		logger.info("Testing ability to edit an existing appointment");
 		//
 	}
 	
