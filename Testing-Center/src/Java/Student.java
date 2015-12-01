@@ -93,8 +93,8 @@ public class Student {
 	 * This is used to create an exam appointment for a specific exam.
 	 * (NOTE: At this time no checks are made to see if this appointment is in any way valid.)
 	 */
-	public void makeAppointment(Exam exam, DateTime time, int appointmentId, DateTime start, DateTime end) {
-		tC.makeAppointment(exam, time, appointmentId, netID, start, end);
+	public boolean makeAppointment(Exam exam, DateTime time, int appointmentId, DateTime start, DateTime end) {
+		return tC.makeAppointment(exam, time, appointmentId, netID, start, end);
 	}
 	
 	/*
@@ -102,8 +102,8 @@ public class Student {
 	 * (NOTE: This does not check to see if the appointment exists first. Will require the calling of
 	 * view in the future.)
 	 */
-	public void cancelAppointment(int string) {
-		tC.cancelAppointment(string);
+	public boolean cancelAppointment(int string) {
+		return tC.cancelAppointment(string);
 	}
 	
 	/*

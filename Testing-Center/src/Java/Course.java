@@ -49,4 +49,9 @@ public class Course {
 				courseTerm);
 	}
 
+	public String getCourseTerm() {
+		// TODO Auto-generated method stub
+		return courseTerm;
+	}
+
 }

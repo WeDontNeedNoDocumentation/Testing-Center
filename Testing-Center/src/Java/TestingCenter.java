@@ -236,13 +236,13 @@ public class TestingCenter {
 		for(int i = 0;i<numberOfSeats-numberOfSetAside && !avalSeat;i++) {
 			boolean clear = true;
 			for(long l = start; l<start+len && clear; l=l+1800) {
-				List<Map<String,Object>> apps = db.query(String.format("SELECT examIdT FROM timeSlots"
+				List<Map<String,Object>> apps = db.query(String.format("SELECT examIdT FROM timeSlots "
 						+ "WHERE dateId = '%d' AND seatId = '%d'",
 						l,i));
 				if(apps.size() > 0) {
 					clear = false;
 				} else {
-					apps = db.query(String.format("SELECT seatId FROM timeSlots"
+					apps = db.query(String.format("SELECT seatId FROM timeSlots "
 							+ "WHERE dateId = '%d' AND examIdT = '%s'",
 							l,exam.getExamID()));
 					if(apps.contains((i-1))|| apps.contains((i+1))) {
@@ -253,7 +253,7 @@ public class TestingCenter {
 					avalSeat = true;
 					for(l = start; l<start+len; l=l+1800) {
 						db.updateQuery(String.format("INSERT INTO timeslots VALUES ("
-								+"'%d','%d','%s','%s'", 
+								+"'%d','%d','%s','%s')", 
 								start,
 								i,
 								netID,
@@ -297,8 +297,8 @@ public class TestingCenter {
 				+ "FROM appointment "
 				+ "WHERE studentIdA = '%s' "
 				+ "AND "
-				+ "(startTime <= '%s' "
-				+ "AND endTime >= '%s')", 
+				+ "(startTime <= %d "
+				+ "AND endTime >= %d)", 
 				netID,
 				endTime.getMillis()/1000 + gap.getMillis()/1000,
 				startTime.getMillis()/1000 - gap.getMillis()/1000);
@@ -320,7 +320,7 @@ public class TestingCenter {
 	}
 
 	//Allows the user to cancel a student appointment, given the appointment id
-	public synchronized void cancelAppointment(int appID) {
+	public synchronized boolean cancelAppointment(int appID) {
 		logger.info("Cancelling appointment with ID " + appID);
 		
 		String queryString = String.format(
@@ -330,7 +330,9 @@ public class TestingCenter {
 				+ "appointmentId=%d",
 				appID
 				);
-		db.updateQuery(queryString);
+		int cancelled = db.updateQuery(queryString);
+		
+		return cancelled > 0;
 	}
 	
 	//Return a list of all appointments, given a student's netID and the desired term
@@ -1492,7 +1494,7 @@ public class TestingCenter {
 		List<Map<String, Object>> appointments = Database.getDatabase().query(queryString);
 		
 		for (Map<String, Object> appointment : appointments) {
-			long startTime = (long) appointment.get("startTime");
+			long startTime = (long) appointment.get("startTime") * 1000;
 			LocalDate date = new LocalDate(startTime);
 			
 			if (!dailyCount.containsKey(date)) {
@@ -1613,14 +1615,15 @@ public class TestingCenter {
 				+ "FROM course "
 				+ "INNER JOIN exam "
 				+ "ON course.courseTerm = exam.courseId "
-				+ "WHERE course.termId = %d;",
+				+ "WHERE course.termId = %d "
+				+ "GROUP BY course.courseTerm;",
 				term);
 		List<Map<String, Object>> courses = Database.getDatabase().query(queryString);
 		
 		for (Map<String, Object> course : courses) {
 			String courseId = (String) course.get("courseId");
 			String subject = (String) course.get("subject");
-			int catalogNumber = (int) course.get("catalogNumber");
+			int catalogNumber = course.get("catalogNumber") == null ? null : (int) course.get("catalogNumber");
 			String section = (String) course.get("section");
 			String instructorId = (String) course.get("instructorIdB");
 			int termId = (int) course.get("termId");

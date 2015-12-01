@@ -2,9 +2,12 @@ package Java;
 import static org.junit.Assert.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -37,12 +40,13 @@ public class TestAppointments {
 		db.updateQuery("USE Test");
 
 		db.updateQuery("CREATE TABLE student (firstName varchar(45), lastName varchar(45), studentId varchar(45), email varchar(45))");
-		db.updateQuery("CREATE TABLE appointment (examIdA varchar(45), studentIdA varchar(45), dateIdA bigint(20), seatIdA int(11), appointmentId int(11), starTime bigint(20), endTime bigint(20))");
+		db.updateQuery("CREATE TABLE appointment (examIdA varchar(45), studentIdA varchar(45), dateIdA bigint(20), seatIdA int(11), appointmentId int(11), startTime bigint(20), endTime bigint(20))");
 		db.updateQuery("CREATE TABLE exam (examId varchar(45), start bigint(20), end bigint(20), boolCourseExam varchar(45), examStatus varchar(45), instructorIdA varchar(45), numSeats int, examLength int, courseId varchar(45))");
 		db.updateQuery("CREATE TABLE instructor (instructorId varchar(45), name varchar(45), email varchar(45))");
 //		db.updateQuery("CREATE TABLE courseexam (examIdCE varchar(45), courseIdCE varchar(45))");
 		db.updateQuery("CREATE TABLE coursestudent (courseIdCS varchar(45), studentIdCS varchar(45))");
 		db.updateQuery("CREATE TABLE course (courseId varchar(45), subject varchar(45), catalogNumber int(11), section varchar(45), instructorIdB varchar(45), termId int(11), courseTerm varchar(45))");
+		db.updateQuery("CREATE TABLE timeslots (dateId bigint(11), seatId int(11), studentIdT varchar(45), examIdT varchar(45))");
 		
 		db.updateQuery("INSERT INTO student VALUES ('Dan', 'Harel', 'dharel', 'dan.harel@stonybrook.edu')");
 		db.updateQuery("INSERT INTO instructor VALUES ('SStoller', 'Scott Stoller', 'stoller@cs.stonybrook.edu')");
@@ -63,7 +67,7 @@ public class TestAppointments {
 	}
 	
 	@Test
-	public void AtestStudentCreateAppointment() {
+	public void AAtestStudentCreateAppointment() {
 		logger.info("Testing Student's ability to create an appointment.");
 		
 		Exam exam = new Exam("exam1", null, null, "SStoller", "81468-1158", 64, 60, true);
@@ -74,12 +78,74 @@ public class TestAppointments {
 		int startSize = appts.size();
 		
 		// Sat, 01 Jan 2000 10:01:00 GMT -> Sat, 01 Jan 2000 11:01:00 GMT
-		st.makeAppointment(exam, new DateTime(2000,1,1,10,1), 1, new DateTime(2000,1,1,10,1), new DateTime(2000, 1,1,11,1));
+		boolean examMade = st.makeAppointment(exam, new DateTime(2000,1,1,10,1), 1, new DateTime(2000,1,1,10,1), new DateTime(2000, 1,1,11,1));
+		
+		assertTrue(examMade);
 		
 		appts = st.viewAppointments(1158);
 		int endSize = appts.size();
 		
 		assertEquals(1, endSize - startSize);
+	}
+	
+	@Test
+	public void AtestExistingAppointment() {
+		logger.info("Attempted to make appointment for same exam. Should fail due to existing appointment.");
+		Exam exam = new Exam("exam1", null, null, "SStoller", "81468-1158", 64, 60, true);
+		boolean apptMade = st.makeAppointment(exam, new DateTime(2000,1,1,10,1), 1, new DateTime(2000,1,2,10,1), new DateTime(2000, 1,2,11,1));
+		assertFalse(apptMade);
+	}
+	
+	@Test
+	public void AtestConflictingAppointment() {
+		logger.info("Attempted to make appointment at same time for different exam. Should fail due to conflicting appointment.");
+		Exam exam = new Exam("exam1-copy", null, null, "SStoller", "81468-1158", 64, 60, true);
+		boolean apptMade = st.makeAppointment(exam, new DateTime(2000,1,1,10,1), 1, new DateTime(2000,1,1,10,1), new DateTime(2000, 1,1,11,1));
+		
+		assertFalse(apptMade);
+	}
+	
+	@Test
+	public void AtestAppointmentPerDay() {
+		Map<LocalDate, Integer> apptsPerDay = tc.appointmentsPerDay(1158);
+		
+		for (LocalDate date : apptsPerDay.keySet()) {
+			//System.out.println(date);
+			assertTrue(date.equals(new LocalDate(2000, 1, 1)));
+			assertEquals((int) apptsPerDay.get(date), 1);
+		}
+	}
+	
+	@Test
+	public void AtestAppointmentPerWeek() {
+		Map<LocalDate, Integer> apptsPerWeek = tc.appointmentsPerWeek(1158);
+		
+		for (LocalDate date : apptsPerWeek.keySet()) {
+			assertEquals(date, new LocalDate(1999, 12, 27));
+			assertEquals((int) apptsPerWeek.get(date), 1);
+		}
+	}
+	
+	@Test
+	public void AtestCoursesPerWeek() {
+		Map<LocalDate, Set<String>> apptsPerWeek = tc.coursesPerWeek(1158);
+		
+		for (LocalDate date : apptsPerWeek.keySet()) {
+			assertEquals(date, new LocalDate(1999, 12, 27));
+			Set<String> courses = (Set<String>) apptsPerWeek.get(date);
+			for (String course : courses) {
+				assertEquals(course, "81468-1158");
+			}
+		}
+	}
+	
+	@Test
+	public void testCoursesUsed() {
+		List<Course> courses = tc.coursesUsed(1158);
+		
+		for (Course course : courses) {
+			assertTrue( course.getCourseTerm().equals("81468-1158") || course.getCourseTerm().equals("80450-1158"));
+		}
 	}
 	
 /*
@@ -115,7 +181,9 @@ public class TestAppointments {
 		appts = st.viewAppointments(1158);
 		int startSize = appts.size();
 		
-		st.cancelAppointment(1);
+		boolean examCancelled = st.cancelAppointment(1);
+		
+		assertTrue(examCancelled);
 		
 		appts = st.viewAppointments(1158);
 		int endSize = appts.size();
@@ -124,10 +192,10 @@ public class TestAppointments {
 	}
 	
 	@Test
-	public void CtestInstructorCreateAppointment() {
+	public void CtestInstructorCreateExam() {
 		logger.info("Testing Instructor's ability to create an exam scheduling request.");
 		
-		Instructor inst = new Instructor("Scott Stollerd", "stollerd@cs.stonybrook.edu", tc, "SStollerd");
+		//Instructor inst = new Instructor("Scott Stollerd", "stollerd@cs.stonybrook.edu", tc, "SStollerd");
 		List<Exam> exams;
 		
 		exams = inst.viewExams();
@@ -135,7 +203,9 @@ public class TestAppointments {
 		
 		Exam exam = new Exam("CSE", null, null, null, "sstollerd", "P", 64, 120, true);
 		
-		inst.makeExam("CSE", new DateTime(2000,1,1,1,1), new DateTime(2000,1,1,1,2), true, 64, 120, "CSE308");
+		boolean examCreated = inst.makeExam("CSE", new DateTime(2000,1,1,1,1), new DateTime(2000,1,1,1,2), true, 64, 120, "CSE308");
+		
+		assertTrue(examCreated);
 		
 		exams = inst.viewExams();
 		int endNumExams = exams.size();
@@ -188,7 +258,7 @@ public class TestAppointments {
 		exams = inst.viewExams();
 		int endNumExams = exams.size();
 		
-		assertEquals(0, endNumExams - startNumExams);
+		assertEquals(-1, endNumExams - startNumExams);
 	}
 	
 	@Test
