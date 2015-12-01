@@ -58,7 +58,7 @@
                                         <img class="media-object" src="http://placehold.it/50x50" alt="">
                                     </span>
                                     <div class="media-body">
-                                        <h5 class="media-heading"><strong>John Smith</strong>
+                                        <h5 class="media-heading"><strong>${sessionScope.name}</strong>
                                         </h5>
                                         <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
                                         <p>Lorem ipsum dolor sit amet, consectetur...</p>
@@ -73,7 +73,7 @@
                                         <img class="media-object" src="http://placehold.it/50x50" alt="">
                                     </span>
                                     <div class="media-body">
-                                        <h5 class="media-heading"><strong>John Smith</strong>
+                                        <h5 class="media-heading"><strong>${sessionScope.name}</strong>
                                         </h5>
                                         <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
                                         <p>Lorem ipsum dolor sit amet, consectetur...</p>
@@ -88,7 +88,7 @@
                                         <img class="media-object" src="http://placehold.it/50x50" alt="">
                                     </span>
                                     <div class="media-body">
-                                        <h5 class="media-heading"><strong>John Smith</strong>
+                                        <h5 class="media-heading"><strong>${sessionScope.name}</strong>
                                         </h5>
                                         <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
                                         <p>Lorem ipsum dolor sit amet, consectetur...</p>
@@ -129,18 +129,8 @@
                     </ul>
                 </li>
                 <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> John Smith <b class="caret"></b></a>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> ${sessionScope.name} <b class="caret"></b></a>
                     <ul class="dropdown-menu">
-                        <li>
-                            <a href="#"><i class="fa fa-fw fa-user"></i> Profile</a>
-                        </li>
-                        <li>
-                            <a href="#"><i class="fa fa-fw fa-envelope"></i> Inbox</a>
-                        </li>
-                        <li>
-                            <a href="#"><i class="fa fa-fw fa-gear"></i> Settings</a>
-                        </li>
-                        <li class="divider"></li>
                         <li>
                             <a href="#"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
                         </li>
@@ -175,44 +165,22 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <h1 class="page-header">
-                            Schedule Exam Request
+                            Choose Type of Exam
                         </h1>
                     </div>
                 </div>
                 <div class="row">
-                	<form role="form">
+                	<form role="form" action="ScheduleCourseExam.jsp" method="post">
                 		<div class="col-sm-6re">
-                			<div class="form-group input-group">
-		                        <span class="input-group-addon">Exam ID</span>
-		                        <input type="text" class="form-control" placeholder="IE:Test1">
-		                    </div>
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Course ID</span>
-		                        <input type="text" class="form-control" placeholder="IE:80450-1158">
-		                    </div>
-		
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Start Date</span>
-		                        <input type="text" class="form-control" placeholder="mm/dd/yyyy">
-		                    </div>
-		
-		                    <div class="form-group input-group">
-		                    	<span class="input-group-addon">Minutes</span>
-		                        <input type="text" class="form-control" placeholder="Start Time">
-		                    </div>
-		
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">End Date</span>
-		                        <input type="text" class="form-control" placeholder="mm/dd/yyyy">
-		                    </div>
-							
-							<div class="form-group input-group">
-		                        <input type="text" class="form-control" placeholder="End Time">
-		                        <span class="input-group-addon">Minutes</span>
-		                    </div>
-		                    
-		                    <button type="submit" class="btn btn-success">Submit</button>
-	                        <button type="reset" class="btn btn-default">Reset</button>
+		                    <button type="submit" class="btn btn-success">Course Exam</button>
+						</div>
+	                </form>
+	                <p></p>
+	                <hr>
+	                <p></p>
+	                <form role="form" action="ScheduleNonCourseExam.jsp" method="post">
+                		<div class="col-sm-6re">
+		                    <button type="submit" class="btn btn-success">Non-Course Exam</button>
 						</div>
 	                </form>
                 </div>

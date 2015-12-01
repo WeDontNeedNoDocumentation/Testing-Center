@@ -1,3 +1,8 @@
+<%@page import="DBWorks.DBConnection"%>
+<%@page import="Java.*" %>
+<%@page import="java.util.*" %>
+<%@page import="java.lang.*" %>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -57,7 +62,7 @@
                                         <img class="media-object" src="http://placehold.it/50x50" alt="">
                                     </span>
                                     <div class="media-body">
-                                        <h5 class="media-heading"><strong>John Smith</strong>
+                                        <h5 class="media-heading"><strong>${sessionScope.name}</strong>
                                         </h5>
                                         <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
                                         <p>Lorem ipsum dolor sit amet, consectetur...</p>
@@ -72,7 +77,7 @@
                                         <img class="media-object" src="http://placehold.it/50x50" alt="">
                                     </span>
                                     <div class="media-body">
-                                        <h5 class="media-heading"><strong>John Smith</strong>
+                                        <h5 class="media-heading"><strong>${sessionScope.name}</strong>
                                         </h5>
                                         <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
                                         <p>Lorem ipsum dolor sit amet, consectetur...</p>
@@ -87,7 +92,7 @@
                                         <img class="media-object" src="http://placehold.it/50x50" alt="">
                                     </span>
                                     <div class="media-body">
-                                        <h5 class="media-heading"><strong>John Smith</strong>
+                                        <h5 class="media-heading"><strong>${sessionScope.name}</strong>
                                         </h5>
                                         <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
                                         <p>Lorem ipsum dolor sit amet, consectetur...</p>
@@ -128,18 +133,8 @@
                     </ul>
                 </li>
                 <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> John Smith <b class="caret"></b></a>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> ${sessionScope.name} <b class="caret"></b></a>
                     <ul class="dropdown-menu">
-                        <li>
-                            <a href="#"><i class="fa fa-fw fa-user"></i> Profile</a>
-                        </li>
-                        <li>
-                            <a href="#"><i class="fa fa-fw fa-envelope"></i> Inbox</a>
-                        </li>
-                        <li>
-                            <a href="#"><i class="fa fa-fw fa-gear"></i> Settings</a>
-                        </li>
-                        <li class="divider"></li>
                         <li>
                             <a href="#"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
                         </li>
@@ -186,6 +181,7 @@
 	                    <!-- Columns -->
 	                        <tr class="active">
 	                            <th>Student</th>
+	                            <th>Date</th>
 	                            <th>Appointment Time</th>
 	                            <th>Seat</th>
 	                            <th>Attendance</th>
@@ -195,41 +191,53 @@
 	                    <tbody>
 	                        <tr>
 	                        <!--enter code here for table -->
-	                        <%  %>
+	                        <%
+	                        
+		                        String email = session.getAttribute("email").toString();
+	                    		String id = session.getAttribute("id").toString();
+	                    		String name = session.getAttribute("name").toString();
+	                    		String examId = request.getParameter("examId").toString();
+	  							Instructor instr = new Instructor(name, email, id);
+	                           	
+	                           	List<Student> students = new ArrayList<Student>();
+	                           	students = instr.viewAttendanceStats(examId);
+	                           	
+	                           	for(Student s : students)
+                               	{
+	                           		String query ="";
+		                    		String apptId ="";
+		                    		String startTime ="";
+		                    		String endTime = "";
+		                    		String seatId ="";
+		                    		String dateId = "";
+	                           		
+	                           		query = "SELECT appointment.* FROM appointment WHERE examIdA ='"+examId+"' AND studentIdA ='"+s.getUserIdB()+"'";
+	                           		
+	                           		java.sql.ResultSet rs = DBConnection.ExecQuery(query);
+	                    	        if (rs.next())
+	                    	        {
+	                    	        	apptId = rs.getString(5);
+	    	                    		startTime = rs.getString(6);
+	    	                    		endTime = rs.getString(7);
+	    	                    		seatId = rs.getString(4);
+	    	                    		dateId = rs.getString(3);
+	                    	        }
+	                           		
+                                    String studentName = s.getFirstName()+" "+s.getLastName();
+	                        %>
 	                        <!-- row entries -->
-	                            <td>Joe Mama</td>
-	                            <td>2:30PM</td>
-	                            <td>6F</td>
+	                            <td><%out.print(studentName); %></td>
+	                            <td><%out.print(dateId); %></td>
+	                            <td><%out.print(startTime); %></td>
+	                            <td><%out.print(seatId); %></td>
+	                            
+	                            <%
+	                            %>
 	                            <td>
 	                            	<button type="button" class="btn btn-xs btn-success">Attended</button>
 	                            </td> 
 	                        </tr>
-	                    </tbody>
-	                    <tbody>
-	                        <tr>
-	                        <!--enter code here for table -->
-	                        <%  %>
-	                        <!-- row entries -->
-	                            <td>Joe Papa</td>
-	                            <td>2:30PM</td>
-	                            <td>6G</td>
-	                            <td>
-	                            	<button type="button" class="btn btn-xs btn-danger">No Attendance</button>
-	                            </td> 
-	                        </tr>
-	                    </tbody>
-	                    <tbody>
-	                        <tr>
-	                        <!--enter code here for table -->
-	                        <%  %>
-	                        <!-- row entries -->
-	                            <td>Joe Kid</td>
-	                            <td>2:30PM</td>
-	                            <td>6E</td>
-	                            <td>
-	                            	<button type="button" class="btn btn-xs btn-success">No Attendance</button>
-	                            </td> 
-	                        </tr>
+	                        <%} %>
 	                    </tbody>
 	                </table>
                 </div>

@@ -1,8 +1,3 @@
-<%@page import="DBWorks.DBConnection"%>
-<%@page import="Java.*" %>
-<%@page import="java.util.*" %>
-<%@page import="java.lang.*" %>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -14,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>See Exam Requests Page - Instructor</title>
+    <title>Schedule Course Exam Request Page - Instructor</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -31,6 +26,7 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+    <link href="css/addboxes.css" rel="stylesheet">
 
 </head>
 
@@ -144,10 +140,10 @@
             <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
             <div class="collapse navbar-collapse navbar-ex1-collapse">
                 <ul class="nav navbar-nav side-nav">
-                    <li>
+                    <li class="active">
                         <a href="ScheduleExamRequest.jsp"><span class="glyphicon glyphicon-calendar"></span></span></i> Schedule Exam Request</a>
                     </li>
-                    <li class="active">
+                    <li>
                         <a href="SeeExamRequests.jsp"><i class="fa fa-fw fa-table"></i> See Exam Requests</a>
                     </li>
                     <li>
@@ -169,78 +165,68 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <h1 class="page-header">
-                            See Exam Requests
+                            Schedule Exam Request
                         </h1>
                     </div>
                 </div>
-                
                 <div class="row">
-                <h3>Current Term</h3>
-	                <table class="table table-bordered table-hover">
-	                    <thead>
-	                    <!-- Columns -->
-	                        <tr class="active">
-	                            <th>Course ID</th>
-	                            <th>Duration</th>
-	                            <th>Start Date</th>
-	                            <th>Num Seats</th>
-	                            <th>Status</th>
-	                            <th>Action</th>
-	                        </tr>
-	                    <!-- /Columns -->
-	                    </thead>
-	                    <tbody>
-	                    	
-	                        <tr>
-	                        <!--enter code here for table -->
-	      					<%
-	      						String email = session.getAttribute("email").toString();
-                        		String id = session.getAttribute("id").toString();
-                        		String name = session.getAttribute("name").toString();
-                        		
-      							Instructor instr = new Instructor(name, email, id);
-                               	
-                               	List<Exam> exams = new ArrayList<Exam>();
-                               	exams = instr.viewExams();
-                               	
-                               	for(Exam e : exams)
-                               	{
-                                    String courseId = e.getCourseId();
-                                    String duration = String.valueOf(e.getLength());
-                                    String sDate = e.getStart().toString();
-                                    String numSeats = e.getNumSeats().toString();
-                                    String status = e.getStatus();
-                                    
-                            %> 
-	                        <!-- row entries -->
-	                            <td><%out.print(courseId);%></td>
-	                            <td><%out.print(duration);%></td>
-	                            <td><%out.print(sDate);%></td>
-	                            <td><%out.print(numSeats);%></td>
-	                            <td>
-	                            	<%if(status.equals("P"))
-	                            	{%>
-		                            	<button type="button" class="btn btn-sm btn-info">Pending</button>
-		                           	<%}else if(status.equals("A"))
-		                           	{%>
-		                           		<button type="button" class="btn btn-sm btn-success">Approved</button>
-		                           	<%}else
-		                           	{%>
-		                           		<button type="button" class="btn btn-sm btn-danger">Denied</button>
-		                           	<%}
-		                           	%>
-				                </td>
-	                            <td>
-	                            	<form action="CancelExamRequest.jsp" method="post">
-		                            	<button type="submit" class="btn btn-sm btn-danger" name="examId" value="<%out.print(e.getExamID());%>" formaction="CancelExamRequest.jsp">Cancel</button>
-	                            	</form>
-	                    		</td>
-	                        <!-- /row entries -->    
-	                        </tr>
-	                        <%} %>
-	                    </tbody>
+                	<form action="ScheduleExamConfirmation.jsp" method="post">
+                		<div class="col-sm-6re">
+                			<div class="form-group input-group">
+		                        <span class="input-group-addon">Exam ID</span>
+		                        <input name="examId" type="text" class="form-control" placeholder="IE:Test1">
+		                    </div>
+		
+		                    <div class="form-group input-group">
+		                        <span class="input-group-addon">Start Date</span>
+		                        <input name="sDate" type="text" class="form-control" placeholder="mm/dd/yyyy">
+		                    </div>
+		
+		                    <div class="form-group input-group">
+		                    	<span class="input-group-addon">Start Time</span>
+		                        <input name="sTime" type="text" class="form-control" placeholder="10:00am">
+		                    </div>
+		
+		                    <div class="form-group input-group">
+		                        <span class="input-group-addon">End Date</span>
+		                        <input name="eDate" type="text" class="form-control" placeholder="mm/dd/yyyy">
+		                    </div>
+		                    
+		                    <div class="form-group input-group">
+		                    	<span class="input-group-addon">End Time</span>
+		                        <input name="eTime" type="text" class="form-control" placeholder="12:00pm">
+		                    </div>
+		                    
+		                    <div class="form-group input-group">
+		                        <span class="input-group-addon">Instructor ID</span>
+		                        <input name="instrId" type="text" class="form-control" placeholder="IE:jsmith">
+		                    </div>
+		                    
+		                    <div class="form-group input-group">
+		                        <span class="input-group-addon">Course ID</span>
+		                        <input name="courseId" type="text" class="form-control" placeholder="IE:80450-1158">
+		                    </div>
+		                    
+		                    <div class="form-group input-group">
+		                        <span class="input-group-addon">Number of Seats</span>
+		                        <input name="seats" type="text" class="form-control" placeholder="IE:64">
+		                    </div>
+		                    
+		                    <div class="form-group input-group">
+		                        <span class="input-group-addon">Duration</span>
+		                        <input name="duration" type="text" class="form-control" placeholder="IE:120">
+		                    </div>
+		                    
+		                    
+		                    <button type="submit" value="submit">Submit</button>
+			                
+			                <div class="container">
+			                
+						</div>
+					</form>
                 </div>
             </div>
+            <!-- /.container-fluid -->
 
         </div>
         <!-- /#page-wrapper -->
