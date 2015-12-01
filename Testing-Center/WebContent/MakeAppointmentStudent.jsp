@@ -178,11 +178,6 @@
 		                        <span class="input-group-addon">Exam ID</span>
 		                        <input name="examId" type="text" class="form-control" placeholder="IE:Test1">
 		                    </div>
-		                    
-		                    <div class="form-group input-group">
-		                    	<span class="input-group-addon">Appointment Id</span>
-		                        <input name="apptId" type="text" class="form-control" placeholder="123456">
-		                    </div>
 		
 		                    <div class="form-group input-group">
 		                        <span class="input-group-addon">Start Date</span>
@@ -202,11 +197,6 @@
 		                    <div class="form-group input-group">
 		                    	<span class="input-group-addon">End Time</span>
 		                        <input name="eTime" type="text" class="form-control" placeholder="12:00pm">
-		                    </div>
-		                    
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Duration</span>
-		                        <input name="courseId" type="text" class="form-control" placeholder="IE:120">
 		                    </div>
 		                    
 		                    <button type="submit" value="submit">Submit</button>
