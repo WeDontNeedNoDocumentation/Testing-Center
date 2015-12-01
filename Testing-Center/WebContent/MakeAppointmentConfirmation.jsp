@@ -58,10 +58,10 @@
       		String eDate = request.getParameter("eDate");
       		String eTime = request.getParameter("eTime");
       		
-      		DateTime enDate = dtUtil.makeDateTime(sDate, sTime);
+      		DateTime enDate = dtUtil.makeDateTime(eDate, eTime);
       		
       		String apptId = request.getParameter("apptId");
-      		int duration = (enDate.getHourOfDay()+enDate.getMinuteOfDay())-(stDate.getHourOfDay()+stDate.getMinuteOfDay());
+      		int duration = enDate.getMinuteOfDay()-stDate.getMinuteOfDay();      		
       		System.out.println(duration);
       		
       		

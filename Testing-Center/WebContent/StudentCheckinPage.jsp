@@ -164,13 +164,13 @@
                         <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i class="fa fa-fw fa-arrows-v"></i> Import <i class="fa fa-fw fa-caret-down"></i></a>
                         <ul id="demo" class="collapse">
                             <li>
-                                <a href="#">Import Users</a>
+                                <a href="ImportData.jsp">Import Users</a>
                             </li>
                             <li>
-                                <a href="#">Import Class</a>
+                                <a href="ImportData.jsp">Import Class</a>
                             </li>
                             <li>
-                                <a href="#">Import Roster</a>
+                                <a href="ImportData.jsp">Import Roster</a>
                             </li>
                         </ul>
                     </li>
@@ -211,7 +211,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- Flot Charts -->
                 
                 <!-- /.row -->
 
@@ -223,17 +222,6 @@
                 <div class="row">
                     
                 </div>
-                <!-- /.row -->
-
-                <!-- Morris Charts -->
-                
-                <!-- /.row -->
-
-              
-                <!-- /.row -->
-
-                
-                <!-- /.row -->
 
             </div>
             <!-- /.container-fluid -->
