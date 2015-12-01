@@ -1,5 +1,6 @@
 <%@page import="DBWorks.DBConnection"%>
 <%@page import="Java.*" %>
+<%@page import="org.joda.time.DateTime" %>
 <%@page import="java.util.*" %>
 <%@page import="java.lang.*" %>
 
@@ -7,13 +8,14 @@
 <html lang="en">
 
 <head>
+
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Make Appointments Page - Student</title>
+    <title>Schedule NonCourse Exam Request Page - Instructor</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -30,11 +32,48 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+    <link href="css/addboxes.css" rel="stylesheet">
 
 </head>
 
 <body>
-
+	<%
+		String email = session.getAttribute("email").toString();
+		String id = session.getAttribute("id").toString();
+		String name = session.getAttribute("name").toString();
+		String termId = request.getParameter("termId");
+		String duration = request.getParameter("duration");
+		String studentList = request.getParameter("stuList");
+		String lName = "";
+		String fName = "";
+		
+		String netId = "";
+		List<String> fullList = new ArrayList<String>(Arrays.asList(studentList.split(":")));
+		List<String> netIdList = new ArrayList<String>();
+		for(String s: fullList)
+		{
+			netIdList.add(s.substring(0,s.indexOf(",")));
+		}
+	
+		Instructor instr = new Instructor(name, email, id);
+		DateTimeUtil dtUtil = new DateTimeUtil();
+		
+		String examId = request.getParameter("examId");
+		
+		String sDate = request.getParameter("sDate");
+		String sTime = request.getParameter("sTime");
+		
+		DateTime stDate = dtUtil.makeDateTime(sDate, sTime);
+		
+		String eDate = request.getParameter("eDate");
+		String eTime = request.getParameter("eTime");
+		
+		DateTime enDate = dtUtil.makeDateTime(sDate, sTime);
+		
+		// makeAdHocExam(int termId, String examName, DateTime start, DateTime end, int duration, List<String> students) {
+		
+		Boolean success = instr.makeAdHocExam(Integer.parseInt(termId), examId, stDate, enDate, Integer.parseInt(duration), netIdList);
+	%>
     <div id="wrapper">
 
         <!-- Navigation -->
@@ -144,13 +183,16 @@
             <div class="collapse navbar-collapse navbar-ex1-collapse">
                 <ul class="nav navbar-nav side-nav">
                     <li class="active">
-                        <a href="MakeAppointmentStudent.jsp"><span class="glyphicon glyphicon-calendar"></span></span></i> Make An Appointment</a>
+                        <a href="ScheduleExamRequest.jsp"><span class="glyphicon glyphicon-calendar"></span></span></i> Schedule Exam Request</a>
                     </li>
                     <li>
-                        <a href="SeeAppointmentList.jsp"><span class="glyphicon glyphicon-ok"></span></span></i> See Appointments</a>
+                        <a href="SeeExamRequests.jsp"><i class="fa fa-fw fa-table"></i> See Exam Requests</a>
                     </li>
                     <li>
-                        <a href="SetAppointmentReminder.jsp"><span class="glyphicon glyphicon-saved"></span></i> Set Appointment Reminder</a>
+                        <a href="ApptAttendanceDetails.jsp"><span class="glyphicon glyphicon-ok"></span></span></i> Appt/Attendance Details</a>
+                    </li>
+                    <li>
+                        <a href="#"><i class="fa fa-fw fa-dashboard"></i> Display Utilization Center</a>
                     </li>
                 </ul>
             </div>
@@ -160,58 +202,22 @@
         <div id="page-wrapper">
 
             <div class="container-fluid">
-            	<img src="img/appointmentsetting.png" alt="missing">
+
                 <!-- Page Heading -->
                 <div class="row">
                     <div class="col-lg-12">
                         <h1 class="page-header">
-                            Make Appointment
+                            <%if(success)
+                        	{%>Schedule Exam Confirmed<%}
+                        	else{%>Schedule Exam Failed<%}
+                        	%>
                         </h1>
                     </div>
                 </div>
-                
                 <div class="row">
-                	<form action="MakeAppointmentConfirmation.jsp" method="post">
+                	<form action="ScheduleNonExamConfirmation.jsp" method="post">
                 		<div class="col-sm-6re">
-                			<div class="form-group input-group">
                 			
-		                        <span class="input-group-addon">Exam ID</span>
-		                        <input name="examId" type="text" class="form-control" placeholder="IE:Test1">
-		                    </div>
-		                    
-		                    <div class="form-group input-group">
-		                    	<span class="input-group-addon">Appointment Id</span>
-		                        <input name="apptId" type="text" class="form-control" placeholder="123456">
-		                    </div>
-		
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Start Date</span>
-		                        <input name="sDate" type="text" class="form-control" placeholder="mm/dd/yyyy">
-		                    </div>
-		
-		                    <div class="form-group input-group">
-		                    	<span class="input-group-addon">Start Time</span>
-		                        <input name="sTime" type="text" class="form-control" placeholder="10:00am">
-		                    </div>
-		
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">End Date</span>
-		                        <input name="eDate" type="text" class="form-control" placeholder="mm/dd/yyyy">
-		                    </div>
-		                    
-		                    <div class="form-group input-group">
-		                    	<span class="input-group-addon">End Time</span>
-		                        <input name="eTime" type="text" class="form-control" placeholder="12:00pm">
-		                    </div>
-		                    
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Duration</span>
-		                        <input name="courseId" type="text" class="form-control" placeholder="IE:120">
-		                    </div>
-		                    
-		                    <button type="submit" value="submit">Submit</button>
-			                
-			                <div class="container">
 						</div>
 					</form>
                 </div>

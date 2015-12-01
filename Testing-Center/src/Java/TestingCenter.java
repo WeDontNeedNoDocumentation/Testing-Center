@@ -486,6 +486,7 @@ public class TestingCenter {
 	}
 
 	//cancel an exam given the particular combination of examId and instructorId
+	//test exists
 	public synchronized void cancelExam(String examId, String instructorId){
 		logger.info("Cancelling exam with exam ID: " + examId);
 		String queryString = String.format("DELETE FROM exam"
@@ -897,6 +898,7 @@ public class TestingCenter {
 	}
 
 	//check in a student for a particular exam, given the student's netID
+	//test exists
 	public int checkIn(String netID) {
 		DateTime now = DateTime.now();
 		DateTime thirty = new DateTime(0,1,1,0,30);
