@@ -113,10 +113,15 @@ public class TestAppointments {
 	//test to see that a student cannot make an appointment out of the date range for the exam
 	public void AtestAppointmentOutOfExamBounds() {
 		logger.info("Attempted to make appointment past the date range for this exam. Should fail due to surpassing the established date range.");
-		Exam exam = new Exam("exam1-copy", new DateTime(2005,1,1,10,1), new DateTime(2000,2,1,10,1), "SStoller", "81468-1158", 64, 60, true);
-		//boolean apptMade = st.makeAppointment("exam1-copy", new DateTime(2000,1,1,10,1), new DateTime(2000,1,1,10,1), new DateTime(2000, 1,1,11,1), 60);
+		//Exam exam = new Exam("exam1-copy", new DateTime(2005,1,1,10,1), new DateTime(2000,2,1,10,1), "SStoller", "81468-1158", 64, 60, true);
+		boolean apptMade = st.makeAppointment("exam2", new DateTime(2000,5,1,0,0), new DateTime(2000,5,1,0,0), new DateTime(2000, 5,11,0,0), 60);
+		assertFalse(apptMade);
 		
-		//assertFalse(apptMade);
+		apptMade = st.makeAppointment("exam2", new DateTime(2000,5,11,0,0), new DateTime(2000,5,11,0,0), new DateTime(2000, 5,20,0,0), 60);
+		assertFalse(apptMade);
+		
+		apptMade = st.makeAppointment("exam2", new DateTime(2000,5,11,0,0), new DateTime(2000,5,11,0,0), new DateTime(2000, 5,11,5,0), 60);
+		assertTrue(apptMade);
 	}
 	
 	@Test

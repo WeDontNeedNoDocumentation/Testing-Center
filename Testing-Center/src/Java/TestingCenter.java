@@ -1108,13 +1108,20 @@ public class TestingCenter {
 					appSeats.add(i, seatsAvailable.get(searchTime));
 				}
 				
-				for(int j = 0; j <numberOfSeats-numberOfSetAside;i++){
+				for(int j = 0; j <numberOfSeats-numberOfSetAside;j++){
 					searchTime = apEnd;
 					boolean aval = true;
 					for(String[] slot : appSeats) {
-						if(slot[j] != null || slot[j-1] == examId||slot[j+1] == examId){
-							aval = false;
-							break;
+						if(j==0) {
+							if(slot[j] != null||slot[j+1] == examId){
+								aval = false;
+								break;
+							}
+						} else {
+							if(slot[j] != null || slot[j-1] == examId||slot[j+1] == examId){
+								aval = false;
+								break;
+							}
 						}
 						if(aval) {
 							for(String[] slotFill : appSeats) {
