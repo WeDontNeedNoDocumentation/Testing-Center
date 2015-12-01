@@ -41,7 +41,7 @@ public class TestAppointments {
 		db.updateQuery("USE Test");
 
 		db.updateQuery("CREATE TABLE student (firstName varchar(45), lastName varchar(45), studentId varchar(45), email varchar(45))");
-		db.updateQuery("CREATE TABLE appointment (examIdA varchar(45), studentIdA varchar(45), dateId bigint(20), seatId int(11), appointmentId int(11), startTime bigint(20), endTime bigint(20))");
+		db.updateQuery("CREATE TABLE appointment (examIdA varchar(45), studentIdA varchar(45), dateId bigint(20), seatId int(11), appointmentId int(11), startTime bigint(20), endTime bigint(20), checkedIn tinyint(1))");
 		db.updateQuery("CREATE TABLE exam (examId varchar(45), start bigint(20), end bigint(20), boolCourseExam varchar(45), examStatus varchar(45), instructorIdA varchar(45), numSeats int, examLength int, courseId varchar(45))");
 		db.updateQuery("CREATE TABLE instructor (instructorId varchar(45), name varchar(45), email varchar(45))");
 //		db.updateQuery("CREATE TABLE courseexam (examIdCE varchar(45), courseIdCE varchar(45))");
@@ -68,6 +68,7 @@ public class TestAppointments {
 	}
 	
 	@Test
+	//check to see that given the necessary parameters, an exam is made within the database
 	public void AAtestStudentCreateAppointment() {
 		logger.info("Testing Student's ability to create an appointment.");
 		
@@ -90,6 +91,7 @@ public class TestAppointments {
 	}
 	
 	@Test
+	//test to see that an existing appointment cannot be made again
 	public void AtestExistingAppointment() {
 		logger.info("Attempted to make appointment for same exam. Should fail due to existing appointment.");
 		Exam exam = new Exam("exam1", null, null, "SStoller", "81468-1158", 64, 60, true);
@@ -98,6 +100,7 @@ public class TestAppointments {
 	}
 	
 	@Test
+	//test to see that a student cannot make an overlapping appointment
 	public void AtestConflictingAppointment() {
 		logger.info("Attempted to make appointment at same time for different exam. Should fail due to conflicting appointment.");
 		Exam exam = new Exam("exam1-copy", null, null, "SStoller", "81468-1158", 64, 60, true);
@@ -107,6 +110,17 @@ public class TestAppointments {
 	}
 	
 	@Test
+	//test to see that a student cannot make an appointment out of the date range for the exam
+	public void AtestAppointmentOutOfExamBounds() {
+		logger.info("Attempted to make appointment past the date range for this exam. Should fail due to surpassing the established date range.");
+		Exam exam = new Exam("exam1-copy", new DateTime(2005,1,1,10,1), new DateTime(2000,2,1,10,1), "SStoller", "81468-1158", 64, 60, true);
+		//boolean apptMade = st.makeAppointment("exam1-copy", new DateTime(2000,1,1,10,1), new DateTime(2000,1,1,10,1), new DateTime(2000, 1,1,11,1), 60);
+		
+		//assertFalse(apptMade);
+	}
+	
+	@Test
+	//get the number of appointments for today
 	public void AtestAppointmentPerDay() {
 		Map<LocalDate, Integer> apptsPerDay = tc.appointmentsPerDay(1158);
 		

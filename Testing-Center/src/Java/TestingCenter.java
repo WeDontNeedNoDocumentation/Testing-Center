@@ -29,6 +29,7 @@ import javax.mail.internet.MimeMessage;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
 import org.joda.time.Days;
+import org.joda.time.Duration;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.Period;
@@ -190,13 +191,28 @@ public class TestingCenter {
 	}
 	
 	//make an appointment to take an exam
-	public synchronized boolean makeAppointment(String examId, DateTime time, String netID, DateTime startTime, DateTime endTime, int duration) throws ExistingAppointmentException {
+	//test exists
+	//none of these fields may be null
+	//netId must exist in the student table
+	//startTime<endTime
+	public synchronized boolean makeAppointment(String examId, DateTime time, String netID, DateTime startTime, DateTime endTime) throws ExistingAppointmentException {
 		logger.info("Creating new Appointment");
 		logger.fine("Exam id: " + examId);
 		logger.fine("Student ID: " + netID);
 		logger.fine("Appointment start time: " + time.toString());
 		//logger.fine("Appointment ID: " + appointmentId);
 		
+		if(startTime.isAfter(endTime)){
+			return false;
+		}
+		
+		String qString = String.format("SELECT firstName FROM student WHERE "
+				+ "studentId='%s'", netID);
+		List<Map<String, Object>> response = Database.getDatabase().query(qString);
+
+		if(response.isEmpty())
+			return false;
+			
 		if (hasAppointment(netID, examId)) {
 			logger.warning("Student " + netID + " already has appointment for exam " + examId);
 			//throw new ExistingAppointmentException("Student " + netID + " already has appointment for exam " + exam.getExamID());
@@ -215,6 +231,7 @@ public class TestingCenter {
 			return false;
 		}
 		
+		long duration = new Duration(startTime, endTime).getStandardMinutes();
 
 		boolean avalSeat = false;
 		long start = startTime.getMillis()/1000;
@@ -288,6 +305,9 @@ public class TestingCenter {
 		return ((long) exam.get("start") > endTime.getMillis()/1000) || ((long) exam.get("end") < startTime.getMillis()/1000); 
 	}
 
+	//check to see whether this student is attempting to make another appointment which overlaps
+	//an existing appointment
+	//test exists
 	private boolean conflictingAppointment(String netID, DateTime startTime, DateTime endTime) {
 		String queryString = String.format("SELECT appointmentId "
 				+ "FROM appointment "
@@ -303,6 +323,7 @@ public class TestingCenter {
 		return appointments.size() > 0; 
 	}
 
+	//return whether the student currently has an appointment for this exam
 	private boolean hasAppointment(String netID, String examID) {
 		String queryString = String.format("SELECT appointmentId "
 				+ "FROM appointment "
@@ -316,6 +337,7 @@ public class TestingCenter {
 	}
 
 	//Allows the user to cancel a student appointment, given the appointment id
+	//test exists
 	public synchronized boolean cancelAppointment(int appID) {
 		logger.info("Cancelling appointment with ID " + appID);
 		
@@ -386,9 +408,13 @@ public class TestingCenter {
 	//Make a reservation for an exam, given the examID, start time, end time,
 	//whether it is a course exam or an adhoc exam, and the instructor id
 	//examId, start, end, courseExam, instId, numSeats, duration, courseId
+	//test exists
+	//start<end
+	//courseExam == true || courseExam == false
+	//instructorId must exist in the table
+	//numSeats > 0 && duration > 0
+	//courseId must exist in the table 
 	public synchronized boolean makeReservation(String examId, DateTime start, DateTime end, boolean courseExam, String instructorId, int numSeats, int duration, String courseId) {
-		logger.severe("DOES NOT ADD ALL OF THE NECESSARY FIELDS. FIX THIS PLEASE.");
-		
 		logger.info("Creating new reservation request.");
 		logger.fine("Exam ID: " + examId);
 		logger.fine("Exam start time: " + start.toString());
@@ -400,6 +426,37 @@ public class TestingCenter {
 		logger.fine("Duration (minutes): " + duration);
 		logger.fine("Course ID: " + courseId);
 		
+		if(start.isAfter(end)){
+			return false;
+		}
+		
+		if(numSeats<=0 || duration<=0){
+			return false;
+		}
+		
+		String qString = String.format("SELECT courseId FROM exam WHERE "
+				+ "examId='%s'", examId);
+		List<Map<String, Object>> response = Database.getDatabase().query(qString);
+
+		if(response.isEmpty()){
+			return false;
+		}
+		
+		String rString = String.format("SELECT firstName FROM instructor WHERE "
+				+ "instructorId='%s'", instructorId);
+		response = Database.getDatabase().query(rString);
+
+		if(response.isEmpty()){
+			return false;
+		}
+		
+		String sString = String.format("SELECT termId FROM course WHERE "
+				+ "courseTerm='%s'", courseId);
+		response = Database.getDatabase().query(sString);
+
+		if(response.isEmpty()){
+			return false;
+		}
 		
 		String queryString = String.format("INSERT INTO exam "
 				+ "(examId, start, end, boolCourseExam, examStatus, instructorIdA, numSeats, examLength, courseId) "
@@ -420,6 +477,7 @@ public class TestingCenter {
 	}
 
 	//cancel an exam given the particular combination of examId and instructorId
+	//test exists
 	public synchronized void cancelExam(String examId, String instructorId){
 		logger.info("Cancelling exam with exam ID: " + examId);
 		String queryString = String.format("DELETE FROM exam"
@@ -831,6 +889,7 @@ public class TestingCenter {
 	}
 
 	//check in a student for a particular exam, given the student's netID
+	//test exists
 	public int checkIn(String netID) {
 		DateTime now = DateTime.now();
 		DateTime thirty = new DateTime(0,1,1,0,30);
@@ -860,7 +919,7 @@ public class TestingCenter {
 		if (seat != -1) {
 			db.query(
 					String.format("UPDATE appointment "
-					+ "SET checkedIn = 'T' "
+					+ "SET checkedIn = 1 "
 					+ "WHERE studentIdA = '%s' AND dateIdA = %d", 
 					netID,
 					search.getMillis()/1000
@@ -1656,7 +1715,7 @@ public class TestingCenter {
 			String netID = (String) student.get("netID");
 			DateTime start = new DateTime( (long) student.get("startTime"));
 			int seatId = (int) student.get("seatId");
-			boolean checkedIn = ((String) student.get("checkedIn")).equals("T");
+			boolean checkedIn = (int) student.get("checkedIn") == 1;
 
 			Attendance att = new Attendance(netID, start, seatId, checkedIn);
 			
@@ -1693,8 +1752,8 @@ public class TestingCenter {
 		
 		//tc.updateData("user.csv", "class.csv", "roster.csv");
 		
-		tc.makeAppointment("test-exam-1", DateTime.now(), "a", new DateTime(2015, 1, 1, 12, 0), new DateTime(2015, 1, 1, 13, 0), 60);
-		tc.makeAppointment("test-exam-1", DateTime.now(), "abinning", new DateTime(2015, 1, 1, 12, 0), new DateTime(2015, 1, 1, 13, 0), 60);
+		tc.makeAppointment("test-exam-1", DateTime.now(), "a", new DateTime(2015, 1, 1, 12, 0), new DateTime(2015, 1, 1, 13, 0));
+		tc.makeAppointment("test-exam-1", DateTime.now(), "abinning", new DateTime(2015, 1, 1, 12, 0), new DateTime(2015, 1, 1, 13, 0));
 	}
 
 }
