@@ -1625,8 +1625,7 @@ public class TestingCenter {
 				+ "ON student.studentId = appointment.studentIdA "
 				+ "INNER JOIN exam "
 				+ "ON appointment.examIdA = exam.examId "
-				+ "WHERE examId = '%d';",
-				examId);
+				+ "WHERE examId = '"+examId+"';");
 		List<Map<String, Object>> students = Database.getDatabase().query(queryString);
 		
 		for (Map<String, Object> student : students) {
