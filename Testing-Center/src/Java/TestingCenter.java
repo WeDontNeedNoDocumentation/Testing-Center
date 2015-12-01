@@ -394,7 +394,7 @@ public class TestingCenter {
 			DateTime end = new DateTime((long) appt.get("endTime")*1000);
 			int appointmentId = (int) appt.get("appointmentId");
 			int seatNumber = (int) appt.get("seatId");
-			boolean checkedIn = (int) appt.get("checkedIn") == 1;
+			boolean checkedIn = ((String) appt.get("checkedIn")).equals("1");
 			
 			Appointment newAppointment = new Appointment(examId, netId, start, end, appointmentId, seatNumber, checkedIn);
 			appointments.add(newAppointment);
@@ -1297,6 +1297,7 @@ public class TestingCenter {
 			nowM = nowM %(60);
 			long thirtyM = thirty.getMillisOfDay()/60000;
 			DateTime search = null;
+			DateTime searchUntil = null;
 			if (nowM<thirtyM) {
 				search = now.hourOfDay().roundFloorCopy();
 				search = search.plusHours(reminderInt.getHours());
@@ -1305,17 +1306,18 @@ public class TestingCenter {
 				search = search.withMinuteOfHour(30);
 				search = search.plusHours(reminderInt.getHours());
 			}
+			searchUntil=search.plusHours(reminderInt.getHours());
 			List<Map<String,Object>> appointments = db.query(
 					String.format("SELECT examIdA, studentIdA, dateId, seatId, appointmentID "
 					+ "FROM appointment "
-					+ "WHERE dateId = '%d'",
-					search.getMillis()/1000
+					+ "WHERE startTime >= '%d' AND endTime <= '%d'",
+					search.getMillis()/1000, searchUntil.getMillis()/1000
 					));
 			
 			
 			for (Map<String,Object> appointment : appointments) {
 				String queryString = String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorId, numSeats, examLength, courseId FROM exam"
-						+ "WHERE examID = '%s'",
+						+ " WHERE examID = '%s'",
 						appointment.get("examIdA"));
 				List<Map<String,Object>> exams = db.query(queryString);
 				

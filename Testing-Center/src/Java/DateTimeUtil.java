@@ -27,4 +27,24 @@ public class DateTimeUtil
 		
 		return dateTime;
 	}
+	
+	public String getTime(int hours, int mins)
+	{
+		String hour = String.valueOf(hours);
+		String min = "";
+		String amPm = "am";
+		
+		if(hours == 0)
+		{hour = "12";}
+		else if (hours > 12)
+		{
+			hour = String.valueOf(hours-12);
+			amPm = "pm";
+		}
+		if (Integer.parseInt(hour) < 10)
+		{hour = "0"+hour;}
+		if (mins < 10)
+		{min = "0"+mins;}
+		return (hour +":"+min+amPm);
+	}
 }
