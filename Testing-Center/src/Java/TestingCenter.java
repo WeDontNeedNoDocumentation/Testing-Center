@@ -1766,6 +1766,7 @@ public class TestingCenter {
 				+ "INNER JOIN exam "
 				+ "ON course.courseTerm = exam.courseId "
 				+ "WHERE course.termId = %d "
+				+ "AND exam.boolCourseExam = '1' "
 				+ "GROUP BY course.courseTerm;",
 				term);
 		List<Map<String, Object>> courses = Database.getDatabase().query(queryString);

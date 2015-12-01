@@ -154,11 +154,11 @@
                 </h3>
             </div>
             <div class="col-md-3 portfolio-item">
-                <a href="#">
+                <a href="GenerateReports.jsp">
                     <img class="img-responsive" src="img/generatereport.png" alt="">
                 </a>
                 <h3>
-                    <a href="#">Generate Report</a>
+                    <a href="GenerateReports.jsp">Generate Report</a>
                 </h3>
             </div>
         </div>
