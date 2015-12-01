@@ -108,7 +108,7 @@ public class Student {
 	 * @return
 	 */
 	public boolean makeAppointment(String examId, DateTime time, DateTime start, DateTime end, int duration) {
-		return tC.makeAppointment(examId, time, netID, start, end, duration);
+		return tC.makeAppointment(examId, time, netID, start, end);
 	}
 	
 	/**

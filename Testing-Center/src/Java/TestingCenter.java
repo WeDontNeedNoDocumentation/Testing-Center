@@ -29,6 +29,7 @@ import javax.mail.internet.MimeMessage;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
 import org.joda.time.Days;
+import org.joda.time.Duration;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.Period;
@@ -194,7 +195,7 @@ public class TestingCenter {
 	//none of these fields may be null
 	//netId must exist in the student table
 	//startTime<endTime
-	public synchronized boolean makeAppointment(String examId, DateTime time, String netID, DateTime startTime, DateTime endTime, int duration) throws ExistingAppointmentException {
+	public synchronized boolean makeAppointment(String examId, DateTime time, String netID, DateTime startTime, DateTime endTime) throws ExistingAppointmentException {
 		logger.info("Creating new Appointment");
 		logger.fine("Exam id: " + examId);
 		logger.fine("Student ID: " + netID);
@@ -230,6 +231,7 @@ public class TestingCenter {
 			return false;
 		}
 		
+		long duration = new Duration(startTime, endTime).getStandardMinutes();
 
 		boolean avalSeat = false;
 		long start = startTime.getMillis()/1000;
@@ -1748,8 +1750,8 @@ public class TestingCenter {
 		
 		//tc.updateData("user.csv", "class.csv", "roster.csv");
 		
-		tc.makeAppointment("test-exam-1", DateTime.now(), "a", new DateTime(2015, 1, 1, 12, 0), new DateTime(2015, 1, 1, 13, 0), 60);
-		tc.makeAppointment("test-exam-1", DateTime.now(), "abinning", new DateTime(2015, 1, 1, 12, 0), new DateTime(2015, 1, 1, 13, 0), 60);
+		tc.makeAppointment("test-exam-1", DateTime.now(), "a", new DateTime(2015, 1, 1, 12, 0), new DateTime(2015, 1, 1, 13, 0));
+		tc.makeAppointment("test-exam-1", DateTime.now(), "abinning", new DateTime(2015, 1, 1, 12, 0), new DateTime(2015, 1, 1, 13, 0));
 	}
 
 }
