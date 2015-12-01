@@ -46,7 +46,7 @@ public class Appointment
 		return appointmentId;
 	}
 	
-	public void cancelAppointment() {
-		TestingCenter.getTestingCenter().cancelAppointment(appointmentId);
+	public boolean cancelAppointment() {
+		return TestingCenter.getTestingCenter().cancelAppointment(appointmentId);
 	}
 }
