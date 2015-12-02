@@ -15,7 +15,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Make Appointment for Student - Admin</title>
+    <title>Approve/Deny Reservation Page - Admin</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -32,7 +32,6 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
-    <link href="css/addboxes.css" rel="stylesheet">
 
 </head>
 
@@ -146,112 +145,71 @@
             <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
             <div class="collapse navbar-collapse navbar-ex1-collapse">
                 <ul class="nav navbar-nav side-nav">
-                   	<li>
-	                    <a href="EditTestingCenter.jsp"><span class="glyphicon glyphicon-calendar"></span></span></i> Edit Testing Center</a>
-	                </li>
-	                <li class="active">
-	                    <a href="MakeAppointment.jsp"><i class="fa fa-fw fa-table"></i> Make Appointment</a>
-	                </li>
-	                <li>
-	                    <a href="ApproveDenyResv.jsp"><span class="glyphicon glyphicon-ok"></span></span></i> Approve/Reject RSV</a>
-	                </li>
-	                <li>
-	                    <a href="StudentCheckinPage.jsp"><span class="glyphicon glyphicon-saved"></span></i> Check-in Student</a>
-	                </li>
-	                <li>
-	                    <a href="ViewAppointments.jsp"><span class="glyphicon glyphicon-list"></span></i> View Appointments</a>
-	                </li>
-	                <li>
-	                    <a href="CancelEditAppointment.jsp"><i class="fa fa-fw fa-wrench"></i> Cancel/Edit Appointments</a>
-	                </li>
-	                <li>
-	                    <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i class="fa fa-fw fa-arrows-v"></i> Import <i class="fa fa-fw fa-caret-down"></i></a>
-	                    <ul id="demo" class="collapse">
-	                        <li>
-	                            <a href="ImportData.jsp">Import Users</a>
-	                        </li>
-	                        <li>
-	                            <a href="ImportData.jsp">Import Class</a>
-	                        </li>
-	                        <li>
-	                            <a href="ImportData.jsp">Import Roster</a>
-	                        </li>
-	                    </ul>
-	                </li>
-	                <li>
-	                    <a href="index-rtl.html"><i class="fa fa-fw fa-dashboard"></i> Display Utilization Center</a>
-	                </li>
-	                <li>
-	                    <a href="blank-page.html"><i class="fa fa-fw fa-file"></i> Generate Report</a>
-	                </li>
+                    <li>
+                        <a href="EditTestingCenter.jsp"><span class="glyphicon glyphicon-calendar"></span></span></i> Edit Testing Center</a>
+                    </li>
+                    <li>
+                        <a href="MakeAppointment.jsp"><i class="fa fa-fw fa-table"></i> Make Appointment</a>
+                    </li>
+                    <li class="active">
+                        <a href="ApproveDenyResv.jsp"><span class="glyphicon glyphicon-ok"></span></span></i> Approve/Reject RSV</a>
+                    </li>
+                    <li>
+                        <a href="StudentCheckinPage.jsp"><span class="glyphicon glyphicon-saved"></span></i> Check-in Student</a>
+                    </li>
+                    <li>
+                        <a href="ViewAppointments.jsp"><span class="glyphicon glyphicon-list"></span></i> View Appointments</a>
+                    </li>
+                    <li>
+                        <a href="CancelEditAppointment.jsp"><i class="fa fa-fw fa-wrench"></i> Cancel/Edit Appointments</a>
+                    </li>
+                    <li>
+                        <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i class="fa fa-fw fa-arrows-v"></i> Import <i class="fa fa-fw fa-caret-down"></i></a>
+                        <ul id="demo" class="collapse">
+                            <li>
+                                <a href="ImportData.jsp">Import Users</a>
+                            </li>
+                            <li>
+                                <a href="ImportData.jsp">Import Class</a>
+                            </li>
+                            <li>
+                                <a href="ImportData.jsp">Import Roster</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="index-rtl.html"><i class="fa fa-fw fa-dashboard"></i> Display Utilization Center</a>
+                    </li>
+                    <li>
+                        <a href="blank-page.html"><i class="fa fa-fw fa-file"></i> Generate Report</a>
+                    </li>
                 </ul>
             </div>
             <!-- /.navbar-collapse -->
         </nav>
 
         <div id="page-wrapper">
-
+					<%
+		                String email = session.getAttribute("email").toString();
+						String name = session.getAttribute("name").toString();
+						String examId = request.getParameter("examId").substring(0,request.getParameter("examId").length()-2);
+						String newStatus = request.getParameter("examId").substring(examId.length());
+						System.out.println(examId);
+						System.out.println(newStatus);
+					
+						Administrator admin = new Administrator(name, email);
+						admin.setExamStatus(examId, newStatus);
+               		%>
             <div class="container-fluid">
-
                 <!-- Page Heading -->
-                <div class="row">
-                    <div class="col-lg-12">
-                        <h1 class="page-header">
-                            Make Appointment for Student
-                        </h1>
-                    </div>
-                </div>
-                <%
-	                String email = session.getAttribute("email").toString();
-					String name = session.getAttribute("name").toString();
-				
-					Administrator admin = new Administrator(name, email);
-					DateTimeUtil dtUtil = new DateTimeUtil();
-                %>
-                
-                <div class="row">
-                	<form action="MakeAppointmentAdminConfirmation.jsp" method="post">
-                		<div class="col-sm-6re">
-                			<div class="form-group input-group">
-		                        <span class="input-group-addon">Exam ID</span>
-		                        <input name="examId" type="text" class="form-control" placeholder="IE:Test1">
-		                    </div>
-		                    
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Student NetID</span>
-		                        <input name="netId" type="text" class="form-control" placeholder="IE:jsmith">
-		                    </div>
-		
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Start Date</span>
-		                        <input name="sDate" type="text" class="form-control" maxlength="10" placeholder="mm/dd/yyyy">
-		                    </div>
-		
-		                    <div class="form-group input-group">
-		                    	<span class="input-group-addon">Start Time</span>
-		                        <input name="sTime" type="text" class="form-control" maxlength="7" placeholder="10:00am">
-		                    </div>
-		
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">End Date</span>
-		                        <input name="eDate" type="text" class="form-control" maxlength="10" placeholder="mm/dd/yyyy">
-		                    </div>
-		                    
-		                    <div class="form-group input-group">
-		                    	<span class="input-group-addon">End Time</span>
-		                        <input name="eTime" type="text" class="form-control" maxlength="7" placeholder="12:00pm">
-		                    </div>
-		                    
-		                    <div>
-		                    	<input type="checkbox" name="setAside" value="0">Set-Aside Seat?<br>
-		                    </div>
-		                    
-		                    <button type="submit" value="submit">Submit</button>
-			                
-			                <div class="container">
-						</div>
-					</form>
-                </div>
+                <img src="img/viewappointmentsimg.png" alt="missing">
+                    <div class="row">
+	                    <div class="col-lg-12">
+	                        <h1 class="page-header">
+	                            See Pending Exams by Term ID
+	                        </h1>
+	                    </div>
+	                </div>
             </div>
             <!-- /.container-fluid -->
 

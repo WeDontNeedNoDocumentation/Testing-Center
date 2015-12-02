@@ -1,3 +1,9 @@
+<%@page import="DBWorks.DBConnection"%>
+<%@page import="Java.*" %>
+<%@page import="org.joda.time.DateTime" %>
+<%@page import="java.util.*" %>
+<%@page import="java.lang.*" %>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -161,13 +167,13 @@
                         <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i class="fa fa-fw fa-arrows-v"></i> Import <i class="fa fa-fw fa-caret-down"></i></a>
                         <ul id="demo" class="collapse">
                             <li>
-                                <a href="#">Import Users</a>
+                                <a href="ImportData.jsp">Import Users</a>
                             </li>
                             <li>
-                                <a href="#">Import Class</a>
+                                <a href="ImportData.jsp">Import Class</a>
                             </li>
                             <li>
-                                <a href="#">Import Roster</a>
+                                <a href="ImportData.jsp">Import Roster</a>
                             </li>
                         </ul>
                     </li>
@@ -185,55 +191,29 @@
         <div id="page-wrapper">
 
             <div class="container-fluid">
-
                 <!-- Page Heading -->
-                <div class="row">
-                    <div class="col-lg-12">
-                        <h1 class="page-header">
-                            Approve/Reject Reservations
-                        </h1>
+                <img src="img/viewappointmentsimg.png" alt="missing">
+                    <div class="row">
+	                    <div class="col-lg-12">
+	                        <h1 class="page-header">
+	                            See Pending Exams by Term ID
+	                        </h1>
+	                    </div>
+	                </div>
+	                <div class="row">
+                        <form action="ApproveDenyResvList.jsp" method="post">
+	                		<div class="col-sm-6re">
+	                			
+	                			<div class="form-group input-group">
+			                        <span class="input-group-addon">Term ID</span>
+			                        <input name="termId" type="text" class="form-control" placeholder="IE:1158">
+			                    </div>
+			                    
+			                    <button type="submit" value="submit">Submit</button>
+				                
+							</div>
+						</form>
                     </div>
-                </div>
-				<h2>Reservations</h2>
-                <div class="row">
-	                <table class="table table-bordered table-hover">
-	                    <thead>
-	                    <!-- Columns course id section# term, duration, start date and time and end date and time -->
-	                        <tr class="active">
-	                            <th>Course ID</th>
-	                            <th>Section</th>
-	                            <th>Term</th>
-	                            <th>Duration</th>
-	                            <th>Start Date</th>
-	                            <th>Time</th>
-	                            <th>End Date</th>
-	                            <th>Time</th>
-	                            <th>Action</th>
-	                        </tr>
-	                    <!-- /Columns -->
-	                    </thead>
-	                    <tbody>
-	                        <tr>
-	                        <!--enter code here for table -->
-	                        <%  %>
-	                        <!-- row entries -->
-	                            <td>123456789</td>
-	                            <td>2</td>
-	                            <td>Fall 2015</td>
-	                            <td>90</td>
-	                            <td>11/21/15</td>
-	                            <td>11:00AM</td>
-	                            <td>11/22/15</td>
-	                            <td>1:00PM</td>
-	                            <td>
-		                            <button type="button" class="btn btn-sm btn-success">Approve</button>
-		                    		<button type="button" class="btn btn-sm btn-danger">Deny</button>
-	                    		</td>
-	                        <!-- /row entries -->    
-	                        </tr>
-	                    </tbody>
-	                </table>
-                </div>
             </div>
             <!-- /.container-fluid -->
 

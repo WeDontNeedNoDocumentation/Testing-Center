@@ -631,10 +631,10 @@ public class TestingCenter {
 		logger.info("Retrieving all pending exam reservation requests.");
 		
 		List<Map<String,Object>> exams = db.query(
-				String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorIdA, numSeats, courseId, examLength "
+				String.format("SELECT examId, start, end, boolCourseExam, examStatus, instructorIdA, numSeats, exam.courseId, examLength "
 				+ "FROM exam "
 				+ "LEFT JOIN course "
-				+ "ON exam.courseId = course.courseTerm"
+				+ "ON exam.courseId = course.courseTerm "
 				+ "WHERE examStatus = 'P' "
 				+ "AND course.termId = %d",
 				term

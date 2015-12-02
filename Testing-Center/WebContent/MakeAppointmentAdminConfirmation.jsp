@@ -8,14 +8,13 @@
 <html lang="en">
 
 <head>
-
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Make Appointment for Student - Admin</title>
+    <title>Make Appointment for Student Confirmation Page - Admin</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -32,12 +31,32 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
-    <link href="css/addboxes.css" rel="stylesheet">
 
 </head>
 
 <body>
-
+	<% 
+		String email = session.getAttribute("email").toString();
+		String name = session.getAttribute("name").toString();
+	
+		Administrator admin = new Administrator(name, email);
+		DateTimeUtil dtUtil = new DateTimeUtil();
+		
+		String examId = request.getParameter("examId");
+		String netId = request.getParameter("netId");
+  		String sDate = request.getParameter("sDate");
+  		String sTime = request.getParameter("sTime");
+  		
+  		DateTime stDate = dtUtil.makeDateTime(sDate, sTime);
+  		
+  		String eDate = request.getParameter("eDate");
+  		String eTime = request.getParameter("eTime");
+  		
+  		DateTime enDate = dtUtil.makeDateTime(eDate, eTime);
+  		int duration = enDate.getMinuteOfDay()-stDate.getMinuteOfDay();
+      	
+  		Boolean success = admin.makeAppointment(examId, stDate, netId, stDate, enDate, duration);
+    %>
     <div id="wrapper">
 
         <!-- Navigation -->
@@ -192,65 +211,20 @@
         <div id="page-wrapper">
 
             <div class="container-fluid">
-
+            	<img src="img/appointmentsetting.png" alt="missing">
                 <!-- Page Heading -->
                 <div class="row">
                     <div class="col-lg-12">
                         <h1 class="page-header">
-                            Make Appointment for Student
+                            <%if(success)
+                        	{%>Make Appointment Confirmed<%}
+                        	else{%>Make Appointment Failed<%}
+                        	%>
                         </h1>
                     </div>
                 </div>
-                <%
-	                String email = session.getAttribute("email").toString();
-					String name = session.getAttribute("name").toString();
-				
-					Administrator admin = new Administrator(name, email);
-					DateTimeUtil dtUtil = new DateTimeUtil();
-                %>
-                
                 <div class="row">
-                	<form action="MakeAppointmentAdminConfirmation.jsp" method="post">
-                		<div class="col-sm-6re">
-                			<div class="form-group input-group">
-		                        <span class="input-group-addon">Exam ID</span>
-		                        <input name="examId" type="text" class="form-control" placeholder="IE:Test1">
-		                    </div>
-		                    
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Student NetID</span>
-		                        <input name="netId" type="text" class="form-control" placeholder="IE:jsmith">
-		                    </div>
-		
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">Start Date</span>
-		                        <input name="sDate" type="text" class="form-control" maxlength="10" placeholder="mm/dd/yyyy">
-		                    </div>
-		
-		                    <div class="form-group input-group">
-		                    	<span class="input-group-addon">Start Time</span>
-		                        <input name="sTime" type="text" class="form-control" maxlength="7" placeholder="10:00am">
-		                    </div>
-		
-		                    <div class="form-group input-group">
-		                        <span class="input-group-addon">End Date</span>
-		                        <input name="eDate" type="text" class="form-control" maxlength="10" placeholder="mm/dd/yyyy">
-		                    </div>
-		                    
-		                    <div class="form-group input-group">
-		                    	<span class="input-group-addon">End Time</span>
-		                        <input name="eTime" type="text" class="form-control" maxlength="7" placeholder="12:00pm">
-		                    </div>
-		                    
-		                    <div>
-		                    	<input type="checkbox" name="setAside" value="0">Set-Aside Seat?<br>
-		                    </div>
-		                    
-		                    <button type="submit" value="submit">Submit</button>
-			                
-			                <div class="container">
-						</div>
-					</form>
+                	
                 </div>
             </div>
             <!-- /.container-fluid -->
