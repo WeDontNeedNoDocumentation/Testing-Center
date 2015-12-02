@@ -8,14 +8,13 @@
 <html lang="en">
 
 <head>
-
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Approve/Deny Reservation Page - Admin</title>
+    <title>Make Appointment for Student Confirmation Page - Admin</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -36,7 +35,28 @@
 </head>
 
 <body>
-
+	<% 
+		String email = session.getAttribute("email").toString();
+		String name = session.getAttribute("name").toString();
+	
+		Administrator admin = new Administrator(name, email);
+		DateTimeUtil dtUtil = new DateTimeUtil();
+		
+		String examId = request.getParameter("examId");
+		String netId = request.getParameter("netId");
+  		String sDate = request.getParameter("sDate");
+  		String sTime = request.getParameter("sTime");
+  		
+  		DateTime stDate = dtUtil.makeDateTime(sDate, sTime);
+  		
+  		String eDate = request.getParameter("eDate");
+  		String eTime = request.getParameter("eTime");
+  		
+  		DateTime enDate = dtUtil.makeDateTime(eDate, eTime);
+  		int duration = enDate.getMinuteOfDay()-stDate.getMinuteOfDay();
+      	
+  		Boolean success = admin.makeAppointment(examId, stDate, netId, stDate, enDate, duration);
+    %>
     <div id="wrapper">
 
         <!-- Navigation -->
@@ -145,44 +165,44 @@
             <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
             <div class="collapse navbar-collapse navbar-ex1-collapse">
                 <ul class="nav navbar-nav side-nav">
-                    <li>
-                        <a href="EditTestingCenter.jsp"><span class="glyphicon glyphicon-calendar"></span></span></i> Edit Testing Center</a>
-                    </li>
-                    <li>
-                        <a href="MakeAppointment.jsp"><i class="fa fa-fw fa-table"></i> Make Appointment</a>
-                    </li>
-                    <li class="active">
-                        <a href="ApproveDenyResv.jsp"><span class="glyphicon glyphicon-ok"></span></span></i> Approve/Reject RSV</a>
-                    </li>
-                    <li>
-                        <a href="StudentCheckinPage.jsp"><span class="glyphicon glyphicon-saved"></span></i> Check-in Student</a>
-                    </li>
-                    <li>
-                        <a href="ViewAppointments.jsp"><span class="glyphicon glyphicon-list"></span></i> View Appointments</a>
-                    </li>
-                    <li>
-                        <a href="CancelEditAppointment.jsp"><i class="fa fa-fw fa-wrench"></i> Cancel/Edit Appointments</a>
-                    </li>
-                    <li>
-                        <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i class="fa fa-fw fa-arrows-v"></i> Import <i class="fa fa-fw fa-caret-down"></i></a>
-                        <ul id="demo" class="collapse">
-                            <li>
-                                <a href="ImportData.jsp">Import Users</a>
-                            </li>
-                            <li>
-                                <a href="ImportData.jsp">Import Class</a>
-                            </li>
-                            <li>
-                                <a href="ImportData.jsp">Import Roster</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="index-rtl.html"><i class="fa fa-fw fa-dashboard"></i> Display Utilization Center</a>
-                    </li>
-                    <li>
-                        <a href="blank-page.html"><i class="fa fa-fw fa-file"></i> Generate Report</a>
-                    </li>
+                   	<li>
+	                    <a href="EditTestingCenter.jsp"><span class="glyphicon glyphicon-calendar"></span></span></i> Edit Testing Center</a>
+	                </li>
+	                <li class="active">
+	                    <a href="MakeAppointment.jsp"><i class="fa fa-fw fa-table"></i> Make Appointment</a>
+	                </li>
+	                <li>
+	                    <a href="ApproveDenyResv.jsp"><span class="glyphicon glyphicon-ok"></span></span></i> Approve/Reject RSV</a>
+	                </li>
+	                <li>
+	                    <a href="StudentCheckinPage.jsp"><span class="glyphicon glyphicon-saved"></span></i> Check-in Student</a>
+	                </li>
+	                <li>
+	                    <a href="ViewAppointments.jsp"><span class="glyphicon glyphicon-list"></span></i> View Appointments</a>
+	                </li>
+	                <li>
+	                    <a href="CancelEditAppointment.jsp"><i class="fa fa-fw fa-wrench"></i> Cancel/Edit Appointments</a>
+	                </li>
+	                <li>
+	                    <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i class="fa fa-fw fa-arrows-v"></i> Import <i class="fa fa-fw fa-caret-down"></i></a>
+	                    <ul id="demo" class="collapse">
+	                        <li>
+	                            <a href="ImportData.jsp">Import Users</a>
+	                        </li>
+	                        <li>
+	                            <a href="ImportData.jsp">Import Class</a>
+	                        </li>
+	                        <li>
+	                            <a href="ImportData.jsp">Import Roster</a>
+	                        </li>
+	                    </ul>
+	                </li>
+	                <li>
+	                    <a href="index-rtl.html"><i class="fa fa-fw fa-dashboard"></i> Display Utilization Center</a>
+	                </li>
+	                <li>
+	                    <a href="blank-page.html"><i class="fa fa-fw fa-file"></i> Generate Report</a>
+	                </li>
                 </ul>
             </div>
             <!-- /.navbar-collapse -->
@@ -191,29 +211,21 @@
         <div id="page-wrapper">
 
             <div class="container-fluid">
+            	<img src="img/appointmentsetting.png" alt="missing">
                 <!-- Page Heading -->
-                <img src="img/viewappointmentsimg.png" alt="missing">
-                    <div class="row">
-	                    <div class="col-lg-12">
-	                        <h1 class="page-header">
-	                            See Pending Exams by Term ID
-	                        </h1>
-	                    </div>
-	                </div>
-	                <div class="row">
-                        <form action="ApproveDenyResvList.jsp" method="post">
-	                		<div class="col-sm-6re">
-	                			
-	                			<div class="form-group input-group">
-			                        <span class="input-group-addon">Term ID</span>
-			                        <input name="termId" type="text" class="form-control" placeholder="IE:1158">
-			                    </div>
-			                    
-			                    <button type="submit" value="submit">Submit</button>
-				                
-							</div>
-						</form>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">
+                            <%if(success)
+                        	{%>Make Appointment Confirmed<%}
+                        	else{%>Make Appointment Failed<%}
+                        	%>
+                        </h1>
                     </div>
+                </div>
+                <div class="row">
+                	
+                </div>
             </div>
             <!-- /.container-fluid -->
 

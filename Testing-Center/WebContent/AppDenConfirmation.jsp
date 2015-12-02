@@ -189,7 +189,17 @@
         </nav>
 
         <div id="page-wrapper">
-
+					<%
+		                String email = session.getAttribute("email").toString();
+						String name = session.getAttribute("name").toString();
+						String examId = request.getParameter("examId").substring(0,request.getParameter("examId").length()-2);
+						String newStatus = request.getParameter("examId").substring(examId.length());
+						System.out.println(examId);
+						System.out.println(newStatus);
+					
+						Administrator admin = new Administrator(name, email);
+						admin.setExamStatus(examId, newStatus);
+               		%>
             <div class="container-fluid">
                 <!-- Page Heading -->
                 <img src="img/viewappointmentsimg.png" alt="missing">
@@ -200,20 +210,6 @@
 	                        </h1>
 	                    </div>
 	                </div>
-	                <div class="row">
-                        <form action="ApproveDenyResvList.jsp" method="post">
-	                		<div class="col-sm-6re">
-	                			
-	                			<div class="form-group input-group">
-			                        <span class="input-group-addon">Term ID</span>
-			                        <input name="termId" type="text" class="form-control" placeholder="IE:1158">
-			                    </div>
-			                    
-			                    <button type="submit" value="submit">Submit</button>
-				                
-							</div>
-						</form>
-                    </div>
             </div>
             <!-- /.container-fluid -->
 
