@@ -52,5 +52,61 @@ public class Course {
 	public String getCourseTerm() {
 		return courseTerm;
 	}
+	
+	public String getInstructor() {
+		return instructorId;
+	}
+
+	public String getCourseID() {
+		return courseID;
+	}
+
+	public void setCourseID(String courseID) {
+		this.courseID = courseID;
+	}
+
+	public String getSubject() {
+		return subject;
+	}
+
+	public void setSubject(String subject) {
+		this.subject = subject;
+	}
+
+	public int getCatalogNumber() {
+		return catalogNumber;
+	}
+
+	public void setCatalogNumber(int catalogNumber) {
+		this.catalogNumber = catalogNumber;
+	}
+
+	public String getSection() {
+		return section;
+	}
+
+	public void setSection(String section) {
+		this.section = section;
+	}
+
+	public String getInstructorId() {
+		return instructorId;
+	}
+
+	public void setInstructorId(String instructorId) {
+		this.instructorId = instructorId;
+	}
+
+	public int getTermId() {
+		return termId;
+	}
+
+	public void setTermId(int termId) {
+		this.termId = termId;
+	}
+
+	public void setCourseTerm(String courseTerm) {
+		this.courseTerm = courseTerm;
+	}
 
 }
