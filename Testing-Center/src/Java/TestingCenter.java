@@ -1113,11 +1113,11 @@ public class TestingCenter {
 		Collections.sort(exams, mapComparator);
 		Map<Long, String[]> seatsAvailable = insertExisting(exams);
 		System.out.println("existing done");
-		
+		System.out.println(exams.toString());
 		for ( Map<String, Object> exam : exams ) {
 			long start = (long) exam.get("start");
 			long end = (long) exam.get("end");
-			int len = (int) exam.get("examLength")*60;
+			int len = ((int) exam.get("examLength"))*60;
 			String examId = (String) exam.get("examId");
 			long gapPlusLen = len+(gap.getMinutes()*60);
 			long rem = gapPlusLen%1800;
@@ -1135,7 +1135,7 @@ public class TestingCenter {
 					examId));
 			int seatsLeft = (int) exam.get("numSeats") - apps.size();
 
-			while(seatsLeft != 0) {
+			while(seatsLeft > 0) {
 				System.out.println(seatsLeft);
 				System.out.println(new DateTime(start*1000));
 				System.out.println(new DateTime(apStart*1000));
@@ -1239,9 +1239,9 @@ public class TestingCenter {
 			
 		String queryString = String.format("SELECT examId, start, end, examStatus, numSeats, examLength, boolCourseExam,courseId,instructorIdA "
 				+ "FROM exam "
-				+ "WHERE (exam.start < '%s' AND exam.end > '%s') "
-				+ "OR (exam.start < '%s' AND exam.end BETWEEN '%s' AND '%s') "
-				+ "OR (exam.start > '%s' AND exam.start < '%s') ",
+				+ "WHERE (exam.start <= '%s' AND exam.end >= '%s') "
+				+ "OR (exam.start <= '%s' AND exam.end BETWEEN '%s' AND '%s') "
+				+ "OR (exam.start >= '%s' AND exam.start <= '%s') ",
 				start, end, start, end, end, start, end
 				);
 		List<Map<String,Object>> examList = db.query(queryString);
