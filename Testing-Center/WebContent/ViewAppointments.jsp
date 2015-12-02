@@ -1,4 +1,7 @@
 <%@page import="DBWorks.DBConnection"%>
+<%@page import="Java.*"%>
+<%@page import="java.util.*"%>
+<%@page import="org.joda.time.DateTime" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -191,15 +194,15 @@
                     <div class="row">
                         <div class="col-lg-6">
                         <!-- View appointments. The system displays all appointments and the number of available seats at the current time or a specified other time. -->
-                            <h2>Here are all the appointments</h2>
+                            <h2>Here are all the appointments currently active.</h2>
                             <div class="table-responsive">
                                 <table class="table table-bordered table-hover">
                                     <thead>
                                     <!-- Columns -->
                                         <tr class="active">
-                                            <th>Appointment</th>
-                                            <th>Time</th>
-                                            <th>Available Seats</th>
+                                            <th>Appointment ID</th>
+                                            <th>Net ID</th>
+                                            <th>Seat Number</th>
                                         </tr>
                                     <!-- /Columns -->
                                     </thead>
@@ -207,24 +210,32 @@
                                         <tr>
                                         <!-- HAVE NOT DONE TIME ENTERED AND AVAILAIBLE SEATS YET -->
                                         <%
-			                            	String query = "SELECT * FROM appointment";
-			                               	java.sql.ResultSet rs = DBConnection.ExecQuery(query);
-			                               	while(rs.next())
-			                               	{
-			                                    String appointment = rs.getString(5);
-			                                    String time = "na";
-			                                    String availSeats = "na";
+	                                    
+		                                    String email = session.getAttribute("email").toString();
+		                                    String name = session.getAttribute("name").toString();
+	
+		                                    Administrator admin = new Administrator(name, email);
+		                                    DateTimeUtil dtUtil = new DateTimeUtil();
+		                                    
+		                                    DateTime time = request.getParameter("time") == null ? DateTime.now() : new DateTime(Integer.parseInt(request.getParameter("time")));
+		                                    
+			                            	List<Appointment> appts = admin.viewAppointments(time);
+			                            	
+			                            	for (Appointment appt : appts) {
 		                              	%>
                                         <!-- row entries -->
-                                            <td><%out.print(appointment);%></td>
-                                            <td><%out.print(time);%></td>
-                                            <td><%out.print(availSeats);%></td>
+                                            <td><%out.print(appt.getAppointmentId());%></td>
+                                            <td><%out.print(appt.getNetId());%></td>
+                                            <td><%out.print(appt.getSeatNumber());%></td>
                                         <!-- /row entries -->    
                                         </tr>
                                         <%} %>
+                                        
                                     </tbody>
                                 </table>
                             </div>
+                            
+                        <span>There are <% out.print(TestingCenter.getTestingCenter().getNumSeats() - appts.size());%> seats open.</span>
                     <!-- /.row -->
                         </div>
                     </div>
