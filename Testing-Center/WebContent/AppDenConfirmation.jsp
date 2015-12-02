@@ -193,7 +193,7 @@
 		                String email = session.getAttribute("email").toString();
 						String name = session.getAttribute("name").toString();
 						String examId = request.getParameter("examId").substring(0,request.getParameter("examId").length()-2);
-						String newStatus = request.getParameter("examId").substring(examId.length());
+						String newStatus = request.getParameter("examId").substring(examId.length()+1);
 						System.out.println(examId);
 						System.out.println(newStatus);
 					
@@ -206,7 +206,10 @@
                     <div class="row">
 	                    <div class="col-lg-12">
 	                        <h1 class="page-header">
-	                            See Pending Exams by Term ID
+	                        	<%if(newStatus.equals("A"))
+	                        	{%>Approval Confirmed<%}
+	                        	else
+	                        	{%>Deny Confirmed<%}%>
 	                        </h1>
 	                    </div>
 	                </div>
