@@ -1,5 +1,6 @@
 <%@page import="DBWorks.DBConnection"%>
-<%@page import="java.util.Date"%>
+<%@page import="java.util.*"%>
+<%@page import="Java.*"%>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -203,13 +204,19 @@
                         <div class="col-sm-6">
                             <div class="intro-message">
                                 <h1>Check Student In<%
-                                String query = "SELECT FROM appointment WHERE studentIdA ='"+netId+"'";
-                                java.sql.ResultSet rs = DBConnection.ExecQuery(query);
-                            	if (rs.next()) 
+                                String email = session.getAttribute("email").toString();
+                                String name = session.getAttribute("name").toString();
+
+                                Administrator admin = new Administrator(name, email);
+                                DateTimeUtil dtUtil = new DateTimeUtil();
+                                
+                                int seatNumber = admin.checkInStudent(netId);
+                            	if (seatNumber != -1) 
 								{	
                             		Date now = new Date();
 									%>- Success</h1>
-                            		<h4 style="color:green">Student is checked in at <%out.print(now.toString()); %></h4>
+                            		<h4 style="color:green">
+                            			Student is checked in at <%out.print(now.toString()); %> in seat <%out.print(seatNumber); %></h4>
                             		<%
 								}
                             	else

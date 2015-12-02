@@ -425,11 +425,15 @@ public class TestingCenter {
 	}
 	
 	//Return a list of all appointments
-	public List<Appointment> viewAllAppointments() {
+	public List<Appointment> viewAllAppointments(DateTime time) {
 		logger.info("Retrieving all appointments");
 		
 		List<Appointment> appointments = new ArrayList<Appointment>();
-		String queryString = String.format("SELECT * FROM appointment "	);
+		String queryString = String.format("SELECT * FROM appointment "
+				+ "WHERE startTime < %d "
+				+ "AND endTime > %d",
+				time.getMillis()/1000,
+				time.getMillis()/1000);
 		List<Map<String,Object>> appts = db.query(queryString);
 		for (Map<String,Object> appt : appts) {
 			String examId = (String) appt.get("examId");

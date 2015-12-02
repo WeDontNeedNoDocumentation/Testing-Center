@@ -186,8 +186,8 @@ public class Administrator {
 	 * 
 	 * @return	All appointments 
 	 */
-	public List<Appointment> viewAppointments() {
-		return tC.viewAllAppointments();
+	public List<Appointment> viewAppointments(DateTime time) {
+		return tC.viewAllAppointments(time);
 	}
 	
 	/**
